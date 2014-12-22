@@ -1,0 +1,609 @@
+# epdfview Dutch translation
+# Copyright (C) 2010 Emma's Software
+# This file is distributed under the same license as the epdfview package.
+# Ronald van Engelen <rvengelen@hethooghuis.nl>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ePDFview 0.1.7\n"
+"Report-Msgid-Bugs-To: jordi@emma-soft.com\n"
+"POT-Creation-Date: 2011-05-28 12:26+0200\n"
+"PO-Revision-Date: 2010-03-10 17:07+0100\n"
+"Last-Translator: Ronald van Engelen <rvengelen@hethooghuis.nl>\n"
+"Language-Team: Dutch <nl@gnome.org>\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/FindPter.cxx:187
+msgid "No Results Found!"
+msgstr "Geen resultaten gevonden."
+
+#: src/FindPter.cxx:195
+#, c-format
+msgid "Searching in page %d of %d..."
+msgstr "Pagina %d uit %d wordt doorzocht... "
+
+#: src/IDocument.cxx:82
+msgid "No error."
+msgstr "Geen fout."
+
+#: src/IDocument.cxx:85
+msgid "Could not open file."
+msgstr ""
+
+#: src/IDocument.cxx:88
+msgid "Couldn't read the page catalog."
+msgstr "Kan de paginacatalogus niet vinden."
+
+#: src/IDocument.cxx:91
+msgid "The PDF file is damaged and can't be repaired."
+msgstr "Het PDF-bestand is beschadigd en kan niet gerepareerd worden."
+
+#: src/IDocument.cxx:94
+msgid "The file is encrypted and the password was incorrect or not supplied."
+msgstr ""
+"Het bestand is versleuteld en het opgegeven wachtwoord is ongeldig of leeg."
+
+#: src/IDocument.cxx:97
+msgid "Nonexistent or invalid highlight file."
+msgstr "Niet-bestaand of ongeldig highlight-bestand."
+
+#: src/IDocument.cxx:100
+msgid "Invalid printer."
+msgstr "Ongeldige printer."
+
+#: src/IDocument.cxx:103
+msgid "Error during printing."
+msgstr "Fout tijdens het afdrukken."
+
+#: src/IDocument.cxx:106
+msgid "The PDF file doesn't allow that operation."
+msgstr "Het PDF-bestand staat die actie niet toe."
+
+#: src/IDocument.cxx:109
+msgid "Invalid page number."
+msgstr "Ongeldig paginanummer."
+
+#: src/IDocument.cxx:112
+msgid "File I/O error."
+msgstr "Bestand I/O fout."
+
+#: src/IDocument.cxx:115
+#, c-format
+msgid "Unknown error (%d)."
+msgstr "Onbekende fout (%d)."
+
+#: src/main.cxx:91
+msgid "[FILE] - view PDF documents"
+msgstr "[BESTAND] - bekijk PDF-documenten"
+
+#: src/main.cxx:104 src/MainPter.cxx:156
+msgid "PDF Viewer"
+msgstr "PDF-lezer"
+
+#: src/MainPter.cxx:235
+#, c-format
+msgid "Reloading file %s..."
+msgstr "Bestand %s herladen..."
+
+#: src/MainPter.cxx:239
+#, c-format
+msgid "Loading file %s..."
+msgstr "Bestand %s wordt geopend..."
+
+#: src/MainPter.cxx:415 src/MainPter.cxx:897
+#, c-format
+msgid "of %d"
+msgstr "uit %d"
+
+#: src/MainPter.cxx:591
+#, c-format
+msgid "Saving document to %s..."
+msgstr "Document wordt opgeslagen in %s..."
+
+#: src/MainPter.cxx:835 src/MainPter.cxx:876
+msgid "Error Loading File"
+msgstr "Fout tijdens openen van bestand"
+
+#: src/MainPter.cxx:877
+msgid "The password you have supplied is not a valid password for this file."
+msgstr "Het opgegeven wachtwoord is ongeldig voor dit bestand."
+
+#: src/MainPter.cxx:962
+msgid "Error Saving File"
+msgstr "Fout bij het opslaan van bestand"
+
+#: src/PagePter.cxx:338
+msgid "Loading..."
+msgstr "Openen..."
+
+#: src/PrintPter.cxx:252
+msgid "A4"
+msgstr "A4"
+
+#: src/PrintPter.cxx:280
+msgid "300 DPI"
+msgstr "300 DPI"
+
+#: src/PrintPter.cxx:308
+msgid "Grayscale"
+msgstr "Grijswaarden"
+
+#: src/PrintPter.cxx:409
+msgid "Idle"
+msgstr "In rust"
+
+#: src/PrintPter.cxx:412
+msgid "Stopped"
+msgstr "Gestopt"
+
+#: src/PrintPter.cxx:415
+msgid "Processing"
+msgstr "Verwerken"
+
+#: src/PrintPter.cxx:418
+msgid "Unknown"
+msgstr "Onbekend"
+
+#: src/PDFDocument.cxx:275
+#, c-format
+msgid ""
+"Failed to load document '%s'.\n"
+"%s\n"
+msgstr ""
+"Het openen van bestand '%s' is niet gelukt.\n"
+"%s\n"
+
+#: src/gtk/FindView.cxx:58
+msgid "Find:"
+msgstr "Zoeken:"
+
+#: src/gtk/MainView.cxx:89
+msgid "_File"
+msgstr "_Bestand"
+
+#: src/gtk/MainView.cxx:90
+msgid "_Edit"
+msgstr "Be_werken"
+
+#: src/gtk/MainView.cxx:91
+msgid "_View"
+msgstr "Bee_ld"
+
+#: src/gtk/MainView.cxx:92
+msgid "_Go"
+msgstr "_Ga"
+
+#: src/gtk/MainView.cxx:93
+msgid "_Help"
+msgstr "_Hulp"
+
+#: src/gtk/MainView.cxx:95
+msgid "_Open"
+msgstr "_Openen"
+
+#: src/gtk/MainView.cxx:96
+msgid "Open a PDF document"
+msgstr "Open een PDF-bestand"
+
+#: src/gtk/MainView.cxx:99
+msgid "_Reload"
+msgstr "_Herladen"
+
+#: src/gtk/MainView.cxx:100
+msgid "Reload the current document"
+msgstr "Herlaadt het huidige bestand"
+
+#: src/gtk/MainView.cxx:103
+msgid "_Save a Copy..."
+msgstr "Een kopie _opslaan..."
+
+#: src/gtk/MainView.cxx:104
+msgid "Save a copy of the current document"
+msgstr "Sla een kopie van het huidige bestand op"
+
+#: src/gtk/MainView.cxx:108
+msgid "_Print..."
+msgstr "_Afdrukken..."
+
+#: src/gtk/MainView.cxx:109
+msgid "Print the current document"
+msgstr "Druk het huidige bestand af"
+
+#: src/gtk/MainView.cxx:113
+msgid "_Close"
+msgstr "_Sluiten"
+
+#: src/gtk/MainView.cxx:114
+msgid "Close this window"
+msgstr "Dit venster sluiten"
+
+#: src/gtk/MainView.cxx:117
+msgid "_Find"
+msgstr "_Zoeken"
+
+#: src/gtk/MainView.cxx:118
+msgid "Find a word in the document"
+msgstr "Zoek een woord in het bestand"
+
+#: src/gtk/MainView.cxx:121
+msgid "_Preferences..."
+msgstr "_Voorkeuren..."
+
+#: src/gtk/MainView.cxx:122
+msgid "Change the application's preferences"
+msgstr "Pas de voorkeuren voor de toepassing aan"
+
+#: src/gtk/MainView.cxx:125
+msgid "Zoom _In"
+msgstr "_Inzoomen"
+
+#: src/gtk/MainView.cxx:126
+msgid "Enlarge the document"
+msgstr "Het document inzoomen"
+
+#: src/gtk/MainView.cxx:129
+msgid "Zoom _Out"
+msgstr "_Uitzoomen"
+
+#: src/gtk/MainView.cxx:130
+msgid "Shrink the document"
+msgstr "Het document uitzoomen"
+
+#: src/gtk/MainView.cxx:133 src/gtk/StockIcons.cxx:43
+msgid "Rotate _Right"
+msgstr "_Rechts draaien"
+
+#: src/gtk/MainView.cxx:134
+msgid "Rotate the document 90 degrees clockwise"
+msgstr "Draai het document 90 graden met de klok mee"
+
+#: src/gtk/MainView.cxx:137 src/gtk/StockIcons.cxx:42
+msgid "Rotate _Left"
+msgstr "_Links draaien"
+
+#: src/gtk/MainView.cxx:138
+msgid "Rotate the document 90 degrees counter-clockwise"
+msgstr "Draai het document 90 graden tegen de klok in"
+
+#: src/gtk/MainView.cxx:141
+msgid "_First Page"
+msgstr "_Eerste pagina"
+
+#: src/gtk/MainView.cxx:142
+msgid "Go to the first page"
+msgstr "Ga naar de eerste pagina"
+
+#: src/gtk/MainView.cxx:145
+msgid "_Next Page"
+msgstr "V_olgende pagina"
+
+#: src/gtk/MainView.cxx:146
+msgid "Go to the next page"
+msgstr "Ga naar de volgende pagina"
+
+#: src/gtk/MainView.cxx:149
+msgid "_Previous Page"
+msgstr "Vo_rige pagina"
+
+#: src/gtk/MainView.cxx:150
+msgid "Go to the previous page"
+msgstr "Ga naar de vorige pagina"
+
+#: src/gtk/MainView.cxx:153
+msgid "_Last Page"
+msgstr "_Laatste pagina"
+
+#: src/gtk/MainView.cxx:154
+msgid "Go to the last page"
+msgstr "Ga naar de laatste pagina"
+
+#: src/gtk/MainView.cxx:157
+msgid "_About"
+msgstr "_Over"
+
+#: src/gtk/MainView.cxx:158
+msgid "Display application's credits"
+msgstr "Toon de credits van de toepassing"
+
+#: src/gtk/MainView.cxx:175
+msgid "F_ull screen"
+msgstr "Vo_lledig scherm"
+
+#: src/gtk/MainView.cxx:176
+msgid "Toggle full screen window"
+msgstr "Wissel van/naar volledig scherm venster"
+
+#: src/gtk/MainView.cxx:179
+msgid "Show _Toolbar"
+msgstr "_Werklbalk tonen"
+
+#: src/gtk/MainView.cxx:180
+msgid "Show or hide the toolbar"
+msgstr "Toon of verberg de werkbalk"
+
+#: src/gtk/MainView.cxx:183
+msgid "Show _Statusbar"
+msgstr "_Statusbalk tonen"
+
+#: src/gtk/MainView.cxx:184
+msgid "Show or hide the statusbar"
+msgstr "Toon of verberg de statusbalk"
+
+#: src/gtk/MainView.cxx:187
+msgid "Show I_ndex"
+msgstr "Toon _index"
+
+#: src/gtk/MainView.cxx:188
+msgid "Show or hide the document's outline"
+msgstr "Toon of verberg de structuur van het document"
+
+#: src/gtk/MainView.cxx:191
+msgid "Zoom to _Fit"
+msgstr "_Passend"
+
+#: src/gtk/MainView.cxx:192
+msgid "Make the current document fill the window"
+msgstr "Zoom het document zodat het het huidige venster vult"
+
+#: src/gtk/MainView.cxx:195 src/gtk/StockIcons.cxx:44
+msgid "Zoom to _Width"
+msgstr "Pagina_breed passend"
+
+#: src/gtk/MainView.cxx:196
+msgid "Make the current document fill the window width"
+msgstr "Zoom het document zodat het in de breedte van het venster past"
+
+#: src/gtk/MainView.cxx:202
+#, fuzzy
+msgid "Scroll"
+msgstr "Bladeren"
+
+#: src/gtk/MainView.cxx:203
+msgid "Mouse scroll page"
+msgstr "Blader door pagina met muis"
+
+#: src/gtk/MainView.cxx:205
+msgid "Select Text"
+msgstr "Selecteer tekst"
+
+#: src/gtk/MainView.cxx:206
+msgid " Mouse select text"
+msgstr "Selecteer tekst met muis"
+
+#: src/gtk/MainView.cxx:329
+msgid "Open PDF File"
+msgstr "Open PDF-bestand"
+
+#: src/gtk/MainView.cxx:349 src/gtk/MainView.cxx:465
+msgid "Portable Document Format (PDF) Files"
+msgstr "Portable Document Format (PDF) bestanden"
+
+#: src/gtk/MainView.cxx:361 src/gtk/MainView.cxx:477
+msgid "All Files"
+msgstr "Alle bestanden"
+
+#: src/gtk/MainView.cxx:413
+msgid "Password"
+msgstr "Wachtwoord"
+
+#: src/gtk/MainView.cxx:437
+msgid "Save PDF File"
+msgstr "Sla PDF-bestand op"
+
+#: src/gtk/MainView.cxx:869
+msgid "Page"
+msgstr "Pagina"
+
+#: src/gtk/MainView.cxx:879
+msgid "of 0"
+msgstr "uit 0"
+
+#: src/gtk/MainView.cxx:932
+msgid "Index"
+msgstr "Index"
+
+#: src/gtk/MainView.cxx:1002 src/gtk/MainView.cxx:1012
+#, c-format
+msgid "Error building UI manager: %s\n"
+msgstr "Fout tijdens het bouwen van de UI-manager: %s\n"
+
+#: src/gtk/MainView.cxx:1119
+msgid "A lightweight PDF viewer"
+msgstr "Een lichtgewicht PDF-bestandslezer"
+
+#: src/gtk/MainView.cxx:1122
+msgid ""
+"ePDFView is free software; you can redistribute it and/or modify\n"
+"it under the terms of the GNU General Public License as published by\n"
+"the Free Software Foundation; either version 2 of the License, or\n"
+"(at your option) any later version.\n"
+msgstr ""
+"epdfview is vrije software; u mag het opnieuw distribueren en/of wijzigen\n"
+"onder de voorwaarden van de GNU General Public License zoals gepubliceerd\n"
+"door de Free Software Foundation; ofwel versie 2 van deze licentie of\n"
+"(zo u wilt) een latere versie.\n"
+
+#: src/gtk/MainView.cxx:1126
+msgid ""
+"ePDFView is distributes in the hope that it will be useful,\n"
+"but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+"GNU General Public License for more details.\n"
+msgstr ""
+"epdfview wordt gedistibueerd in de hoop dat het nuttig zal zijn,\n"
+"maar ZONDER ENIGE GARANTIE; zonder zelfs de geïmpliceerde garantie\n"
+"van VERKOOPBAARHEID of GESCHIKTHEID VOOR EEN BEPAALD DOEL.  Zie de\n"
+"GNU General Public License voor meer details.\n"
+
+#: src/gtk/MainView.cxx:1130
+msgid ""
+"You should have received a copy of the GNU General Public License\n"
+"along with ePDFView; if not, write to the Free Software Foundation,Inc.,\n"
+"59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n"
+msgstr ""
+"U moet een kopie van de GNU General Public License hebben gekregen\n"
+"samen met Evince; zoniet, schrijf dan naar de \n"
+"Free Software Foundation, Inc.,\n"
+"59 Temple Place, Suite 330, Boston, MA 02111-1307  USA\n"
+
+#: src/gtk/MainView.cxx:1139
+msgid "ePDFView"
+msgstr "epdfview"
+
+#: src/gtk/MainView.cxx:1146
+msgid "translator-credits"
+msgstr ""
+"Ronald van Engelen <rvengelen@hethooghuis.nl>\n"
+"\n"
+"Kijk voor meer informatie op http://nl.gnome.org/"
+
+#: src/gtk/PreferencesView.cxx:32
+msgid "Preferences"
+msgstr "Voorkeuren"
+
+#: src/gtk/PreferencesView.cxx:46
+msgid "External Commands"
+msgstr "Externe opdrachten"
+
+#: src/gtk/PreferencesView.cxx:105
+msgid "Web _Browser:"
+msgstr "Web_browser:"
+
+#: src/gtk/PreferencesView.cxx:118
+#, c-format
+msgid "Note: <i>%s</i> will be replaced by the URI."
+msgstr "Opmerking: <i>%s</i> zak vervangen worden door de URI."
+
+#: src/gtk/PrintView.cxx:51
+msgid "Print"
+msgstr "Adrukken"
+
+#: src/gtk/PrintView.cxx:69 src/gtk/PrintView.cxx:667
+msgid "Printer"
+msgstr "Printer"
+
+#: src/gtk/PrintView.cxx:74
+msgid "Job"
+msgstr "Opdracht"
+
+#: src/gtk/PrintView.cxx:79
+msgid "Paper"
+msgstr "Papier"
+
+#: src/gtk/PrintView.cxx:359
+msgid "<b>Print Range</b>"
+msgstr "<b>Afdrukbereik</b>"
+
+#: src/gtk/PrintView.cxx:377
+msgid "_All pages"
+msgstr "Alle _pagina's"
+
+#: src/gtk/PrintView.cxx:380
+msgid "_Range:"
+msgstr "Pa_gina's;"
+
+#: src/gtk/PrintView.cxx:392
+msgid "<b>Page Set</b>"
+msgstr "<b>Paginabereik</b>"
+
+#: src/gtk/PrintView.cxx:408
+msgid "A_ll pages"
+msgstr "A_lle pagina's"
+
+#: src/gtk/PrintView.cxx:412
+msgid "O_dd pages"
+msgstr "_Oneven pagina's"
+
+#: src/gtk/PrintView.cxx:416
+msgid "_Even pages"
+msgstr "_Even pagina's"
+
+#: src/gtk/PrintView.cxx:420
+msgid "<b>Copies</b>"
+msgstr "<b>Kopieën</b>"
+
+#: src/gtk/PrintView.cxx:437
+msgid "N_umber of copies:"
+msgstr "_Aantal kopieën:"
+
+#: src/gtk/PrintView.cxx:444
+msgid "C_ollate"
+msgstr "_Sorteren"
+
+#: src/gtk/PrintView.cxx:465
+msgid "<b>Paper and Layout</b>"
+msgstr "<b>Papier en indeling</b>"
+
+#: src/gtk/PrintView.cxx:482
+msgid "Paper _Size:"
+msgstr "Papier_grootte:"
+
+#: src/gtk/PrintView.cxx:508
+msgid "Page _orientation:"
+msgstr "_Oriëntatie:"
+
+#: src/gtk/PrintView.cxx:539
+msgid "_Layout:"
+msgstr "_Indeling:"
+
+#: src/gtk/PrintView.cxx:568
+msgid "<b>Output</b>"
+msgstr "<b>Uitvoer</b>"
+
+#: src/gtk/PrintView.cxx:585
+msgid "_Mode:"
+msgstr "_Modus:"
+
+#: src/gtk/PrintView.cxx:613
+msgid "_Resolution:"
+msgstr "_Resolutie:"
+
+#: src/gtk/PrintView.cxx:676
+msgid "State"
+msgstr "Status"
+
+#: src/gtk/PrintView.cxx:685
+msgid "Jobs"
+msgstr "Opdrachten"
+
+#: src/gtk/PrintView.cxx:694
+msgid "Location"
+msgstr "Locatie"
+
+#: src/gtk/PrintView.cxx:725
+msgid "Plain"
+msgstr "Gewoon"
+
+#: src/gtk/PrintView.cxx:731
+msgid "2 pages in 1"
+msgstr "2 pagina's per bladzijde"
+
+#: src/gtk/PrintView.cxx:737
+msgid "4 pages in 1"
+msgstr "4 pagina's per bladzijde"
+
+#: src/gtk/PrintView.cxx:743
+msgid "6 pages in 1"
+msgstr "6 pagina's per bladzijde"
+
+#: src/gtk/PrintView.cxx:758
+msgid "Portrait"
+msgstr "Staand"
+
+#: src/gtk/PrintView.cxx:764
+msgid "Landscape"
+msgstr "Liggend"
+
+#: src/gtk/StockIcons.cxx:40
+msgid "Find _Next"
+msgstr "Zoek _volgende"
+
+#: src/gtk/StockIcons.cxx:41
+msgid "Find _Previous"
+msgstr "Zoek v_orige"
+
+#~ msgid "File not found."
+#~ msgstr "Bestand niet gevonden."

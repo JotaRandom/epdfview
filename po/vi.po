@@ -1,0 +1,606 @@
+# Vietnamese translations for ePDFView package
+# Copyright (C) 2006 Emma's Software
+# This file is distributed under the same license as the ePDFView package.
+#  <jordi@emma-soft.com>, 2006.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ePDFView 0.1.5\n"
+"Report-Msgid-Bugs-To: jordi@emma-soft.com\n"
+"POT-Creation-Date: 2011-05-28 12:26+0200\n"
+"PO-Revision-Date:  2006-06-14 20:11+0100\n"
+"Last-Translator:  VnPenguin <vnpenguin@gmail.com>\n"
+"Language-Team: Vietnamese <i18n@vnoss.org>\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/FindPter.cxx:187
+msgid "No Results Found!"
+msgstr "Không tìm thấy kết quả!"
+
+#: src/FindPter.cxx:195
+#, c-format
+msgid "Searching in page %d of %d..."
+msgstr "Tìm kiếm trong trang %d / %d ..."
+
+#: src/IDocument.cxx:82
+msgid "No error."
+msgstr "Không có lỗi."
+
+#: src/IDocument.cxx:85
+msgid "Could not open file."
+msgstr ""
+
+#: src/IDocument.cxx:88
+msgid "Couldn't read the page catalog."
+msgstr "Không thể đọc catalog của trang."
+
+#: src/IDocument.cxx:91
+msgid "The PDF file is damaged and can't be repaired."
+msgstr "File PDF bị hỏng, không thể sửa chữa được."
+
+#: src/IDocument.cxx:94
+msgid "The file is encrypted and the password was incorrect or not supplied."
+msgstr "File đã được mã hóa và mật mã là không hợp lệ hoặc không có mật mã"
+
+#: src/IDocument.cxx:97
+msgid "Nonexistent or invalid highlight file."
+msgstr "File chọn là không có hoặc không hợp lệ."
+
+#: src/IDocument.cxx:100
+msgid "Invalid printer."
+msgstr "Máy in không hợp lệ."
+
+#: src/IDocument.cxx:103
+msgid "Error during printing."
+msgstr "Lỗi trong lúc in."
+
+#: src/IDocument.cxx:106
+msgid "The PDF file doesn't allow that operation."
+msgstr "File PDF không cho phép theo tác này."
+
+#: src/IDocument.cxx:109
+msgid "Invalid page number."
+msgstr "Số trang không hợp lệ."
+
+#: src/IDocument.cxx:112
+msgid "File I/O error."
+msgstr "Lỗi vào/ra file."
+
+#: src/IDocument.cxx:115
+#, c-format
+msgid "Unknown error (%d)."
+msgstr "Lỗi không xác định (%d)."
+
+#: src/main.cxx:91
+msgid "[FILE] - view PDF documents"
+msgstr "[FILE] - xem tài liệu PDF"
+
+#: src/main.cxx:104 src/MainPter.cxx:156
+msgid "PDF Viewer"
+msgstr "Trình xem PDF"
+
+#: src/MainPter.cxx:235
+#, c-format
+msgid "Reloading file %s..."
+msgstr "Đang tải lại file %s..."
+
+#: src/MainPter.cxx:239
+#, c-format
+msgid "Loading file %s..."
+msgstr "Tải file %s..."
+
+#: src/MainPter.cxx:415 src/MainPter.cxx:897
+#, c-format
+msgid "of %d"
+msgstr "của %d"
+
+#: src/MainPter.cxx:591
+#, c-format
+msgid "Saving document to %s..."
+msgstr "Đang ghi tài liệu vào %s..."
+
+#: src/MainPter.cxx:835 src/MainPter.cxx:876
+msgid "Error Loading File"
+msgstr "Lỗi tải file"
+
+#: src/MainPter.cxx:877
+msgid "The password you have supplied is not a valid password for this file."
+msgstr "Mật mã mà bạn cung cấp là không hợp lệ cho file này."
+
+#: src/MainPter.cxx:962
+msgid "Error Saving File"
+msgstr "Lỗi ghi file"
+
+#: src/PagePter.cxx:338
+msgid "Loading..."
+msgstr "Đang tải ..."
+
+#: src/PrintPter.cxx:252
+msgid "A4"
+msgstr ""
+
+#: src/PrintPter.cxx:280
+msgid "300 DPI"
+msgstr ""
+
+#: src/PrintPter.cxx:308
+msgid "Grayscale"
+msgstr "Kiểu đen trắng"
+
+#: src/PrintPter.cxx:409
+msgid "Idle"
+msgstr "Nghỉ"
+
+#: src/PrintPter.cxx:412
+msgid "Stopped"
+msgstr "Dừng"
+
+#: src/PrintPter.cxx:415
+msgid "Processing"
+msgstr "Đang xử lý"
+
+#: src/PrintPter.cxx:418
+msgid "Unknown"
+msgstr "Không xác định"
+
+#: src/PDFDocument.cxx:275
+#, c-format
+msgid ""
+"Failed to load document '%s'.\n"
+"%s\n"
+msgstr ""
+"Lỗi khi tải tài liệu '%s'.\n"
+"%s\n"
+
+#: src/gtk/FindView.cxx:58
+msgid "Find:"
+msgstr "Tìm kiếm:"
+
+#: src/gtk/MainView.cxx:89
+msgid "_File"
+msgstr "_File"
+
+#: src/gtk/MainView.cxx:90
+msgid "_Edit"
+msgstr "_Sửa đổi"
+
+#: src/gtk/MainView.cxx:91
+msgid "_View"
+msgstr "_Xem"
+
+#: src/gtk/MainView.cxx:92
+msgid "_Go"
+msgstr "_Chuyển trang"
+
+#: src/gtk/MainView.cxx:93
+msgid "_Help"
+msgstr "_Trợ giúp"
+
+#: src/gtk/MainView.cxx:95
+msgid "_Open"
+msgstr "_Mở file"
+
+#: src/gtk/MainView.cxx:96
+msgid "Open a PDF document"
+msgstr "Mở một tài liệu PDF"
+
+#: src/gtk/MainView.cxx:99
+msgid "_Reload"
+msgstr "_Tải lại"
+
+#: src/gtk/MainView.cxx:100
+msgid "Reload the current document"
+msgstr "Tải lại tài liệu hiện tại"
+
+#: src/gtk/MainView.cxx:103
+msgid "_Save a Copy..."
+msgstr "_Lưu một bản..."
+
+#: src/gtk/MainView.cxx:104
+msgid "Save a copy of the current document"
+msgstr "Lưu một bản của tài liệu hiện tại"
+
+#: src/gtk/MainView.cxx:108
+msgid "_Print..."
+msgstr "_In ra..."
+
+#: src/gtk/MainView.cxx:109
+msgid "Print the current document"
+msgstr "In tài liệu hiện tại"
+
+#: src/gtk/MainView.cxx:113
+msgid "_Close"
+msgstr "_Đóng"
+
+#: src/gtk/MainView.cxx:114
+msgid "Close this window"
+msgstr "Đóng cửa sổ này"
+
+#: src/gtk/MainView.cxx:117
+msgid "_Find"
+msgstr "_Tìm"
+
+#: src/gtk/MainView.cxx:118
+msgid "Find a word in the document"
+msgstr "Tìm một từ trong tài liệu"
+
+#: src/gtk/MainView.cxx:121
+#, fuzzy
+msgid "_Preferences..."
+msgstr "Xác lập..."
+
+#: src/gtk/MainView.cxx:122
+msgid "Change the application's preferences"
+msgstr "Thay đổi các xác lập của ứng dụng"
+
+#: src/gtk/MainView.cxx:125
+msgid "Zoom _In"
+msgstr "Phóng _to"
+
+#: src/gtk/MainView.cxx:126
+msgid "Enlarge the document"
+msgstr "Phóng to tài liệu"
+
+#: src/gtk/MainView.cxx:129
+msgid "Zoom _Out"
+msgstr "Thu _nhỏ"
+
+#: src/gtk/MainView.cxx:130
+msgid "Shrink the document"
+msgstr "Thu nhỏ tài liệu"
+
+#: src/gtk/MainView.cxx:133 src/gtk/StockIcons.cxx:43
+msgid "Rotate _Right"
+msgstr "Quay _phải"
+
+#: src/gtk/MainView.cxx:134
+msgid "Rotate the document 90 degrees clockwise"
+msgstr "Quay tài liệu hiện tại 90 độ theo chiều kim đồng hồ"
+
+#: src/gtk/MainView.cxx:137 src/gtk/StockIcons.cxx:42
+msgid "Rotate _Left"
+msgstr "Quay _trái"
+
+#: src/gtk/MainView.cxx:138
+msgid "Rotate the document 90 degrees counter-clockwise"
+msgstr "Quay tài liệu hiện tại 90 độ theo ngược chiều kim đồng hồ"
+
+#: src/gtk/MainView.cxx:141
+msgid "_First Page"
+msgstr "_Trang đầu tiên"
+
+#: src/gtk/MainView.cxx:142
+msgid "Go to the first page"
+msgstr "Đi đến trang đầu tiên"
+
+#: src/gtk/MainView.cxx:145
+msgid "_Next Page"
+msgstr "Trang _kế"
+
+#: src/gtk/MainView.cxx:146
+msgid "Go to the next page"
+msgstr "Đi đến trang kế tiếp"
+
+#: src/gtk/MainView.cxx:149
+msgid "_Previous Page"
+msgstr "Trang trước"
+
+#: src/gtk/MainView.cxx:150
+msgid "Go to the previous page"
+msgstr "Đi đến trang trước"
+
+#: src/gtk/MainView.cxx:153
+msgid "_Last Page"
+msgstr "Trang cuối"
+
+#: src/gtk/MainView.cxx:154
+msgid "Go to the last page"
+msgstr "Đi đến trang cuối"
+
+#: src/gtk/MainView.cxx:157
+msgid "_About"
+msgstr "_Về..."
+
+#: src/gtk/MainView.cxx:158
+msgid "Display application's credits"
+msgstr "Hiển thị danh sách đóng góp"
+
+#: src/gtk/MainView.cxx:175
+msgid "F_ull screen"
+msgstr ""
+
+#: src/gtk/MainView.cxx:176
+msgid "Toggle full screen window"
+msgstr ""
+
+#: src/gtk/MainView.cxx:179
+msgid "Show _Toolbar"
+msgstr "Hiển thị thanh công cụ"
+
+#: src/gtk/MainView.cxx:180
+msgid "Show or hide the toolbar"
+msgstr "Hiển thị hoặc dấu thanh công cụ"
+
+#: src/gtk/MainView.cxx:183
+msgid "Show _Statusbar"
+msgstr "Hiển thị thanh trạng thái"
+
+#: src/gtk/MainView.cxx:184
+msgid "Show or hide the statusbar"
+msgstr "Hiển thị hoặc dấu thanh trạng thái"
+
+#: src/gtk/MainView.cxx:187
+msgid "Show I_ndex"
+msgstr "Hiển thị chỉ mục"
+
+#: src/gtk/MainView.cxx:188
+msgid "Show or hide the document's outline"
+msgstr "Hiển thị hoặc dấu hình dáng bên ngoài của tài liệu"
+
+#: src/gtk/MainView.cxx:191
+msgid "Zoom to _Fit"
+msgstr "Hiệu chỉnh _hợp với cửa sổ"
+
+#: src/gtk/MainView.cxx:192
+msgid "Make the current document fill the window"
+msgstr "Hiệu chỉnh tài liệu hiện tại lấp đầy cửa sổ"
+
+#: src/gtk/MainView.cxx:195 src/gtk/StockIcons.cxx:44
+msgid "Zoom to _Width"
+msgstr "Hiệu chỉnh theo bề _rộng trang"
+
+#: src/gtk/MainView.cxx:196
+msgid "Make the current document fill the window width"
+msgstr "Hiệu chỉnh tài liệu hiện tại hợp với bề rộng trang"
+
+#: src/gtk/MainView.cxx:202
+msgid "Scroll"
+msgstr ""
+
+#: src/gtk/MainView.cxx:203
+msgid "Mouse scroll page"
+msgstr ""
+
+#: src/gtk/MainView.cxx:205
+msgid "Select Text"
+msgstr ""
+
+#: src/gtk/MainView.cxx:206
+msgid " Mouse select text"
+msgstr ""
+
+#: src/gtk/MainView.cxx:329
+msgid "Open PDF File"
+msgstr "Mở file PDF"
+
+#: src/gtk/MainView.cxx:349 src/gtk/MainView.cxx:465
+msgid "Portable Document Format (PDF) Files"
+msgstr "file PDF"
+
+#: src/gtk/MainView.cxx:361 src/gtk/MainView.cxx:477
+msgid "All Files"
+msgstr "Tất cả các file"
+
+#: src/gtk/MainView.cxx:413
+msgid "Password"
+msgstr "Mật mã"
+
+#: src/gtk/MainView.cxx:437
+msgid "Save PDF File"
+msgstr "Lưu file PDF"
+
+#: src/gtk/MainView.cxx:869
+msgid "Page"
+msgstr "Trang"
+
+#: src/gtk/MainView.cxx:879
+msgid "of 0"
+msgstr "0/0"
+
+#: src/gtk/MainView.cxx:932
+msgid "Index"
+msgstr "Chỉ mục"
+
+#: src/gtk/MainView.cxx:1002 src/gtk/MainView.cxx:1012
+#, c-format
+msgid "Error building UI manager: %s\n"
+msgstr "Lỗi khi tạo quản lý giao diện người dùng: %s\n"
+
+#: src/gtk/MainView.cxx:1119
+msgid "A lightweight PDF viewer"
+msgstr "Một trình xem PDF nhỏ gọn"
+
+#: src/gtk/MainView.cxx:1122
+msgid ""
+"ePDFView is free software; you can redistribute it and/or modify\n"
+"it under the terms of the GNU General Public License as published by\n"
+"the Free Software Foundation; either version 2 of the License, or\n"
+"(at your option) any later version.\n"
+msgstr ""
+"ePDFView là phần mềm mã nguồn mở; bạn có thể phân phối lại nó\n"
+" và/hoặc thay đổi theo điều khoản của giấy phép GNU GPL công bố \n"
+"bởi Free Software Foundation; phiên bản 2 hoặc (theo lựa chọn của bạn)\n"
+" bất kì phiên bản mới nào.\n"
+
+#: src/gtk/MainView.cxx:1126
+msgid ""
+"ePDFView is distributes in the hope that it will be useful,\n"
+"but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+"GNU General Public License for more details.\n"
+msgstr ""
+"ePDFView được phân phối với hy vọng là nó có ích,\n"
+" nhưng KHÔNG CÓ BẤT KÌ MỘT SỰ BẢO ĐẢM NÀO CẢ; không có bảo đảm \n"
+"ngay cả cho MERCHANTABILITY hoặc FITNESS FOR A PARTICULAR PURPOSE.\n"
+" Xem giấy phép GNU GPL để biết thêm chi tiết.\n"
+
+#: src/gtk/MainView.cxx:1130
+msgid ""
+"You should have received a copy of the GNU General Public License\n"
+"along with ePDFView; if not, write to the Free Software Foundation,Inc.,\n"
+"59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n"
+msgstr ""
+"Bạn có thể nhận một bản copy của giấy phép GNU GPL cùng với \n"
+"ePDFView; nếu không, thì hãy liên lạc Free Software Foundation, Inc., 59 "
+"Temple Place, Suite 330, Boston, MA 02111-1307 USA\n"
+
+#: src/gtk/MainView.cxx:1139
+msgid "ePDFView"
+msgstr "ePDFView"
+
+#: src/gtk/MainView.cxx:1146
+msgid "translator-credits"
+msgstr "VnPenguin <vnpenguin@gmail.com>"
+
+#: src/gtk/PreferencesView.cxx:32
+msgid "Preferences"
+msgstr "Xác lập"
+
+#: src/gtk/PreferencesView.cxx:46
+msgid "External Commands"
+msgstr "Lệnh ngoài"
+
+#: src/gtk/PreferencesView.cxx:105
+msgid "Web _Browser:"
+msgstr "Trình duyệt web:"
+
+#: src/gtk/PreferencesView.cxx:118
+#, c-format
+msgid "Note: <i>%s</i> will be replaced by the URI."
+msgstr "Chú ý: <i>%s</i> sẽ được thay thế bằng URI."
+
+#: src/gtk/PrintView.cxx:51
+msgid "Print"
+msgstr "In"
+
+#: src/gtk/PrintView.cxx:69 src/gtk/PrintView.cxx:667
+msgid "Printer"
+msgstr "Máy in"
+
+#: src/gtk/PrintView.cxx:74
+msgid "Job"
+msgstr "Tác vụ in ấn"
+
+#: src/gtk/PrintView.cxx:79
+msgid "Paper"
+msgstr "Trang"
+
+#: src/gtk/PrintView.cxx:359
+msgid "<b>Print Range</b>"
+msgstr "<b>Phạm vi in ra</b>"
+
+#: src/gtk/PrintView.cxx:377
+msgid "_All pages"
+msgstr "Tất cả các trang"
+
+#: src/gtk/PrintView.cxx:380
+msgid "_Range:"
+msgstr "Phạm vi:"
+
+#: src/gtk/PrintView.cxx:392
+msgid "<b>Page Set</b>"
+msgstr "<b>Nhóm trang</b>"
+
+#: src/gtk/PrintView.cxx:408
+msgid "A_ll pages"
+msgstr "Tất cả các trang"
+
+#: src/gtk/PrintView.cxx:412
+msgid "O_dd pages"
+msgstr "Trang lẻ"
+
+#: src/gtk/PrintView.cxx:416
+msgid "_Even pages"
+msgstr "Trang chẵn"
+
+#: src/gtk/PrintView.cxx:420
+msgid "<b>Copies</b>"
+msgstr "<b>Số bản in</b>"
+
+#: src/gtk/PrintView.cxx:437
+msgid "N_umber of copies:"
+msgstr "_Số bản in:"
+
+#: src/gtk/PrintView.cxx:444
+msgid "C_ollate"
+msgstr "Thứ tự in"
+
+#: src/gtk/PrintView.cxx:465
+msgid "<b>Paper and Layout</b>"
+msgstr "<b>Trang và hiển thị</b>"
+
+#: src/gtk/PrintView.cxx:482
+msgid "Paper _Size:"
+msgstr "Kích thước trang:"
+
+#: src/gtk/PrintView.cxx:508
+msgid "Page _orientation:"
+msgstr "Định hướng của trang:"
+
+#: src/gtk/PrintView.cxx:539
+msgid "_Layout:"
+msgstr "Kiểu hiển thị:"
+
+#: src/gtk/PrintView.cxx:568
+msgid "<b>Output</b>"
+msgstr "<b>Xuất ra</b>"
+
+#: src/gtk/PrintView.cxx:585
+msgid "_Mode:"
+msgstr "Kiểu:"
+
+#: src/gtk/PrintView.cxx:613
+msgid "_Resolution:"
+msgstr "Độ phân giải:"
+
+#: src/gtk/PrintView.cxx:676
+msgid "State"
+msgstr "Trạng thái"
+
+#: src/gtk/PrintView.cxx:685
+msgid "Jobs"
+msgstr "Tác vụ in ấn"
+
+#: src/gtk/PrintView.cxx:694
+msgid "Location"
+msgstr "Địa điểm"
+
+#: src/gtk/PrintView.cxx:725
+msgid "Plain"
+msgstr "Đơn giản"
+
+#: src/gtk/PrintView.cxx:731
+msgid "2 pages in 1"
+msgstr "2 trang trong 1"
+
+#: src/gtk/PrintView.cxx:737
+msgid "4 pages in 1"
+msgstr "4 trang trong 1"
+
+#: src/gtk/PrintView.cxx:743
+#, fuzzy
+msgid "6 pages in 1"
+msgstr "2 trang trong 1"
+
+#: src/gtk/PrintView.cxx:758
+msgid "Portrait"
+msgstr "Kiểu chân dung"
+
+#: src/gtk/PrintView.cxx:764
+msgid "Landscape"
+msgstr "Kiểu phong cảnh"
+
+#: src/gtk/StockIcons.cxx:40
+msgid "Find _Next"
+msgstr "Tìm _tiếp"
+
+#: src/gtk/StockIcons.cxx:41
+msgid "Find _Previous"
+msgstr "Tìm _ngược"
+
+#~ msgid "File not found."
+#~ msgstr "Không tìm thấy file."

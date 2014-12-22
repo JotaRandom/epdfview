@@ -1,0 +1,607 @@
+# ePDFView Hebrew Localization.
+# Copyright (C) 2009 Emma's Software
+# This file is distributed under the same license as the ePDFView package.
+# Yaron Shahrabani <sh.yaron@gmail.com>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ePDFView 0.1.7\n"
+"Report-Msgid-Bugs-To: jordi@emma-soft.com\n"
+"POT-Creation-Date: 2011-05-28 12:26+0200\n"
+"PO-Revision-Date: 2009-03-04 00:39+0200\n"
+"Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
+"Language-Team: Hebrew <none@none.org>\n"
+"Language: he\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Language: Hebrew\n"
+"X-Poedit-Country: ISRAEL\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: src/FindPter.cxx:187
+msgid "No Results Found!"
+msgstr "לא נמצאו תוצאות!"
+
+#: src/FindPter.cxx:195
+#, c-format
+msgid "Searching in page %d of %d..."
+msgstr "חיפוש בעמוד %d מתוך %d..."
+
+#: src/IDocument.cxx:82
+msgid "No error."
+msgstr "אין שגיאה."
+
+#: src/IDocument.cxx:85
+msgid "Could not open file."
+msgstr ""
+
+#: src/IDocument.cxx:88
+msgid "Couldn't read the page catalog."
+msgstr "לא ניתן לקרוא את קטלוג העמוד."
+
+#: src/IDocument.cxx:91
+msgid "The PDF file is damaged and can't be repaired."
+msgstr "קובץ ה־PDF פגום ולא ניתן לתקנו."
+
+#: src/IDocument.cxx:94
+msgid "The file is encrypted and the password was incorrect or not supplied."
+msgstr "הקובץ מוצפן והסיסמה אינה נכונה או שלא סופקה."
+
+#: src/IDocument.cxx:97
+msgid "Nonexistent or invalid highlight file."
+msgstr "קובץ ההדגשה פגום או שאינו קיים."
+
+#: src/IDocument.cxx:100
+msgid "Invalid printer."
+msgstr "מדפסת שגויה."
+
+#: src/IDocument.cxx:103
+msgid "Error during printing."
+msgstr "שגיאה במהלך ההדפסה."
+
+#: src/IDocument.cxx:106
+msgid "The PDF file doesn't allow that operation."
+msgstr "קובץ ה־PDF אינו מרשה פעולה כזאת."
+
+#: src/IDocument.cxx:109
+msgid "Invalid page number."
+msgstr "מספר העמוד שגוי."
+
+#: src/IDocument.cxx:112
+msgid "File I/O error."
+msgstr "שגיאת קלט/פלט בקובץ"
+
+#: src/IDocument.cxx:115
+#, c-format
+msgid "Unknown error (%d)."
+msgstr "שגיאה לא ידועה (%d)."
+
+#: src/main.cxx:91
+msgid "[FILE] - view PDF documents"
+msgstr "[FILE] - צפיה במסמכי PDF"
+
+#: src/main.cxx:104 src/MainPter.cxx:156
+msgid "PDF Viewer"
+msgstr "מציג PDF"
+
+#: src/MainPter.cxx:235
+#, c-format
+msgid "Reloading file %s..."
+msgstr "טעינת הקובץ %s מחדש..."
+
+#: src/MainPter.cxx:239
+#, c-format
+msgid "Loading file %s..."
+msgstr "טעינת הקובץ %s..."
+
+#: src/MainPter.cxx:415 src/MainPter.cxx:897
+#, c-format
+msgid "of %d"
+msgstr "מתוך %d"
+
+#: src/MainPter.cxx:591
+#, c-format
+msgid "Saving document to %s..."
+msgstr "שמירת המסמך אל %s..."
+
+#: src/MainPter.cxx:835 src/MainPter.cxx:876
+msgid "Error Loading File"
+msgstr "שגיאה בטעינת הקובץ"
+
+#: src/MainPter.cxx:877
+msgid "The password you have supplied is not a valid password for this file."
+msgstr "הסיסמה שסופקה אינה סיסמה התקפה לקובץ זה."
+
+#: src/MainPter.cxx:962
+msgid "Error Saving File"
+msgstr "שגיאה בשמירת הקובץ"
+
+#: src/PagePter.cxx:338
+msgid "Loading..."
+msgstr "נטען..."
+
+#: src/PrintPter.cxx:252
+msgid "A4"
+msgstr "A4"
+
+#: src/PrintPter.cxx:280
+msgid "300 DPI"
+msgstr "300 DPI"
+
+#: src/PrintPter.cxx:308
+msgid "Grayscale"
+msgstr "גווני אפור"
+
+#: src/PrintPter.cxx:409
+msgid "Idle"
+msgstr "בהמתנה"
+
+#: src/PrintPter.cxx:412
+msgid "Stopped"
+msgstr "נעצר"
+
+#: src/PrintPter.cxx:415
+msgid "Processing"
+msgstr "מעבד"
+
+#: src/PrintPter.cxx:418
+msgid "Unknown"
+msgstr "לא ידוע"
+
+#: src/PDFDocument.cxx:275
+#, c-format
+msgid ""
+"Failed to load document '%s'.\n"
+"%s\n"
+msgstr ""
+"כשל בטעינת המסמך '%s'.\n"
+"%s\n"
+
+#: src/gtk/FindView.cxx:58
+msgid "Find:"
+msgstr "חיפוש:"
+
+#: src/gtk/MainView.cxx:89
+msgid "_File"
+msgstr "_קובץ"
+
+#: src/gtk/MainView.cxx:90
+msgid "_Edit"
+msgstr "_עריכה"
+
+#: src/gtk/MainView.cxx:91
+msgid "_View"
+msgstr "_תצוגה"
+
+#: src/gtk/MainView.cxx:92
+msgid "_Go"
+msgstr "_מעבר"
+
+#: src/gtk/MainView.cxx:93
+msgid "_Help"
+msgstr "ע_זרה"
+
+#: src/gtk/MainView.cxx:95
+msgid "_Open"
+msgstr "_פתיחה"
+
+#: src/gtk/MainView.cxx:96
+msgid "Open a PDF document"
+msgstr "פתיחת מסמך PDF"
+
+#: src/gtk/MainView.cxx:99
+msgid "_Reload"
+msgstr "_טעינה מחדש"
+
+#: src/gtk/MainView.cxx:100
+msgid "Reload the current document"
+msgstr "טעינת המסמך הנוכחי מחדש"
+
+#: src/gtk/MainView.cxx:103
+msgid "_Save a Copy..."
+msgstr "ש_מירת עותק..."
+
+#: src/gtk/MainView.cxx:104
+msgid "Save a copy of the current document"
+msgstr "שמירת עותק של המסמך הנוכחי"
+
+#: src/gtk/MainView.cxx:108
+msgid "_Print..."
+msgstr "ה_דפסה..."
+
+#: src/gtk/MainView.cxx:109
+msgid "Print the current document"
+msgstr "הדפסת המסמך הנוכחי"
+
+#: src/gtk/MainView.cxx:113
+msgid "_Close"
+msgstr "_סגירה"
+
+#: src/gtk/MainView.cxx:114
+msgid "Close this window"
+msgstr "סגירת החלון"
+
+#: src/gtk/MainView.cxx:117
+msgid "_Find"
+msgstr "_חיפוש"
+
+#: src/gtk/MainView.cxx:118
+msgid "Find a word in the document"
+msgstr "חיפוש במילה במסמך"
+
+#: src/gtk/MainView.cxx:121
+msgid "_Preferences..."
+msgstr "ה_עדפות..."
+
+#: src/gtk/MainView.cxx:122
+msgid "Change the application's preferences"
+msgstr "שינוי העדפות היישום"
+
+#: src/gtk/MainView.cxx:125
+msgid "Zoom _In"
+msgstr "הת_קרבות"
+
+#: src/gtk/MainView.cxx:126
+msgid "Enlarge the document"
+msgstr "הגדלת המסמך"
+
+#: src/gtk/MainView.cxx:129
+msgid "Zoom _Out"
+msgstr "הת_רחקות"
+
+#: src/gtk/MainView.cxx:130
+msgid "Shrink the document"
+msgstr "כיווץ המסמך"
+
+#: src/gtk/MainView.cxx:133 src/gtk/StockIcons.cxx:43
+msgid "Rotate _Right"
+msgstr "הטייה י_מינה"
+
+#: src/gtk/MainView.cxx:134
+msgid "Rotate the document 90 degrees clockwise"
+msgstr "הטיית המסמך ב־90 מעלות עם כיוון השעון"
+
+#: src/gtk/MainView.cxx:137 src/gtk/StockIcons.cxx:42
+msgid "Rotate _Left"
+msgstr "הטייה _שמאלה"
+
+#: src/gtk/MainView.cxx:138
+msgid "Rotate the document 90 degrees counter-clockwise"
+msgstr "הטיית המסמך ב־90 מעלות נגד כיוון השעון"
+
+#: src/gtk/MainView.cxx:141
+msgid "_First Page"
+msgstr "העמוד הר_אשון"
+
+#: src/gtk/MainView.cxx:142
+msgid "Go to the first page"
+msgstr "מעבר אל העמוד הראשון"
+
+#: src/gtk/MainView.cxx:145
+msgid "_Next Page"
+msgstr "העמוד ה_בא"
+
+#: src/gtk/MainView.cxx:146
+msgid "Go to the next page"
+msgstr "מעבר אל העמוד הבא"
+
+#: src/gtk/MainView.cxx:149
+msgid "_Previous Page"
+msgstr "העמוד ה_קודם"
+
+#: src/gtk/MainView.cxx:150
+msgid "Go to the previous page"
+msgstr "מעבר אל העמוד הקודם"
+
+#: src/gtk/MainView.cxx:153
+msgid "_Last Page"
+msgstr "העמוד הא_חרון"
+
+#: src/gtk/MainView.cxx:154
+msgid "Go to the last page"
+msgstr "מעבר אל העמוד האחרון"
+
+#: src/gtk/MainView.cxx:157
+msgid "_About"
+msgstr "_אודות"
+
+#: src/gtk/MainView.cxx:158
+msgid "Display application's credits"
+msgstr "הצגת מסך התודות של היישום"
+
+#: src/gtk/MainView.cxx:175
+msgid "F_ull screen"
+msgstr "מ_סך מלא"
+
+#: src/gtk/MainView.cxx:176
+msgid "Toggle full screen window"
+msgstr "החלפה בין מסך מלא לרגיל"
+
+#: src/gtk/MainView.cxx:179
+msgid "Show _Toolbar"
+msgstr "הצגת סרגל ה_כלים"
+
+#: src/gtk/MainView.cxx:180
+msgid "Show or hide the toolbar"
+msgstr "הצגה או הסתרה של סרגל הכלים"
+
+#: src/gtk/MainView.cxx:183
+msgid "Show _Statusbar"
+msgstr "הצגת _שורת המצב"
+
+#: src/gtk/MainView.cxx:184
+msgid "Show or hide the statusbar"
+msgstr "הצגה או הסתרה של שורת המצב"
+
+#: src/gtk/MainView.cxx:187
+msgid "Show I_ndex"
+msgstr "הצגת האי_נדקס"
+
+#: src/gtk/MainView.cxx:188
+msgid "Show or hide the document's outline"
+msgstr "הצגה או הסתרה של מבנה המסמך"
+
+#: src/gtk/MainView.cxx:191
+msgid "Zoom to _Fit"
+msgstr "תקריב לה_תאמה"
+
+#: src/gtk/MainView.cxx:192
+msgid "Make the current document fill the window"
+msgstr "פריסת המסמך הנוכחי כך שימלא את החלון"
+
+#: src/gtk/MainView.cxx:195 src/gtk/StockIcons.cxx:44
+msgid "Zoom to _Width"
+msgstr "תקריב ל_רוחב"
+
+#: src/gtk/MainView.cxx:196
+msgid "Make the current document fill the window width"
+msgstr "פריסת המסמך הנוכחי כך שימלא את כל רוחב החלון"
+
+#: src/gtk/MainView.cxx:202
+msgid "Scroll"
+msgstr "גלילה"
+
+#: src/gtk/MainView.cxx:203
+msgid "Mouse scroll page"
+msgstr "גלילת העמוד עם העכבר"
+
+#: src/gtk/MainView.cxx:205
+msgid "Select Text"
+msgstr "בחירת טקסט"
+
+#: src/gtk/MainView.cxx:206
+msgid " Mouse select text"
+msgstr " בחירת הטקסט עם העכבר"
+
+#: src/gtk/MainView.cxx:329
+msgid "Open PDF File"
+msgstr "פתיחת קובץ PDF"
+
+#: src/gtk/MainView.cxx:349 src/gtk/MainView.cxx:465
+msgid "Portable Document Format (PDF) Files"
+msgstr "קובצי PDF (מבנה קובץ נייד)"
+
+#: src/gtk/MainView.cxx:361 src/gtk/MainView.cxx:477
+msgid "All Files"
+msgstr "כל הקבצים"
+
+#: src/gtk/MainView.cxx:413
+msgid "Password"
+msgstr "סיסמה"
+
+#: src/gtk/MainView.cxx:437
+msgid "Save PDF File"
+msgstr "שמירת קובץ PDF"
+
+#: src/gtk/MainView.cxx:869
+msgid "Page"
+msgstr "עמוד"
+
+#: src/gtk/MainView.cxx:879
+msgid "of 0"
+msgstr "מתוך 0"
+
+#: src/gtk/MainView.cxx:932
+msgid "Index"
+msgstr "אינדקס"
+
+#: src/gtk/MainView.cxx:1002 src/gtk/MainView.cxx:1012
+#, c-format
+msgid "Error building UI manager: %s\n"
+msgstr "שגיאה בבניית מנהל מנשק המשתמש: %s\n"
+
+#: src/gtk/MainView.cxx:1119
+msgid "A lightweight PDF viewer"
+msgstr "מציג PDF קל משקל"
+
+#: src/gtk/MainView.cxx:1122
+msgid ""
+"ePDFView is free software; you can redistribute it and/or modify\n"
+"it under the terms of the GNU General Public License as published by\n"
+"the Free Software Foundation; either version 2 of the License, or\n"
+"(at your option) any later version.\n"
+msgstr ""
+"ePDFView הינה תוכנה חופשית; ניתן להפיץ ו/או לשנות אותה\n"
+"תחת תנאי הרשיון הציבורי הכללי של GNU כפי שפורסם על ידי\n"
+"קרן התוכנה החופשית; או גירסה 2 של הרשיון, או\n"
+"(לשיקול המפיץ) כל גירסה מאוחרת יותר.\n"
+
+#: src/gtk/MainView.cxx:1126
+msgid ""
+"ePDFView is distributes in the hope that it will be useful,\n"
+"but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+"GNU General Public License for more details.\n"
+msgstr ""
+"ePDFView מופצת בתקווה שתהיה שימושית,\n"
+"אך ללא כל אחריות; אפילו לא אחריות מרומזת למסחר\n"
+"או להתאמה לצרכים מסויימים.  ניתן לעיין\n"
+"ברשיון הציבורי הכללי של GNU לפרטים נוספים.\n"
+
+#: src/gtk/MainView.cxx:1130
+msgid ""
+"You should have received a copy of the GNU General Public License\n"
+"along with ePDFView; if not, write to the Free Software Foundation,Inc.,\n"
+"59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n"
+msgstr ""
+"יחד עם ePDFVire אמור היה להיות מצורף עותק של הרשיון הציבור\n"
+"הכללי של GNU; במידה שלא כתוב אל Free Software Foundation,Inc.,\n"
+"59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n"
+
+#: src/gtk/MainView.cxx:1139
+msgid "ePDFView"
+msgstr "ePDFView"
+
+#: src/gtk/MainView.cxx:1146
+msgid "translator-credits"
+msgstr "Yaron Shahrabani <sh.yaron@gmail.com>"
+
+#: src/gtk/PreferencesView.cxx:32
+msgid "Preferences"
+msgstr "העדפות"
+
+#: src/gtk/PreferencesView.cxx:46
+msgid "External Commands"
+msgstr "פקודות חיצוניות"
+
+#: src/gtk/PreferencesView.cxx:105
+msgid "Web _Browser:"
+msgstr "ד_פדפן האינטרנט:"
+
+#: src/gtk/PreferencesView.cxx:118
+#, c-format
+msgid "Note: <i>%s</i> will be replaced by the URI."
+msgstr "הערה: <i>%s</i> יוחלף בכתובת."
+
+#: src/gtk/PrintView.cxx:51
+msgid "Print"
+msgstr "הדפסה"
+
+#: src/gtk/PrintView.cxx:69 src/gtk/PrintView.cxx:667
+msgid "Printer"
+msgstr "מדפסת"
+
+#: src/gtk/PrintView.cxx:74
+msgid "Job"
+msgstr "משימה"
+
+#: src/gtk/PrintView.cxx:79
+msgid "Paper"
+msgstr "דף"
+
+#: src/gtk/PrintView.cxx:359
+msgid "<b>Print Range</b>"
+msgstr "<b>טווח ההדפסה<b>"
+
+#: src/gtk/PrintView.cxx:377
+msgid "_All pages"
+msgstr "_כל העמודים"
+
+#: src/gtk/PrintView.cxx:380
+msgid "_Range:"
+msgstr "_טווח:"
+
+#: src/gtk/PrintView.cxx:392
+msgid "<b>Page Set</b>"
+msgstr "<b>ערכת עמודים<b>"
+
+#: src/gtk/PrintView.cxx:408
+msgid "A_ll pages"
+msgstr "כ_ל העמודים"
+
+#: src/gtk/PrintView.cxx:412
+msgid "O_dd pages"
+msgstr "עמודים _אי־זוגיים"
+
+#: src/gtk/PrintView.cxx:416
+msgid "_Even pages"
+msgstr "עמודים _זוגיים"
+
+#: src/gtk/PrintView.cxx:420
+msgid "<b>Copies</b>"
+msgstr "<b>עותקים<b>"
+
+#: src/gtk/PrintView.cxx:437
+msgid "N_umber of copies:"
+msgstr "מ_ספר העותקים:"
+
+#: src/gtk/PrintView.cxx:444
+msgid "C_ollate"
+msgstr "א_יסוף"
+
+#: src/gtk/PrintView.cxx:465
+msgid "<b>Paper and Layout</b>"
+msgstr "<b>דף ופריסה<b>"
+
+#: src/gtk/PrintView.cxx:482
+msgid "Paper _Size:"
+msgstr "_גודל הדף:"
+
+#: src/gtk/PrintView.cxx:508
+msgid "Page _orientation:"
+msgstr "_כיוון הדף:"
+
+#: src/gtk/PrintView.cxx:539
+msgid "_Layout:"
+msgstr "_פריסה:"
+
+#: src/gtk/PrintView.cxx:568
+msgid "<b>Output</b>"
+msgstr "<b>פלט<b>"
+
+#: src/gtk/PrintView.cxx:585
+msgid "_Mode:"
+msgstr "_מצב:"
+
+#: src/gtk/PrintView.cxx:613
+msgid "_Resolution:"
+msgstr "_רזולוציה:"
+
+#: src/gtk/PrintView.cxx:676
+msgid "State"
+msgstr "מצב"
+
+#: src/gtk/PrintView.cxx:685
+msgid "Jobs"
+msgstr "משימות"
+
+#: src/gtk/PrintView.cxx:694
+msgid "Location"
+msgstr "מיקום"
+
+#: src/gtk/PrintView.cxx:725
+msgid "Plain"
+msgstr "פשוט"
+
+#: src/gtk/PrintView.cxx:731
+msgid "2 pages in 1"
+msgstr "2 עמודים באחד"
+
+#: src/gtk/PrintView.cxx:737
+msgid "4 pages in 1"
+msgstr "4 עמודים באחד"
+
+#: src/gtk/PrintView.cxx:743
+msgid "6 pages in 1"
+msgstr "6 עמודים באחד"
+
+#: src/gtk/PrintView.cxx:758
+msgid "Portrait"
+msgstr "לאורך"
+
+#: src/gtk/PrintView.cxx:764
+msgid "Landscape"
+msgstr "לרוחב"
+
+#: src/gtk/StockIcons.cxx:40
+msgid "Find _Next"
+msgstr "חיפוש ה_בא"
+
+#: src/gtk/StockIcons.cxx:41
+msgid "Find _Previous"
+msgstr "חיפוש ה_קודם"
+
+#~ msgid "File not found."
+#~ msgstr "הקובץ לא נמצא."

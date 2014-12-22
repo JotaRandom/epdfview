@@ -1,0 +1,243 @@
+    epdfview 0.1.8
+    ==============
+
+    Interface improvements
+
+        * Show more accurate error messages when the file can't be loaded.
+        * When reloading a document it doesn't move at the document's
+          beginning and remembers whether the side bar was shown.
+        * New man page.
+        * Save a copy dialog asks before overwriting files.
+        * Added scroll bars to the printer selection window.
+
+    Bug fixes
+
+        * Fixed non-working mouse wheel under some conditions.
+        * Removed assertion conditions.
+        * It is possible to look for an slash ("/") in the text.
+        * Fixed Enter and Backspace behaviour.
+        * The selection box is now displayed on the correct location.
+        * Fixed memory leaks on search.
+        * Fixed errors when saving an encrypted document using Poppler 0.8.0.
+
+    Code Changes
+
+        * ePDFView is now a GUI application under Windows.
+        * Added support for Poppler versions 0.15.0, 0.15.1, 0.16.2, and
+          0.17.0.
+
+    Translation updates
+
+        * ar (Ahmad Farghal)
+        * es (Miguel Anxo Bouzada)
+        * gl (Miguel Anxo Bouzada)
+        * he_IL (Yaron Shahrabani)
+        * hu (Peter Polonkai)
+        * nl_NL (Ronald van Engelen)
+        * pt_PT (Nuno Miguel)
+        * ru (Kirin Yuri)
+
+
+    epdfview 0.1.7
+    ==============
+
+    New features
+
+        * Support for text selection and copy to clipboard.
+
+    Interface improvements
+
+        * Added more key bindings.
+        * The focus is set to the page when a document is loaded.
+        * Add 6-in-1 page print layout.
+
+    Bug fixes
+
+        * Fixed some memory leaks.
+        * The page scrolls following the cursor.
+        * A file loaded from the command line is not shown until the
+          application is idle, to prevent extra page resizing.
+        * Removed segmentation faults when a PPD doesn't have a queried
+          feature.
+        * Fixed crashes in Gtk+ 2.10.
+        * Fixed hung in "Loading..." under Ubuntu Gutsy.
+        * Can be compiled with poppler 0.8.0
+        * Desktop file is now freedesktop compliant.
+
+    Translation updates
+
+        * cs (Dragonlord)
+        * de (Enrico Tröger)
+        * eu (Alain Mendizabal)
+        * fr (Alexandre Poirot)
+        * ja (Nyu)
+        * it (Fabio Vergnani)
+        * pt_BR (Fábio Antunes)
+        * pt_PT (Nuno Miguel)
+        * pl (Piotr Pcholak)
+        * ru (Sergey Starosek and Igor Vagulin)
+        * sv (Daniel Nylander)
+        * zh_CN (Panchoat)
+        * zh_TW (趙惟倫)
+
+
+    epdfview 0.1.6
+    ==============
+
+    New features
+
+        * Support for printers instances.
+        * Support for stdint (i.e., '-') as filename from command line.
+
+    Interface improvements
+
+        * About box's link is now clickable.
+        * 'Open' and 'Save As' dialogs now use extension patterns and mime type.
+        * Full screen support.
+        * 'Save As' dialog sets the file's name as the default save name.
+
+    Bug fixes
+
+        * Prevent showing the menu entry twice.
+        * Fixed typo that checks for Poppler's version 0.5.2 or higher.
+        * The page cache is emptied between files to prevent showing pages
+          from the previous file.
+        * Changed the 'Save As' dialog's 'Open' button to 'Save'
+        * Prevent crashes in FreeBSD when searching.
+        * Fixed some bugs rendering pages under some systems.
+        * Fixed problems printing documents under some systems (specially
+          64-bit systems)
+
+    Translation updates
+
+        * pl (Wojciech Myrda)
+        * el (Stavros Giannouris)
+        * ru (Igor Vagulin)
+        * zh_TW (Wei-Lun Chao)
+
+
+    epdfview 0.1.5
+    ==============
+
+    New features
+
+        * Support for hyperlinks.
+        * Print support using CUPS.
+        * Save a document's copy.
+
+    Interface improvements
+
+        * '/' is now a shortcut for find.
+        * The index is shown/hidden using the F9 key, as specified in
+          GNOME's HIG.
+        * Better support for keyboard navigation (LoneFox).
+        * Show the current zoom level on the tool bar.
+        * Only the current page number is editable on tool bar.
+        * Zoom to Width and Zoom to Fit remains checked when they
+          are clicked again.
+
+    Code Changes
+
+        * Support for named links in Poppler versions 0.5.2 and higher.
+
+    Bug fixes
+
+        * Prevent segmentation faults on some documents.
+        * Don't try to add nonexistent pages in the page's cache
+          when loading.
+        * Is now able to compile ePDFView using custom LDFLAGS.
+        * No horizontal scroll bar is shown when "Fit to Width".
+        * Links work correctly when the page's width is lower than
+          the display's width.
+
+
+    epdfview 0.1.4
+    ==============
+
+    New features
+
+        * Support cross-references links.
+        * Search text.
+
+    Interface improvements
+
+        * Dialogs can have an alternative button order (LoneFox).
+        * Show a wait cursor while loading the document.
+        * Show a wait label while rendering a page.
+        * Resize the page while waiting for the updated rendered page on
+          changing zoom.
+        * Add a shortcut for "Show Outline" and renamed to "Show Index".
+        * Remove help menu icon.
+
+    Code changes
+
+        * The presenters are now IDocument's observers and waits for
+          notifications messages from it.
+        * Most time expensive operations are now handled in a separate
+          thread.
+        * Implemented a rendered page cache to speed up the interface.
+
+    Bug fixes
+
+        * The Zoom to Width and Zoom to Fit options works correctly even
+          if the document's pages have different sizes.
+
+
+    epdfview 0.1.3
+    ==============
+
+    Interface improvements
+
+        * Move the page with the left mouse button.
+        * Remember window's size and position.
+        * 'Zoom to Width' and 'Zoom to Fit' are toggle actions: when the
+          window resizes the document also is resized.
+        * Single click to select index item from the sidebar.
+        * Mouse scrolling.
+        * Reloading doesn't change the page's position.
+        * Changed 'Next Page' and 'Previous Page' accelerators to use only a 
+          single key instead of two.
+        * Open file dialog remembers the last used directory and opens it
+          the next time.
+
+    Bug fixes
+
+        * The file name from the command line doesn't need to be a full
+          path.
+
+    Translation updates
+
+        * de (Moritz Heiber)
+        * fr (Mr_Moustache)
+        * vi (VnPenguin)
+
+
+    epdfview 0.1.2
+    ==============
+
+    Code changes
+
+        * All calls to Poppler function have been changed to Poppler's glib 
+          wrapper, as Poppler is dropping support for Xpdf headers.
+
+
+    epdfview 0.1.1
+    ==============
+
+    News features
+
+        * Show the document's outline.
+        * Can open a PDF file directly from the command line.
+        * Can reload the same file.
+
+    Interface improvements
+
+        * The status, tool and side bars can be shown or hidden from
+          the view menu.
+        * When the page changed the scroll goes to the top of the page.
+
+
+    epdfview 0.1.0
+    ==============
+
+    Initial release.

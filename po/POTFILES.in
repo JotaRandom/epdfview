@@ -1,0 +1,15 @@
+# List of source files which contain translatable strings.
+
+src/FindPter.cxx
+src/IDocument.cxx
+src/main.cxx
+src/MainPter.cxx
+src/PagePter.cxx
+src/PrintPter.cxx
+src/PDFDocument.cxx
+# GTK+ Shell
+src/gtk/FindView.cxx
+src/gtk/MainView.cxx
+src/gtk/PreferencesView.cxx
+src/gtk/PrintView.cxx
+src/gtk/StockIcons.cxx

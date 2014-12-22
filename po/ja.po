@@ -1,0 +1,607 @@
+# Japanese translations for ePDFView package
+#
+# Copyright (C) 2006 Emma's Software
+# This file is distributed under the same license as the ePDFView package.
+#  <jordi@emma-soft.com>, 2006.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ePDFView 0.1.6\n"
+"Report-Msgid-Bugs-To: jordi@emma-soft.com\n"
+"POT-Creation-Date: 2011-05-28 12:26+0200\n"
+"PO-Revision-Date: 2006-04-12 21:17+0200\n"
+"Last-Translator:  Jonny <jonny@csc.jp>\n"
+"Language-Team: nyu <nyu_8804@yahoo.co.jp>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/FindPter.cxx:187
+msgid "No Results Found!"
+msgstr "見つかりませんでした!"
+
+#: src/FindPter.cxx:195
+#, c-format
+msgid "Searching in page %d of %d..."
+msgstr "%d/%d を検索中..."
+
+#: src/IDocument.cxx:82
+msgid "No error."
+msgstr "エラーはありません。"
+
+#: src/IDocument.cxx:85
+msgid "Could not open file."
+msgstr ""
+
+#: src/IDocument.cxx:88
+msgid "Couldn't read the page catalog."
+msgstr "ページカタログを読めませんでした。"
+
+#: src/IDocument.cxx:91
+msgid "The PDF file is damaged and can't be repaired."
+msgstr "PDF ファイルが壊れていて修正できませんでした。"
+
+#: src/IDocument.cxx:94
+msgid "The file is encrypted and the password was incorrect or not supplied."
+msgstr "ファイルは暗号化されていますが、正しいパスワードが入力されていません。"
+
+#: src/IDocument.cxx:97
+msgid "Nonexistent or invalid highlight file."
+msgstr "ハイライトされたファイルは存在していないか不適当です。"
+
+#: src/IDocument.cxx:100
+msgid "Invalid printer."
+msgstr "プリンタが不適当です。"
+
+#: src/IDocument.cxx:103
+msgid "Error during printing."
+msgstr "印刷中にエラーが発生しました。"
+
+#: src/IDocument.cxx:106
+msgid "The PDF file doesn't allow that operation."
+msgstr "PDF ファイルはこの操作を許可していません。"
+
+#: src/IDocument.cxx:109
+msgid "Invalid page number."
+msgstr "ページ番号が不適当です。"
+
+#: src/IDocument.cxx:112
+msgid "File I/O error."
+msgstr "ファイル I/O エラー。"
+
+#: src/IDocument.cxx:115
+#, c-format
+msgid "Unknown error (%d)."
+msgstr "不明なエラー (%d)."
+
+#: src/main.cxx:91
+msgid "[FILE] - view PDF documents"
+msgstr "[ファイル] - PDF ドキュメントを表示する"
+
+#: src/main.cxx:104 src/MainPter.cxx:156
+msgid "PDF Viewer"
+msgstr "PDF ビューア"
+
+#: src/MainPter.cxx:235
+#, c-format
+msgid "Reloading file %s..."
+msgstr "ファイル %s を更新しています..."
+
+#: src/MainPter.cxx:239
+#, c-format
+msgid "Loading file %s..."
+msgstr "ファイル %s を読み込んでいます..."
+
+#: src/MainPter.cxx:415 src/MainPter.cxx:897
+#, c-format
+msgid "of %d"
+msgstr "/%d"
+
+#: src/MainPter.cxx:591
+#, c-format
+msgid "Saving document to %s..."
+msgstr "ドキュメントを %s に保存しています..."
+
+#: src/MainPter.cxx:835 src/MainPter.cxx:876
+msgid "Error Loading File"
+msgstr "ファイル読み込み中にエラー発生"
+
+#: src/MainPter.cxx:877
+msgid "The password you have supplied is not a valid password for this file."
+msgstr "入力したパスワードはこのファイル用のパスワードではないようです。"
+
+#: src/MainPter.cxx:962
+msgid "Error Saving File"
+msgstr "ファイル保存中にエラー発生"
+
+#: src/PagePter.cxx:338
+msgid "Loading..."
+msgstr "読み込み中..."
+
+#: src/PrintPter.cxx:252
+msgid "A4"
+msgstr "A4"
+
+#: src/PrintPter.cxx:280
+msgid "300 DPI"
+msgstr "300 DPI"
+
+#: src/PrintPter.cxx:308
+msgid "Grayscale"
+msgstr "グレースケール"
+
+#: src/PrintPter.cxx:409
+msgid "Idle"
+msgstr "アイドリング"
+
+#: src/PrintPter.cxx:412
+msgid "Stopped"
+msgstr "中止"
+
+#: src/PrintPter.cxx:415
+msgid "Processing"
+msgstr "処理中"
+
+#: src/PrintPter.cxx:418
+msgid "Unknown"
+msgstr "不明"
+
+#: src/PDFDocument.cxx:275
+#, c-format
+msgid ""
+"Failed to load document '%s'.\n"
+"%s\n"
+msgstr ""
+"ドキュメント '%s' の読み込みに失敗しました。\n"
+"%s\n"
+
+#: src/gtk/FindView.cxx:58
+msgid "Find:"
+msgstr "検索:"
+
+#: src/gtk/MainView.cxx:89
+msgid "_File"
+msgstr "ファイル(_F)"
+
+#: src/gtk/MainView.cxx:90
+msgid "_Edit"
+msgstr "編集(_E)"
+
+#: src/gtk/MainView.cxx:91
+msgid "_View"
+msgstr "表示(_V)"
+
+#: src/gtk/MainView.cxx:92
+msgid "_Go"
+msgstr "移動(_G)"
+
+#: src/gtk/MainView.cxx:93
+msgid "_Help"
+msgstr "ヘルプ(_H)"
+
+#: src/gtk/MainView.cxx:95
+msgid "_Open"
+msgstr "開く(_O)"
+
+#: src/gtk/MainView.cxx:96
+msgid "Open a PDF document"
+msgstr "PDF ドキュメントを開く"
+
+#: src/gtk/MainView.cxx:99
+msgid "_Reload"
+msgstr "更新(_R)"
+
+#: src/gtk/MainView.cxx:100
+msgid "Reload the current document"
+msgstr "ドキュメントを更新する"
+
+#: src/gtk/MainView.cxx:103
+msgid "_Save a Copy..."
+msgstr "別名で保存(_S)..."
+
+#: src/gtk/MainView.cxx:104
+msgid "Save a copy of the current document"
+msgstr "ドキュメントのコピーを保存する"
+
+#: src/gtk/MainView.cxx:108
+msgid "_Print..."
+msgstr "印刷(_P)..."
+
+#: src/gtk/MainView.cxx:109
+msgid "Print the current document"
+msgstr "ドキュメントを印刷する"
+
+#: src/gtk/MainView.cxx:113
+msgid "_Close"
+msgstr "閉じる(_C)"
+
+#: src/gtk/MainView.cxx:114
+msgid "Close this window"
+msgstr "ウィンドウを閉じる"
+
+#: src/gtk/MainView.cxx:117
+msgid "_Find"
+msgstr "検索(_F)"
+
+#: src/gtk/MainView.cxx:118
+msgid "Find a word in the document"
+msgstr "ドキュメント中の単語を検索する"
+
+#: src/gtk/MainView.cxx:121
+#, fuzzy
+msgid "_Preferences..."
+msgstr "設定..."
+
+#: src/gtk/MainView.cxx:122
+msgid "Change the application's preferences"
+msgstr "アプリケーションの設定を変更する"
+
+#: src/gtk/MainView.cxx:125
+msgid "Zoom _In"
+msgstr "拡大(_I)"
+
+#: src/gtk/MainView.cxx:126
+msgid "Enlarge the document"
+msgstr "ドキュメントの表示を拡大する"
+
+#: src/gtk/MainView.cxx:129
+msgid "Zoom _Out"
+msgstr "縮小(_O)"
+
+#: src/gtk/MainView.cxx:130
+msgid "Shrink the document"
+msgstr "ドキュメントの表示を縮小する"
+
+#: src/gtk/MainView.cxx:133 src/gtk/StockIcons.cxx:43
+msgid "Rotate _Right"
+msgstr "右に回転(_R)"
+
+#: src/gtk/MainView.cxx:134
+msgid "Rotate the document 90 degrees clockwise"
+msgstr "ドキュメントの表示を時計回りに 90°回転する"
+
+#: src/gtk/MainView.cxx:137 src/gtk/StockIcons.cxx:42
+msgid "Rotate _Left"
+msgstr "左に回転(_L)"
+
+#: src/gtk/MainView.cxx:138
+msgid "Rotate the document 90 degrees counter-clockwise"
+msgstr "ドキュメントの表示を反時計回りに 90°回転する"
+
+#: src/gtk/MainView.cxx:141
+msgid "_First Page"
+msgstr "最初のページ(_F)"
+
+#: src/gtk/MainView.cxx:142
+msgid "Go to the first page"
+msgstr "最初のページへ移動"
+
+#: src/gtk/MainView.cxx:145
+msgid "_Next Page"
+msgstr "次のページ(_N)"
+
+#: src/gtk/MainView.cxx:146
+msgid "Go to the next page"
+msgstr "次のページへ移動"
+
+#: src/gtk/MainView.cxx:149
+msgid "_Previous Page"
+msgstr "前のページ(_P)"
+
+#: src/gtk/MainView.cxx:150
+msgid "Go to the previous page"
+msgstr "前のページへ移動"
+
+#: src/gtk/MainView.cxx:153
+msgid "_Last Page"
+msgstr "最後のページ(_L)"
+
+#: src/gtk/MainView.cxx:154
+msgid "Go to the last page"
+msgstr "最後のページへ移動"
+
+#: src/gtk/MainView.cxx:157
+msgid "_About"
+msgstr "情報(_A)"
+
+#: src/gtk/MainView.cxx:158
+msgid "Display application's credits"
+msgstr "アプリケーションのクレジットを表示する"
+
+#: src/gtk/MainView.cxx:175
+msgid "F_ull screen"
+msgstr "全画面表示(_U)"
+
+#: src/gtk/MainView.cxx:176
+msgid "Toggle full screen window"
+msgstr "全画面表示を切り替える"
+
+#: src/gtk/MainView.cxx:179
+msgid "Show _Toolbar"
+msgstr "ツールバーを表示(_T)"
+
+#: src/gtk/MainView.cxx:180
+msgid "Show or hide the toolbar"
+msgstr "ツールバーの表示を切り替える"
+
+#: src/gtk/MainView.cxx:183
+msgid "Show _Statusbar"
+msgstr "ステータスバーを表示(_S)"
+
+#: src/gtk/MainView.cxx:184
+msgid "Show or hide the statusbar"
+msgstr "ステータスバーの表示を切り替える"
+
+#: src/gtk/MainView.cxx:187
+msgid "Show I_ndex"
+msgstr "インデックスを表示(_N)"
+
+#: src/gtk/MainView.cxx:188
+msgid "Show or hide the document's outline"
+msgstr "ドキュメントアウトラインの表示を切り替える"
+
+#: src/gtk/MainView.cxx:191
+msgid "Zoom to _Fit"
+msgstr "フィット(_F)"
+
+#: src/gtk/MainView.cxx:192
+msgid "Make the current document fill the window"
+msgstr "ドキュメントの表示をウィンドウ全体に合わせる"
+
+#: src/gtk/MainView.cxx:195 src/gtk/StockIcons.cxx:44
+msgid "Zoom to _Width"
+msgstr "幅に合わせる(_W)"
+
+#: src/gtk/MainView.cxx:196
+msgid "Make the current document fill the window width"
+msgstr "ドキュメントの表示をウィンドウ幅に合わせる"
+
+#: src/gtk/MainView.cxx:202
+msgid "Scroll"
+msgstr "スクロール"
+
+#: src/gtk/MainView.cxx:203
+msgid "Mouse scroll page"
+msgstr "マウスでページをスクロール"
+
+#: src/gtk/MainView.cxx:205
+msgid "Select Text"
+msgstr "文字列選択"
+
+#: src/gtk/MainView.cxx:206
+msgid " Mouse select text"
+msgstr " マウスで文字列を選択"
+
+#: src/gtk/MainView.cxx:329
+msgid "Open PDF File"
+msgstr "PDF ファイルを開く"
+
+#: src/gtk/MainView.cxx:349 src/gtk/MainView.cxx:465
+msgid "Portable Document Format (PDF) Files"
+msgstr "ポータブルドキュメントフォーマット（PDF) ファイル"
+
+#: src/gtk/MainView.cxx:361 src/gtk/MainView.cxx:477
+msgid "All Files"
+msgstr "すべてのファイル"
+
+#: src/gtk/MainView.cxx:413
+msgid "Password"
+msgstr "パスワード"
+
+#: src/gtk/MainView.cxx:437
+msgid "Save PDF File"
+msgstr "PDF ファイルを保存"
+
+#: src/gtk/MainView.cxx:869
+msgid "Page"
+msgstr "ページ"
+
+#: src/gtk/MainView.cxx:879
+msgid "of 0"
+msgstr "/0"
+
+#: src/gtk/MainView.cxx:932
+msgid "Index"
+msgstr "インデックス"
+
+#: src/gtk/MainView.cxx:1002 src/gtk/MainView.cxx:1012
+#, c-format
+msgid "Error building UI manager: %s\n"
+msgstr "UI 生成マネージャのエラー: %s\n"
+
+#: src/gtk/MainView.cxx:1119
+msgid "A lightweight PDF viewer"
+msgstr "軽量 PDF ビューア"
+
+#: src/gtk/MainView.cxx:1122
+msgid ""
+"ePDFView is free software; you can redistribute it and/or modify\n"
+"it under the terms of the GNU General Public License as published by\n"
+"the Free Software Foundation; either version 2 of the License, or\n"
+"(at your option) any later version.\n"
+msgstr ""
+"ePDFView はフリーソフトウェアです。あなたはこれを、Free Software Foundation\n"
+"によって発行された GNU 一般公衆利用許諾契約書 (バージョン 2 か、希望\n"
+"によってはそれ以降のバージョンのうちどれか) の定める条件の下で再頒布\n"
+"または改変することができます。\n"
+
+#: src/gtk/MainView.cxx:1126
+msgid ""
+"ePDFView is distributes in the hope that it will be useful,\n"
+"but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+"GNU General Public License for more details.\n"
+msgstr ""
+"ePDFView は有用であることを願って頒布されますが、全くの無保証\n"
+"です。商業可能性の保証や特定の目的への適合性は、言外に示された\n"
+"ものも含め全く存在しません。詳しくは GNU 一般公衆利用許諾契約書\n"
+"をご覧ください。\n"
+
+#: src/gtk/MainView.cxx:1130
+msgid ""
+"You should have received a copy of the GNU General Public License\n"
+"along with ePDFView; if not, write to the Free Software Foundation,Inc.,\n"
+"59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n"
+msgstr ""
+"あなたは ePDFView と共に、GNU 一般公衆利用許諾契約書の複製物を一部受け取っ"
+"た\n"
+"はずです。もし受け取っていなければ、the Free Software Foundation,Inc., 59\n"
+"Temple Place, Suite 330, Boston, MA  02111-1307 USA まで請求してください。\n"
+
+#: src/gtk/MainView.cxx:1139
+msgid "ePDFView"
+msgstr "ePDFView"
+
+#: src/gtk/MainView.cxx:1146
+msgid "translator-credits"
+msgstr "nyu <nyu_8804 at yahoo dot co dot jp>"
+
+#: src/gtk/PreferencesView.cxx:32
+msgid "Preferences"
+msgstr "設定"
+
+#: src/gtk/PreferencesView.cxx:46
+msgid "External Commands"
+msgstr "外部コマンド"
+
+#: src/gtk/PreferencesView.cxx:105
+msgid "Web _Browser:"
+msgstr "ウェブブラウザ(_B)"
+
+#: src/gtk/PreferencesView.cxx:118
+#, c-format
+msgid "Note: <i>%s</i> will be replaced by the URI."
+msgstr "Note: <i>%s</i> は URI で置き換えられます。"
+
+#: src/gtk/PrintView.cxx:51
+msgid "Print"
+msgstr "印刷"
+
+#: src/gtk/PrintView.cxx:69 src/gtk/PrintView.cxx:667
+msgid "Printer"
+msgstr "プリンタ"
+
+#: src/gtk/PrintView.cxx:74
+msgid "Job"
+msgstr "ジョブ"
+
+#: src/gtk/PrintView.cxx:79
+msgid "Paper"
+msgstr "用紙"
+
+#: src/gtk/PrintView.cxx:359
+msgid "<b>Print Range</b>"
+msgstr "<b>印刷する範囲</b>"
+
+#: src/gtk/PrintView.cxx:377
+msgid "_All pages"
+msgstr "全ページ(_A)"
+
+#: src/gtk/PrintView.cxx:380
+msgid "_Range:"
+msgstr "範囲(_R):"
+
+#: src/gtk/PrintView.cxx:392
+msgid "<b>Page Set</b>"
+msgstr "<b>ページセット</b>"
+
+#: src/gtk/PrintView.cxx:408
+msgid "A_ll pages"
+msgstr "全ページ(_L)"
+
+#: src/gtk/PrintView.cxx:412
+msgid "O_dd pages"
+msgstr "奇数ページ(_D)"
+
+#: src/gtk/PrintView.cxx:416
+msgid "_Even pages"
+msgstr "偶数ページ(_E)"
+
+#: src/gtk/PrintView.cxx:420
+msgid "<b>Copies</b>"
+msgstr "<b>コピー</b>"
+
+#: src/gtk/PrintView.cxx:437
+msgid "N_umber of copies:"
+msgstr "コピーの数(_U):"
+
+#: src/gtk/PrintView.cxx:444
+msgid "C_ollate"
+msgstr "ページを揃える(_O)"
+
+#: src/gtk/PrintView.cxx:465
+msgid "<b>Paper and Layout</b>"
+msgstr "<b>用紙とレイアウト</b>"
+
+#: src/gtk/PrintView.cxx:482
+msgid "Paper _Size:"
+msgstr "用紙サイズ(_S):"
+
+#: src/gtk/PrintView.cxx:508
+msgid "Page _orientation:"
+msgstr "用紙の向き(_O):"
+
+#: src/gtk/PrintView.cxx:539
+msgid "_Layout:"
+msgstr "レイアウト(_L):"
+
+#: src/gtk/PrintView.cxx:568
+msgid "<b>Output</b>"
+msgstr "<b>出力</b>"
+
+#: src/gtk/PrintView.cxx:585
+msgid "_Mode:"
+msgstr "モード(_M):"
+
+#: src/gtk/PrintView.cxx:613
+msgid "_Resolution:"
+msgstr "解像度(_R):"
+
+#: src/gtk/PrintView.cxx:676
+msgid "State"
+msgstr "状態"
+
+#: src/gtk/PrintView.cxx:685
+msgid "Jobs"
+msgstr "ジョブ"
+
+#: src/gtk/PrintView.cxx:694
+msgid "Location"
+msgstr "場所"
+
+#: src/gtk/PrintView.cxx:725
+msgid "Plain"
+msgstr "通常"
+
+#: src/gtk/PrintView.cxx:731
+msgid "2 pages in 1"
+msgstr "1 画面に 2 ページ"
+
+#: src/gtk/PrintView.cxx:737
+msgid "4 pages in 1"
+msgstr "1 画面に 4 ページ"
+
+#: src/gtk/PrintView.cxx:743
+#, fuzzy
+msgid "6 pages in 1"
+msgstr "1 画面に 2 ページ"
+
+#: src/gtk/PrintView.cxx:758
+msgid "Portrait"
+msgstr "縦置き"
+
+#: src/gtk/PrintView.cxx:764
+msgid "Landscape"
+msgstr "横置き"
+
+#: src/gtk/StockIcons.cxx:40
+msgid "Find _Next"
+msgstr "次を検索(_N)"
+
+#: src/gtk/StockIcons.cxx:41
+msgid "Find _Previous"
+msgstr "前を検索(_P)"
+
+#~ msgid "File not found."
+#~ msgstr "ファイルが見つかりませんでした。"

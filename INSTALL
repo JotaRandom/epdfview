@@ -1,0 +1,36 @@
+
+    ePDFView Installation Instructions
+    ==================================
+
+    1) Get the tarball.
+    2) Copy it to your home directory.
+    3) Unpack it: 
+    
+        tar xvzf epdfview-<version>.tar.gz
+        
+    4) Change to the new directory:
+
+        cd epdfview-<version>
+
+    5) Run the configure script. You can check its parameters using the
+       help option:
+
+       ./configure --help
+       ./configure --prefix=/usr/local
+
+    6) Make the application:
+    
+        make
+
+    7) Make sure the application was built correctly (Optional. Needs
+       CppUnit):
+
+        make check
+
+    8) Install it:
+
+        make install
+
+    9) Run the application:
+
+        epdfview

@@ -1,0 +1,54 @@
+.TH "epdfview" "1" "2010\-07\-31"
+.SH "NAME"
+epdfview \- view PDF documents
+.SH "SYNOPSIS"
+.PP
+.B epdfview
+.RI "[ " OPTION... " ] [ " FILE " ]"
+.SH "DESCRIPTION"
+.PP
+This manual page documents briefly the \fBepdfview\fR command.
+.PP
+The aim of \fBepdfview\fR is to make a simple PDF document viewer, in the lines
+of \fBevince\fR(1) but without using the GNOME libraries.
+.SH "OPTIONS"
+.SS "Help Options"
+.TP
+.BR \-h , " \-\-help"
+Show help options
+.TP
+.BR \-\-help\-all
+Show all help options
+.TP
+.BR \-\-help\-gtk
+Show GTK+ Options
+.SS "GTK+ Options"
+.TP
+.BI \-\-class= CLASS
+Program class as used by the window manager
+.TP
+.BI \-\-name= NAME
+Program name as used by the window manager
+.TP
+.BI \-\-screen= SCREEN
+X screen to use
+.TP
+.BR \-\-sync
+Make X calls synchronous
+.TP
+.BI \-\-gtk\-module= MODULES
+Load additional GTK+ modules
+.TP
+.BR \-\-g\-fatal\-warnings
+Make all warnings fatal
+.SS "Application Options"
+.TP
+.BI \-\-display= DISPLAY
+X display to use
+.SH "SEE ALSO"
+.BR evince "(1), " xpdf (1)
+.SH "AUTHOR"
+\fBepdfview\fR is \(co 2006, 2007, 2009 Jordi Fita <jordi@emma\-soft.com>
+
+This manual page was written by Francois Wendling <frwendling@free.fr> for the
+Debian GNU/Linux system (but may be used by others).

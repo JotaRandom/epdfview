@@ -1,0 +1,605 @@
+# Portuguese translation for ePDFView package
+# Copyright (C) 2006 Emma's Software
+# This file is distributed under the same license as the ePDFView package.
+#  <jordi@emma-soft.com>, 2006.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ePDFView 0.1.6\n"
+"Report-Msgid-Bugs-To: jordi@emma-soft.com\n"
+"POT-Creation-Date: 2011-05-28 12:26+0200\n"
+"PO-Revision-Date: 2009-04-18 00:03+0100\n"
+"Last-Translator: Nuno Miguel <nunis@netcabo.pt>\n"
+"Language-Team: \n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/FindPter.cxx:187
+msgid "No Results Found!"
+msgstr "Nenhum Resultado Encontrado!"
+
+#: src/FindPter.cxx:195
+#, c-format
+msgid "Searching in page %d of %d..."
+msgstr "Procurando na página %d de %d..."
+
+#: src/IDocument.cxx:82
+msgid "No error."
+msgstr "Nenhum erro."
+
+#: src/IDocument.cxx:85
+msgid "Could not open file."
+msgstr ""
+
+#: src/IDocument.cxx:88
+msgid "Couldn't read the page catalog."
+msgstr "Catálogo de página não pode ser lido."
+
+#: src/IDocument.cxx:91
+msgid "The PDF file is damaged and can't be repaired."
+msgstr "O ficheiro PDF está corrompido e não pode ser reparado."
+
+#: src/IDocument.cxx:94
+msgid "The file is encrypted and the password was incorrect or not supplied."
+msgstr ""
+"O ficheiro está encriptado e a senha está incorrecta ou não foi fornecida."
+
+#: src/IDocument.cxx:97
+msgid "Nonexistent or invalid highlight file."
+msgstr "O ficheiro não existe ou é inválido."
+
+#: src/IDocument.cxx:100
+msgid "Invalid printer."
+msgstr "Impressora inválida."
+
+#: src/IDocument.cxx:103
+msgid "Error during printing."
+msgstr "Erro durante a impressão."
+
+#: src/IDocument.cxx:106
+msgid "The PDF file doesn't allow that operation."
+msgstr "O ficheiro PDF não permite esta operação."
+
+#: src/IDocument.cxx:109
+msgid "Invalid page number."
+msgstr "Número de página inválido."
+
+#: src/IDocument.cxx:112
+msgid "File I/O error."
+msgstr "Erro E/S do ficheiro."
+
+#: src/IDocument.cxx:115
+#, c-format
+msgid "Unknown error (%d)."
+msgstr "Erro desconhecido (%d)."
+
+#: src/main.cxx:91
+msgid "[FILE] - view PDF documents"
+msgstr "[FICHEIRO] - mostra documentos PDF"
+
+#: src/main.cxx:104 src/MainPter.cxx:156
+msgid "PDF Viewer"
+msgstr "Visualizador de PDF"
+
+#: src/MainPter.cxx:235
+#, c-format
+msgid "Reloading file %s..."
+msgstr "Recarregando ficheiro %s..."
+
+#: src/MainPter.cxx:239
+#, c-format
+msgid "Loading file %s..."
+msgstr "Carregando ficheiro %s..."
+
+#: src/MainPter.cxx:415 src/MainPter.cxx:897
+#, c-format
+msgid "of %d"
+msgstr "de %d"
+
+#: src/MainPter.cxx:591
+#, c-format
+msgid "Saving document to %s..."
+msgstr "Gravando documento em %s..."
+
+#: src/MainPter.cxx:835 src/MainPter.cxx:876
+msgid "Error Loading File"
+msgstr "Erro ao Carregar Ficheiro"
+
+#: src/MainPter.cxx:877
+msgid "The password you have supplied is not a valid password for this file."
+msgstr "A senha que indicou não é inválida para este ficheiro."
+
+#: src/MainPter.cxx:962
+msgid "Error Saving File"
+msgstr "Erro ao Gravar Ficheiro"
+
+#: src/PagePter.cxx:338
+msgid "Loading..."
+msgstr "Carregando..."
+
+#: src/PrintPter.cxx:252
+msgid "A4"
+msgstr "A4"
+
+#: src/PrintPter.cxx:280
+msgid "300 DPI"
+msgstr "300 DPI"
+
+#: src/PrintPter.cxx:308
+msgid "Grayscale"
+msgstr "Escala de cinza"
+
+#: src/PrintPter.cxx:409
+msgid "Idle"
+msgstr "Ocioso"
+
+#: src/PrintPter.cxx:412
+msgid "Stopped"
+msgstr "Parado"
+
+#: src/PrintPter.cxx:415
+msgid "Processing"
+msgstr "Processando"
+
+#: src/PrintPter.cxx:418
+msgid "Unknown"
+msgstr "Desconhecido"
+
+#: src/PDFDocument.cxx:275
+#, c-format
+msgid ""
+"Failed to load document '%s'.\n"
+"%s\n"
+msgstr ""
+"Falha ao abrir o documento '%s'.\n"
+"%s\n"
+
+#: src/gtk/FindView.cxx:58
+msgid "Find:"
+msgstr "Procurar:"
+
+#: src/gtk/MainView.cxx:89
+msgid "_File"
+msgstr "_Ficheiro"
+
+#: src/gtk/MainView.cxx:90
+msgid "_Edit"
+msgstr "_Editar"
+
+#: src/gtk/MainView.cxx:91
+msgid "_View"
+msgstr "_Ver"
+
+#: src/gtk/MainView.cxx:92
+msgid "_Go"
+msgstr "_Ir"
+
+#: src/gtk/MainView.cxx:93
+msgid "_Help"
+msgstr "_Ajuda"
+
+#: src/gtk/MainView.cxx:95
+msgid "_Open"
+msgstr "_Abrir"
+
+#: src/gtk/MainView.cxx:96
+msgid "Open a PDF document"
+msgstr "Abrir um documento PDF"
+
+#: src/gtk/MainView.cxx:99
+msgid "_Reload"
+msgstr "_Recarregar"
+
+#: src/gtk/MainView.cxx:100
+msgid "Reload the current document"
+msgstr "Recarregar documento actual"
+
+#: src/gtk/MainView.cxx:103
+msgid "_Save a Copy..."
+msgstr "_Gravar uma Cópia..."
+
+#: src/gtk/MainView.cxx:104
+msgid "Save a copy of the current document"
+msgstr "Gravar uma cópia do documento actual"
+
+#: src/gtk/MainView.cxx:108
+msgid "_Print..."
+msgstr "_Imprimir..."
+
+#: src/gtk/MainView.cxx:109
+msgid "Print the current document"
+msgstr "Imprimir o documento actual"
+
+#: src/gtk/MainView.cxx:113
+msgid "_Close"
+msgstr "_Fechar"
+
+#: src/gtk/MainView.cxx:114
+msgid "Close this window"
+msgstr "Fechar esta janela"
+
+#: src/gtk/MainView.cxx:117
+msgid "_Find"
+msgstr "_Procurar"
+
+#: src/gtk/MainView.cxx:118
+msgid "Find a word in the document"
+msgstr "Localizar uma palavra no documento"
+
+#: src/gtk/MainView.cxx:121
+msgid "_Preferences..."
+msgstr "_Preferências..."
+
+#: src/gtk/MainView.cxx:122
+msgid "Change the application's preferences"
+msgstr "Alterar preferências da aplicação"
+
+#: src/gtk/MainView.cxx:125
+msgid "Zoom _In"
+msgstr "A_mpliar"
+
+#: src/gtk/MainView.cxx:126
+msgid "Enlarge the document"
+msgstr "Amplia o documento"
+
+#: src/gtk/MainView.cxx:129
+msgid "Zoom _Out"
+msgstr "_Reduzir"
+
+#: src/gtk/MainView.cxx:130
+msgid "Shrink the document"
+msgstr "Reduz o documento"
+
+#: src/gtk/MainView.cxx:133 src/gtk/StockIcons.cxx:43
+msgid "Rotate _Right"
+msgstr "Girar para a _direita"
+
+#: src/gtk/MainView.cxx:134
+msgid "Rotate the document 90 degrees clockwise"
+msgstr "Girar o documento 90 graus em sentido horário"
+
+#: src/gtk/MainView.cxx:137 src/gtk/StockIcons.cxx:42
+msgid "Rotate _Left"
+msgstr "Girar para a _esquerda"
+
+#: src/gtk/MainView.cxx:138
+msgid "Rotate the document 90 degrees counter-clockwise"
+msgstr "Girar o documento 90 graus em sentido anti-horário"
+
+#: src/gtk/MainView.cxx:141
+msgid "_First Page"
+msgstr "_Primeira Página"
+
+#: src/gtk/MainView.cxx:142
+msgid "Go to the first page"
+msgstr "Ir para a primeira página"
+
+#: src/gtk/MainView.cxx:145
+msgid "_Next Page"
+msgstr "_Próxima Página"
+
+#: src/gtk/MainView.cxx:146
+msgid "Go to the next page"
+msgstr "Ir para a próxima página"
+
+#: src/gtk/MainView.cxx:149
+msgid "_Previous Page"
+msgstr "Página _Anterior"
+
+#: src/gtk/MainView.cxx:150
+msgid "Go to the previous page"
+msgstr "Ir para a página anterior"
+
+#: src/gtk/MainView.cxx:153
+msgid "_Last Page"
+msgstr "Ú_ltima Página"
+
+#: src/gtk/MainView.cxx:154
+msgid "Go to the last page"
+msgstr "Ir para a última página"
+
+#: src/gtk/MainView.cxx:157
+msgid "_About"
+msgstr "_Sobre"
+
+#: src/gtk/MainView.cxx:158
+msgid "Display application's credits"
+msgstr "Mostrar créditos da aplicação"
+
+#: src/gtk/MainView.cxx:175
+msgid "F_ull screen"
+msgstr "Ecrã inteiro"
+
+#: src/gtk/MainView.cxx:176
+msgid "Toggle full screen window"
+msgstr "Mudar para ecrã completo"
+
+#: src/gtk/MainView.cxx:179
+msgid "Show _Toolbar"
+msgstr "Mostrar barras de _ferramentas"
+
+#: src/gtk/MainView.cxx:180
+msgid "Show or hide the toolbar"
+msgstr "Mostra ou esconde a barra de ferramentas"
+
+#: src/gtk/MainView.cxx:183
+msgid "Show _Statusbar"
+msgstr "Mostrar barra de _estado"
+
+#: src/gtk/MainView.cxx:184
+msgid "Show or hide the statusbar"
+msgstr "Mostra ou esconde a barra de estado"
+
+#: src/gtk/MainView.cxx:187
+msgid "Show I_ndex"
+msgstr "Mostrar Í_ndice"
+
+#: src/gtk/MainView.cxx:188
+msgid "Show or hide the document's outline"
+msgstr "Mostra ou esconde o índice do documento"
+
+#: src/gtk/MainView.cxx:191
+msgid "Zoom to _Fit"
+msgstr "Aj_ustar à janela"
+
+#: src/gtk/MainView.cxx:192
+msgid "Make the current document fill the window"
+msgstr "Ajusta documento à janela"
+
+#: src/gtk/MainView.cxx:195 src/gtk/StockIcons.cxx:44
+msgid "Zoom to _Width"
+msgstr "Ajustar à _largura da página"
+
+#: src/gtk/MainView.cxx:196
+msgid "Make the current document fill the window width"
+msgstr "Ajusta documento à largura da página"
+
+#: src/gtk/MainView.cxx:202
+msgid "Scroll"
+msgstr "Deslocamento"
+
+#: src/gtk/MainView.cxx:203
+msgid "Mouse scroll page"
+msgstr "Deslocamento de página com rato"
+
+#: src/gtk/MainView.cxx:205
+msgid "Select Text"
+msgstr "Seleccionar Texto"
+
+#: src/gtk/MainView.cxx:206
+msgid " Mouse select text"
+msgstr " Seleccionar texto com rato"
+
+#: src/gtk/MainView.cxx:329
+msgid "Open PDF File"
+msgstr "Abrir Ficheiro PDF"
+
+#: src/gtk/MainView.cxx:349 src/gtk/MainView.cxx:465
+msgid "Portable Document Format (PDF) Files"
+msgstr "Ficheiros em Portable Document Format (PDF)"
+
+#: src/gtk/MainView.cxx:361 src/gtk/MainView.cxx:477
+msgid "All Files"
+msgstr "Todos os Ficheiros"
+
+#: src/gtk/MainView.cxx:413
+msgid "Password"
+msgstr "Senha"
+
+#: src/gtk/MainView.cxx:437
+msgid "Save PDF File"
+msgstr "Gravar ficheiro PDF"
+
+#: src/gtk/MainView.cxx:869
+msgid "Page"
+msgstr "Página"
+
+#: src/gtk/MainView.cxx:879
+msgid "of 0"
+msgstr "de 0"
+
+#: src/gtk/MainView.cxx:932
+msgid "Index"
+msgstr "Índice"
+
+#: src/gtk/MainView.cxx:1002 src/gtk/MainView.cxx:1012
+#, c-format
+msgid "Error building UI manager: %s\n"
+msgstr "Erro ao construir o gestor de IU: %s\n"
+
+#: src/gtk/MainView.cxx:1119
+msgid "A lightweight PDF viewer"
+msgstr "Um visualizador leve de PDF"
+
+#: src/gtk/MainView.cxx:1122
+msgid ""
+"ePDFView is free software; you can redistribute it and/or modify\n"
+"it under the terms of the GNU General Public License as published by\n"
+"the Free Software Foundation; either version 2 of the License, or\n"
+"(at your option) any later version.\n"
+msgstr ""
+"O ePDFView é software livre; pode redistribuí-lo e/ou modificá-lo\n"
+"sob os termos da Licença Pública Geral GNU (GPL) como publicada\n"
+"pela Free Software Foundation; seja a versão 2 da Licença ou\n"
+"(se preferir) qualquer versão mais recente.\n"
+
+#: src/gtk/MainView.cxx:1126
+msgid ""
+"ePDFView is distributes in the hope that it will be useful,\n"
+"but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+"GNU General Public License for more details.\n"
+msgstr ""
+"O ePDFView é distribuído na esperança de que seja útil,\n"
+"mas SEM NENHUMA GARANTIA; até mesmo sem a garantia implicada de\n"
+"COMERCIALIZAÇÃO ou de ADAPTAÇÃO A UM PROPÓSITO EM PARTICULAR.  Veja a\n"
+"Licença Pública Geral GNU (GPL) para mais detalhes.\n"
+
+#: src/gtk/MainView.cxx:1130
+msgid ""
+"You should have received a copy of the GNU General Public License\n"
+"along with ePDFView; if not, write to the Free Software Foundation,Inc.,\n"
+"59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n"
+msgstr ""
+"Deve ter recebido uma cópia da Licença Pública Geral GNU (GPL)\n"
+"junto com o ePDFView; se não, escreva para a Free Software Foundation, Inc.\n"
+"59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n"
+
+#: src/gtk/MainView.cxx:1139
+msgid "ePDFView"
+msgstr "ePDFView"
+
+#: src/gtk/MainView.cxx:1146
+msgid "translator-credits"
+msgstr "Nuno Miguel <nunis@netcabo.pt>"
+
+#: src/gtk/PreferencesView.cxx:32
+msgid "Preferences"
+msgstr "Preferências"
+
+#: src/gtk/PreferencesView.cxx:46
+msgid "External Commands"
+msgstr "Comandos Externos"
+
+#: src/gtk/PreferencesView.cxx:105
+msgid "Web _Browser:"
+msgstr "Navegador _Web:"
+
+#: src/gtk/PreferencesView.cxx:118
+#, c-format
+msgid "Note: <i>%s</i> will be replaced by the URI."
+msgstr "Nota: O parâmetro <i>%s</i> deve ser substituído pelo URI."
+
+#: src/gtk/PrintView.cxx:51
+msgid "Print"
+msgstr "Imprimir"
+
+#: src/gtk/PrintView.cxx:69 src/gtk/PrintView.cxx:667
+msgid "Printer"
+msgstr "Impressora"
+
+#: src/gtk/PrintView.cxx:74
+msgid "Job"
+msgstr "Trabalho"
+
+#: src/gtk/PrintView.cxx:79
+msgid "Paper"
+msgstr "Página"
+
+#: src/gtk/PrintView.cxx:359
+msgid "<b>Print Range</b>"
+msgstr "<b>Intervalo de impressão</b>"
+
+#: src/gtk/PrintView.cxx:377
+msgid "_All pages"
+msgstr "_Todas as páginas"
+
+#: src/gtk/PrintView.cxx:380
+msgid "_Range:"
+msgstr "_Intervalo:"
+
+#: src/gtk/PrintView.cxx:392
+msgid "<b>Page Set</b>"
+msgstr "<b>Conjunto de páginas</b>"
+
+#: src/gtk/PrintView.cxx:408
+msgid "A_ll pages"
+msgstr "To_das as páginas"
+
+#: src/gtk/PrintView.cxx:412
+msgid "O_dd pages"
+msgstr "Páginas í_mpares"
+
+#: src/gtk/PrintView.cxx:416
+msgid "_Even pages"
+msgstr "Páginas pa_res"
+
+#: src/gtk/PrintView.cxx:420
+msgid "<b>Copies</b>"
+msgstr "<b>Cópias</b>"
+
+#: src/gtk/PrintView.cxx:437
+msgid "N_umber of copies:"
+msgstr "_Número de cópias:"
+
+#: src/gtk/PrintView.cxx:444
+msgid "C_ollate"
+msgstr "O_rganizar"
+
+#: src/gtk/PrintView.cxx:465
+msgid "<b>Paper and Layout</b>"
+msgstr "<b>Página e Disposição</b>"
+
+#: src/gtk/PrintView.cxx:482
+msgid "Paper _Size:"
+msgstr "_Tamanho do Papel:"
+
+#: src/gtk/PrintView.cxx:508
+msgid "Page _orientation:"
+msgstr "_Orientação de Página:"
+
+#: src/gtk/PrintView.cxx:539
+msgid "_Layout:"
+msgstr "_Disposição:"
+
+#: src/gtk/PrintView.cxx:568
+msgid "<b>Output</b>"
+msgstr "<b>Saída</b>"
+
+#: src/gtk/PrintView.cxx:585
+msgid "_Mode:"
+msgstr "_Modo:"
+
+#: src/gtk/PrintView.cxx:613
+msgid "_Resolution:"
+msgstr "_Resolução:"
+
+#: src/gtk/PrintView.cxx:676
+msgid "State"
+msgstr "Estado"
+
+#: src/gtk/PrintView.cxx:685
+msgid "Jobs"
+msgstr "Trabalhos"
+
+#: src/gtk/PrintView.cxx:694
+msgid "Location"
+msgstr "Local"
+
+#: src/gtk/PrintView.cxx:725
+msgid "Plain"
+msgstr "Plano"
+
+#: src/gtk/PrintView.cxx:731
+msgid "2 pages in 1"
+msgstr "2 páginas em 1"
+
+#: src/gtk/PrintView.cxx:737
+msgid "4 pages in 1"
+msgstr "4 páginas em 1"
+
+#: src/gtk/PrintView.cxx:743
+msgid "6 pages in 1"
+msgstr "6 páginas em 1"
+
+#: src/gtk/PrintView.cxx:758
+msgid "Portrait"
+msgstr "Retrato"
+
+#: src/gtk/PrintView.cxx:764
+msgid "Landscape"
+msgstr "Paisagem"
+
+#: src/gtk/StockIcons.cxx:40
+msgid "Find _Next"
+msgstr "Procurar _Próxima"
+
+#: src/gtk/StockIcons.cxx:41
+msgid "Find _Previous"
+msgstr "Localizar _Anterior"
+
+#~ msgid "File not found."
+#~ msgstr "Ficheiro não encontrado."
