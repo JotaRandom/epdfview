@@ -7,19 +7,20 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: ePDFView 0.1.7\n"
+"Project-Id-Version: ePDFView\n"
 "Report-Msgid-Bugs-To: jordi@emma-soft.com\n"
 "POT-Creation-Date: 2011-05-28 12:26+0200\n"
-"PO-Revision-Date: 2009-07-14 13:03+0100\n"
-"Last-Translator: Miguel Anxo Bouzada <mbouzada@gmail.com>\n"
-"Language-Team: GALPon MiniNo <minino@galpon.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2014-12-22 03:38-0400\n"
+"Last-Translator: Pablo Roberto Francisco Lezaeta Reyes <prflr88@gmail."
+"com>\n"
+"Language-Team: \n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Poedit-Language: Spanish\n"
-"X-Poedit-Country: SPAIN\n"
+"X-Generator: Poedit 1.7.1\n"
+"X-Poedit-SourceCharset: UTF-8\n"
 
 #: src/FindPter.cxx:187
 msgid "No Results Found!"
@@ -36,7 +37,7 @@ msgstr "Ningún error."
 
 #: src/IDocument.cxx:85
 msgid "Could not open file."
-msgstr ""
+msgstr "No se pudo abrir el archivo."
 
 #: src/IDocument.cxx:88
 msgid "Couldn't read the page catalog."
@@ -110,7 +111,7 @@ msgstr "Guardando el documento en %s..."
 
 #: src/MainPter.cxx:835 src/MainPter.cxx:876
 msgid "Error Loading File"
-msgstr "Error cargando el archivo"
+msgstr "No se pudo cargar el archivo"
 
 #: src/MainPter.cxx:877
 msgid "The password you have supplied is not a valid password for this file."
@@ -120,7 +121,7 @@ msgstr ""
 
 #: src/MainPter.cxx:962
 msgid "Error Saving File"
-msgstr "Error guardando el archivo"
+msgstr "No se pudo guardar el archivo"
 
 #: src/PagePter.cxx:338
 msgid "Loading..."
@@ -160,7 +161,7 @@ msgid ""
 "Failed to load document '%s'.\n"
 "%s\n"
 msgstr ""
-"Falló al abrir el documento '%s'.\n"
+"No se pudo abrir el documento «%s».\n"
 "%s\n"
 
 #: src/gtk/FindView.cxx:58
@@ -241,7 +242,7 @@ msgstr "_Preferencias..."
 
 #: src/gtk/MainView.cxx:122
 msgid "Change the application's preferences"
-msgstr "Cambia las preferencia de la applicación"
+msgstr "Cambia las preferencia de la aplicación"
 
 #: src/gtk/MainView.cxx:125
 msgid "Zoom _In"
@@ -386,7 +387,7 @@ msgstr "Abre un archivo PDF"
 
 #: src/gtk/MainView.cxx:349 src/gtk/MainView.cxx:465
 msgid "Portable Document Format (PDF) Files"
-msgstr "Archivos en Formato de Documento Transportable (PDF)"
+msgstr "Archivos en Formato de Documento Portátil (PDF)"
 
 #: src/gtk/MainView.cxx:361 src/gtk/MainView.cxx:477
 msgid "All Files"
@@ -415,7 +416,7 @@ msgstr "Índice"
 #: src/gtk/MainView.cxx:1002 src/gtk/MainView.cxx:1012
 #, c-format
 msgid "Error building UI manager: %s\n"
-msgstr "Error construiendo el administrador de IU: %s\n"
+msgstr "Error construyendo el administrador de IU: %s\n"
 
 #: src/gtk/MainView.cxx:1119
 msgid "A lightweight PDF viewer"
@@ -430,7 +431,7 @@ msgid ""
 msgstr ""
 "ePDFView es software libre; Ud. puede redistribuirlo y/o modificarlo\n"
 "bajo los términos de la Licencia Pública General de GNU publicada por \n"
-"la Free Software Foundation; ya sea en su versión 2 ó (a su criterio)\n"
+"la Free Software Foundation; ya sea en su versión 2 o (a su criterio)\n"
 "en una versión posterior.\n"
 
 #: src/gtk/MainView.cxx:1126
@@ -451,8 +452,8 @@ msgid ""
 "along with ePDFView; if not, write to the Free Software Foundation,Inc.,\n"
 "59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n"
 msgstr ""
-"Ud. debería haber recibido un copia de la Licencia Pública General de GNU\n"
-"junto con ePDFView; si no es el caso, esciba a Free Software Foundation, "
+"Debería haber recibido un copia de la Licencia Pública General de GNU\n"
+"junto con ePDFView; si no es el caso, escriba a Free Software Foundation, "
 "Inc.,\n"
 "59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n"
 
@@ -464,7 +465,8 @@ msgstr "ePDFView"
 msgid "translator-credits"
 msgstr ""
 "Jordi Fita <jordi@emma-soft.com>\n"
-"Miguel Anxo Bouzada <mbouzada@gmail.com>"
+"Miguel Anxo Bouzada <mbouzada@gmail.com>\n"
+"Pablo Roberto Francisco Lezaeta Reyes <prflr88@gmail.com>"
 
 #: src/gtk/PreferencesView.cxx:32
 msgid "Preferences"
@@ -481,7 +483,7 @@ msgstr "Navegador _Web:"
 #: src/gtk/PreferencesView.cxx:118
 #, c-format
 msgid "Note: <i>%s</i> will be replaced by the URI."
-msgstr "Nota: El parámetro <i>%s</i> se substiuirá por la URI."
+msgstr "Nota: El parámetro <i>%s</i> se sustituirá por la dirección URI."
 
 #: src/gtk/PrintView.cxx:51
 msgid "Print"
