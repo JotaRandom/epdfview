@@ -18,7 +18,7 @@
 #if !defined (__STOCK_ICONS_H__)
 #define __STOCK_ICONS_H__
 
-#include <glib/gmacros.h>
+#include <glib.h>
 
 G_BEGIN_DECLS
 
