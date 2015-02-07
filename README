@@ -1,6 +1,10 @@
 
     ePDFView
     ========
+    <a href="https://scan.coverity.com/projects/4198">
+    <img alt="Coverity Scan Build Status"
+    	src="https://scan.coverity.com/projects/4198/badge.svg"/>
+    </a>
 
     ePDFView is a simple and lightweight PDF viewer.
     For more general information about ePDFView please visit the project's
