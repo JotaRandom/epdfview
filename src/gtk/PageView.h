@@ -40,6 +40,8 @@ namespace ePDFView
             void setPresenter (PagePter *pter);
             void showPage (DocumentPage *page, PageScroll scroll);
             void showText (const gchar *text);
+            
+            void setInvertColorToggle(char on); // krogan edit
 
         protected:
             PageCursor m_CurrentCursor;
@@ -48,6 +50,8 @@ namespace ePDFView
             GtkWidget *m_PageScroll;
 
             GdkPixbuf *getPixbufFromPage (DocumentPage *page);
+            
+            char invertColorToggle; // krogan edit
     };
 }
 

@@ -68,6 +68,8 @@ namespace ePDFView
             void rotateRightActivated (void);
             void saveFileActivated (void);
             void showIndexActivated (gboolean show);
+            void showMenubarActivated (gboolean show); //krogan
+            void invertToggleActivated (gboolean on); //krogan
             void showStatusbarActivated (gboolean show);
             void showToolbarActivated (gboolean show);
             void zoomActivated (void);

@@ -42,6 +42,33 @@ static void page_view_resized_cb (GtkWidget *, GtkAllocation *, gpointer);
 static gboolean page_view_scrolled_cb (GtkWidget *, GdkEventScroll *, gpointer);
 static gboolean page_view_keypress_cb (GtkWidget *, GdkEventKey *, gpointer);
 
+static void gdkpixbuf_invert(GdkPixbuf *pb) {//krogan edit
+	int width, height, rowlength, n_channels;
+	guchar *pixels, *p;
+
+	n_channels = gdk_pixbuf_get_n_channels (pb);
+
+	g_assert (gdk_pixbuf_get_colorspace (pb) == GDK_COLORSPACE_RGB);
+	g_assert (gdk_pixbuf_get_bits_per_sample (pb) == 8);
+	g_assert (gdk_pixbuf_get_has_alpha (pb));
+	g_assert (n_channels == 4);
+
+	width = gdk_pixbuf_get_width (pb);
+	height = gdk_pixbuf_get_height (pb);
+
+	rowlength = width*n_channels;
+	
+	pixels = gdk_pixbuf_get_pixels (pb);
+	
+	int i;
+	int max = rowlength*height;
+	for(i=0;i<max;i+=n_channels) {
+		p = pixels + i;
+		p[0] = 255 - p[0];
+		p[1] = 255 - p[1];
+		p[2] = 255 - p[2];
+	}
+}
 
 PageView::PageView ():
     IPageView ()
@@ -72,10 +99,18 @@ PageView::PageView ():
             GTK_SCROLLED_WINDOW (m_PageScroll), m_EventBox);
 
     gtk_widget_show_all (m_PageScroll);
+    
+    invertColorToggle = 0;
 }
 
 PageView::~PageView ()
 {
+}
+
+void //krogan edit
+PageView::setInvertColorToggle(char on)
+{
+	invertColorToggle = on;
 }
 
 gdouble
@@ -284,6 +319,9 @@ PageView::showPage (DocumentPage *page, PageScroll scroll)
 {
     gtk_image_set_from_pixbuf (GTK_IMAGE (m_PageImage), NULL);
     GdkPixbuf *pixbuf = getPixbufFromPage (page);
+    
+    if(invertColorToggle) { gdkpixbuf_invert(pixbuf); }
+    
     gtk_image_set_from_pixbuf (GTK_IMAGE (m_PageImage), pixbuf);
     g_object_unref (pixbuf);
     // Set the vertical scroll to the specified.

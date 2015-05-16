@@ -17,7 +17,9 @@
       <menuitem name="Preferences" action="Preferences"/>
     </menu>
     <menu action="ViewMenu">
-      <menuitem name="ShowToolBar" action="ShowToolBar"/>
+      <menuitem name="ShowToolBar" action="ShowToolBar"/> 
+      <menuitem name="ShowMenuBar" action="ShowMenuBar"/><!-- krogan-->
+      <menuitem name="InvertToggle" action="InvertToggle"/><!-- krogan-->
       <menuitem name="ShowStatusBar" action="ShowStatusBar"/>
       <menuitem name="ShowIndex" action="ShowIndex"/>
       <separator/>

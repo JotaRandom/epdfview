@@ -59,6 +59,8 @@ namespace ePDFView
             void setView (IMainView &view);
             void viewResized (gint width, gint height);
             void setMode(PagePterMode mode);
+            
+            void setInvertColorToggle(char on);//krogan
 
         protected:
             /// The document whose page is shown.

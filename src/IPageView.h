@@ -180,6 +180,8 @@ namespace ePDFView
             ///               new page.
             ///
             virtual void showPage (DocumentPage *page, PageScroll scroll) = 0;
+            
+            virtual void setInvertColorToggle (char on) = 0; // krogan
 
             ///
             /// @brief Shows text on the page.

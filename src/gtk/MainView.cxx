@@ -69,6 +69,8 @@ static void main_window_preferences_cb (GtkWidget *, gpointer);
 static void main_window_quit_cb (GtkWidget *, gpointer);
 static void main_window_save_file_cb (GtkWidget *, gpointer);
 static void main_window_show_index_cb (GtkToggleAction *, gpointer);
+static void main_window_show_menubar_cb (GtkToggleAction *, gpointer); //krogan custom edit
+static void main_window_invert_color_cb (GtkToggleAction *, gpointer); //krogan custom edit
 static void main_window_show_statusbar_cb (GtkToggleAction *, gpointer);
 static void main_window_show_toolbar_cb (GtkToggleAction *, gpointer);
 static void main_window_zoom_cb (GtkWidget *, gpointer);
@@ -175,8 +177,16 @@ static GtkToggleActionEntry g_ToggleEntries[] =
     { "FullScreen", NULL, N_("F_ull screen"), "F11",
       N_("Toggle full screen window"),
       G_CALLBACK (main_window_fullscreen_cb), FALSE },
+    
+    { "ShowMenuBar", NULL, N_("Hide _Menubar"), "M", //krogan custom edit
+      N_("Toggle menu bar"),
+      G_CALLBACK (main_window_show_menubar_cb), FALSE },
 
-    { "ShowToolBar", NULL, N_("Show _Toolbar"), NULL,
+    { "InvertToggle", NULL, N_("_Invert Colors"), "I", //krogan custom edit
+      N_("Toggle color inversion"),
+      G_CALLBACK (main_window_invert_color_cb), FALSE },
+
+    { "ShowToolBar", NULL, N_("Show _Toolbar"), "T",
       N_("Show or hide the toolbar"),
       G_CALLBACK (main_window_show_toolbar_cb), TRUE },
 
@@ -645,8 +655,9 @@ MainView::showErrorMessage (const gchar *title, const gchar *body)
             GTK_DIALOG_DESTROY_WITH_PARENT,
             GTK_MESSAGE_ERROR,
             GTK_BUTTONS_OK,
+            "%s",
             title);
-    gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG(errorDialog),
+    gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG(errorDialog), 
                                               body);
     gtk_dialog_run (GTK_DIALOG (errorDialog));
     gtk_widget_destroy (errorDialog);
@@ -819,6 +830,39 @@ MainView::setOutline (DocumentOutline *outline)
     GtkTreePath *path = gtk_tree_path_new_from_string ("0");
     gtk_tree_view_set_cursor (GTK_TREE_VIEW (m_TreeIndex), path, NULL, FALSE);
     gtk_tree_path_free (path);
+}
+
+void //krogan edit
+MainView::showMenubar (gboolean hide)
+{
+	GtkWidget *menuBar = gtk_ui_manager_get_widget (m_UIManager, "/MenuBar");
+    GtkAction *toggleAction = gtk_ui_manager_get_action (m_UIManager,
+                                            "/MenuBar/ViewMenu/ShowMenuBar");
+    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (toggleAction), hide);
+    if ( hide )
+    {
+        gtk_widget_hide (menuBar);
+    }
+    else
+    {
+        gtk_widget_show (menuBar);
+    }
+}
+
+void //krogan edit
+MainView::invertToggle (gboolean show)
+{
+    GtkAction *toggleAction = gtk_ui_manager_get_action (m_UIManager,
+                                            "/MenuBar/ViewMenu/InvertToggle");
+    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (toggleAction), show);
+    if ( show )
+    {
+        //*invertStatusPter = 1;
+    }
+    else
+    {
+        //*invertStatusPter = 0;
+    }
 }
 
 void
@@ -1394,6 +1438,30 @@ main_window_save_file_cb (GtkWidget *widget, gpointer data)
 
     MainPter *pter = (MainPter *)data;
     pter->saveFileActivated ();
+}
+
+/// KROGAN EDIT
+/// @brief Called when the user clicks on the "Show Menubar" action.
+///
+void
+main_window_show_menubar_cb (GtkToggleAction *action, gpointer data)
+{
+    g_assert ( NULL != data && "The data parameter is NULL.");
+
+    MainPter *pter = (MainPter *)data;
+    pter->showMenubarActivated (gtk_toggle_action_get_active (action));
+}
+
+/// KROGAN EDIT
+/// @brief Called when the user clicks on the "Invert Colors" action.
+///
+void
+main_window_invert_color_cb (GtkToggleAction *action, gpointer data)
+{
+    g_assert ( NULL != data && "The data parameter is NULL.");
+
+    MainPter *pter = (MainPter *)data;
+    pter->invertToggleActivated (gtk_toggle_action_get_active (action));
 }
 
 ///

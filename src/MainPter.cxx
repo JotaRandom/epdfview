@@ -178,7 +178,10 @@ MainPter::setInitialState ()
 
     // Sensitive the open file action.
     view.sensitiveOpen (TRUE);
-    // Show the toolbar and status bar depending on the configuration.
+    // Show the toolbar,menu and status bar depending on the configuration.
+    view.showMenubar (config.showMenubar ()); //krogan wuz here
+    view.invertToggle (config.invertToggle ()); //krogan
+    //(config.invertToggle == TRUE) ? m_PagePter->:;
     view.showToolbar (config.showToolbar ());
     view.showStatusbar (config.showStatusbar ());
     view.showIndex (showSidebar);
@@ -533,12 +536,12 @@ MainPter::preferencesActivated ()
 void
 MainPter::reloadActivated ()
 {
-    g_assert ( m_Document->isLoaded () && 
-            "Tried to reload a yet to load document.");
-    // Reload
-    m_ReloadPage = m_Document->getCurrentPageNum();
-    setOpenState (m_Document->getFileName (), TRUE);
-    m_Document->reload ();
+	if(m_Document->isLoaded ()==TRUE) {
+		// Reload
+		m_ReloadPage = m_Document->getCurrentPageNum();
+		setOpenState (m_Document->getFileName (), TRUE);
+		m_Document->reload ();
+	}
 }
 
 ///
@@ -611,6 +614,32 @@ void
 MainPter::showIndexActivated (gboolean show)
 {
     getView ().showIndex (show);
+}
+
+/// krogan custom edit
+/// @brief The "Show Menubar" was activated.
+///
+/// @param show TRUE if show Menubar is active, FALSE otherwise.
+///
+void
+MainPter::showMenubarActivated (gboolean show)
+{
+    Config::getConfig().setShowMenubar (show);
+    getView ().showMenubar (show);
+}
+
+/// krogan custom edit
+/// @brief The "Invert Toggle" was activated.
+///
+/// @param show TRUE if inversion toggle active, FALSE otherwise.
+///
+void
+MainPter::invertToggleActivated (gboolean invert)
+{
+    Config::getConfig().setInvertToggle (invert);
+    getView ().invertToggle (invert);
+    m_PagePter->setInvertColorToggle(invert==TRUE);
+    reloadActivated();
 }
 
 ///

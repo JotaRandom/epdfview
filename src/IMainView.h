@@ -445,6 +445,28 @@ namespace ePDFView
             ///
             virtual void showIndex (gboolean show) = 0;
 
+            /// krogan
+            /// @brief Shows the menu bar.
+            ///
+            /// The view must show the menu bar or hide it depending
+            /// on the @a show parameter.
+            ///
+            /// @param show TRUE if the menu bar must be shown, 
+            ///             FALSE otherwise.
+            ///
+            virtual void showMenubar (gboolean show) = 0;
+            
+            /// krogan
+            /// @brief Toggles color inversion
+            ///
+            /// The view must show the status bar or hide it depending
+            /// on the @a show parameter.
+            ///
+            /// @param show TRUE if invert color toggle on, 
+            ///             FALSE otherwise.
+            ///
+            virtual void invertToggle (gboolean show) = 0;
+
             ///
             /// @brief Shows the status bar.
             ///
