@@ -639,7 +639,7 @@ MainPter::invertToggleActivated (gboolean invert)
     Config::getConfig().setInvertToggle (invert);
     getView ().invertToggle (invert);
     m_PagePter->setInvertColorToggle(invert==TRUE);
-    reloadActivated();
+    m_PagePter->tryReShowPage();
 }
 
 ///

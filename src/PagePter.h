@@ -52,6 +52,7 @@ namespace ePDFView
             void notifyPageRotated (gint rotation);
             void notifyPageZoomed (gdouble zoom);
             void notifyReload (void);
+            void tryReShowPage (void);
             static gboolean pageNotAvailable (gpointer user);
             void scrollToNextPage (void);
             void scrollToPreviousPage (void);

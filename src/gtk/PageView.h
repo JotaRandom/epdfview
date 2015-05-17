@@ -38,12 +38,19 @@ namespace ePDFView
                              gint dx, gint dy);
             void setCursor (PageCursor cursorType);
             void setPresenter (PagePter *pter);
+            
             void showPage (DocumentPage *page, PageScroll scroll);
+            void tryReShowPage (void);
+            
             void showText (const gchar *text);
             
             void setInvertColorToggle(char on); // krogan edit
 
         protected:
+			DocumentPage *lastPageShown;
+			PageScroll lastScroll;
+			char hasShownAPage;
+        
             PageCursor m_CurrentCursor;
             GtkWidget *m_EventBox;
             GtkWidget *m_PageImage;

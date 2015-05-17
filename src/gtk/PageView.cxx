@@ -101,6 +101,7 @@ PageView::PageView ():
     gtk_widget_show_all (m_PageScroll);
     
     invertColorToggle = 0;
+    hasShownAPage = 0;
 }
 
 PageView::~PageView ()
@@ -317,6 +318,10 @@ PageView::scrollPage (gdouble scrollX, gdouble scrollY, gint dx, gint dy)
 void 
 PageView::showPage (DocumentPage *page, PageScroll scroll)
 {
+	hasShownAPage = 1;
+	lastPageShown = page;
+	lastScroll = scroll;
+	
     gtk_image_set_from_pixbuf (GTK_IMAGE (m_PageImage), NULL);
     GdkPixbuf *pixbuf = getPixbufFromPage (page);
     
@@ -338,6 +343,14 @@ PageView::showPage (DocumentPage *page, PageScroll scroll)
             gtk_adjustment_set_value (adjustment, adjustment->upper);
         }
     }
+}
+
+void
+PageView::tryReShowPage()
+{
+	if(hasShownAPage) {
+		showPage(lastPageShown, lastScroll);
+	}
 }
 
 void

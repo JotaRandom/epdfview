@@ -147,6 +147,11 @@ PagePter::mouseButtonPressed (gint button, gint x, gint y)
     }
 }
 
+void
+PagePter::tryReShowPage() {
+	m_PageView->tryReShowPage();
+}
+
 ///
 /// @brief A mouse button has been released.
 ///
