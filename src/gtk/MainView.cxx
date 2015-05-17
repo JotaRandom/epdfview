@@ -178,15 +178,15 @@ static GtkToggleActionEntry g_ToggleEntries[] =
       N_("Toggle full screen window"),
       G_CALLBACK (main_window_fullscreen_cb), FALSE },
     
-    { "ShowMenuBar", NULL, N_("Hide _Menubar"), "F6", //krogan custom edit
+    { "ShowMenuBar", NULL, N_("Hide _Menubar"), "F7", //krogan custom edit
       N_("Toggle menu bar"),
       G_CALLBACK (main_window_show_menubar_cb), FALSE },
 
-    { "InvertToggle", NULL, N_("_Invert Colors"), "F7", //krogan custom edit
+    { "InvertToggle", NULL, N_("_Invert Colors"), "F8", //krogan custom edit
       N_("Toggle color inversion"),
       G_CALLBACK (main_window_invert_color_cb), FALSE },
 
-    { "ShowToolBar", NULL, N_("Show _Toolbar"), "F8",
+    { "ShowToolBar", NULL, N_("Show _Toolbar"), "F6",
       N_("Show or hide the toolbar"),
       G_CALLBACK (main_window_show_toolbar_cb), TRUE },
 
