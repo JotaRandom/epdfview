@@ -82,6 +82,8 @@ namespace ePDFView
             void setTitle (const gchar *title);
             void setOutline (DocumentOutline *outline);
             void showToolbar (gboolean show);
+            void showMenubar (gboolean hide); //krogan
+            void invertToggle (gboolean show); //krogan
             void showStatusbar (gboolean show);
 
         protected:

@@ -22,9 +22,11 @@
 using namespace ePDFView;
 
 // Constants
-static const gchar *DEFAULT_EXTERNAL_BROWSER_COMMAND_LINE = "firefox %s";
+static const gchar *DEFAULT_EXTERNAL_BROWSER_COMMAND_LINE = "x-www-browser %s";
 static const gchar *DEFAULT_OPEN_FILE_FOLDER = NULL;
 static const gchar *DEFAULT_SAVE_FILE_FOLDER = NULL;
+static const gboolean DEFAULT_SHOW_MENUBAR = TRUE; //krogan edit
+static const gboolean DEFAULT_INVERT_TOGGLE = FALSE; //krogan edit
 static const gboolean DEFAULT_SHOW_STATUSBAR = TRUE;
 static const gboolean DEFAULT_SHOW_TOOLBAR = TRUE;
 static const gint DEFAULT_WINDOW_HEIGHT = 650;
@@ -368,6 +370,28 @@ Config::setSaveFileFolder (const gchar *folder)
     g_key_file_set_string (m_Values, "save dialog", "folder", folder);
 }
 
+/// krogan custom edit
+/// @brief Save if show the menu bar.
+///
+/// @param show TRUE to show the status bar, FALSE otherwise.
+///
+void
+Config::setShowMenubar (gboolean show)
+{
+    g_key_file_set_boolean (m_Values, "main window", "showMenubar", show);
+}
+
+/// krogan custom edit
+/// @brief Save if invert page colors.
+///
+/// @param show TRUE to show the status bar, FALSE otherwise.
+///
+void
+Config::setInvertToggle (gboolean on)
+{
+    g_key_file_set_boolean (m_Values, "main window", "invertToggle", on);
+}
+
 ///
 /// @brief Save if show the status bar.
 ///
@@ -442,6 +466,28 @@ Config::setZoomToWidth (gboolean activate)
     g_key_file_set_boolean (m_Values, "main window", "zoomToFit",
             !activate && zoomToFit ());
     g_key_file_set_boolean (m_Values, "main window", "zoomToWidth", activate);
+}
+
+///krogan custom edit
+/// @brief Gets if show the menu bar.
+///
+/// @return TRUE if the menu bar should be shown, FALSE otherwise.
+///
+gboolean
+Config::showMenubar ()
+{
+    return getBoolean ("main window", "showMenubar", DEFAULT_SHOW_MENUBAR);
+}
+
+///krogan custom edit
+/// @brief Gets if show the menu bar.
+///
+/// @return TRUE if the menu bar should be shown, FALSE otherwise.
+///
+gboolean
+Config::invertToggle ()
+{
+    return getBoolean ("main window", "invertToggle", DEFAULT_INVERT_TOGGLE);
 }
 
 ///

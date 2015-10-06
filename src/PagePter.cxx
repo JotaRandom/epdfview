@@ -79,6 +79,11 @@ PagePter::~PagePter ()
     m_Document->detach (this);
 }
 
+void
+PagePter::setInvertColorToggle(char on) { //krogan
+	m_PageView->setInvertColorToggle(on);
+}
+
 ///
 /// @brief Gets the size of the page view.
 ///
@@ -140,6 +145,11 @@ PagePter::mouseButtonPressed (gint button, gint x, gint y)
                 view.setCursor (PAGE_VIEW_CURSOR_SELECT_TEXT);
         }
     }
+}
+
+void
+PagePter::tryReShowPage() {
+	m_PageView->tryReShowPage();
 }
 
 ///

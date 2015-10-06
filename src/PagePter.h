@@ -52,6 +52,7 @@ namespace ePDFView
             void notifyPageRotated (gint rotation);
             void notifyPageZoomed (gdouble zoom);
             void notifyReload (void);
+            void tryReShowPage (void);
             static gboolean pageNotAvailable (gpointer user);
             void scrollToNextPage (void);
             void scrollToPreviousPage (void);
@@ -59,6 +60,8 @@ namespace ePDFView
             void setView (IMainView &view);
             void viewResized (gint width, gint height);
             void setMode(PagePterMode mode);
+            
+            void setInvertColorToggle(char on);//krogan
 
         protected:
             /// The document whose page is shown.

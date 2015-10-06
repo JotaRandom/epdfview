@@ -45,6 +45,8 @@ namespace ePDFView
             gint getWindowWidth (void);
             gint getWindowX (void);
             gint getWindowY (void);
+            gboolean showMenubar (void); //krogan
+            gboolean invertToggle (void); //krogan
             gboolean showStatusbar (void);
             gboolean showToolbar (void);
             gboolean zoomToFit (void);
@@ -53,6 +55,8 @@ namespace ePDFView
             void setExternalBrowserCommandLine (const gchar *commandLine);
             void setOpenFileFolder (const gchar *folder);
             void setSaveFileFolder (const gchar *folder);
+            void setShowMenubar (gboolean show); //krogan
+            void setInvertToggle (gboolean on); //krogan
             void setShowStatusbar (gboolean show);
             void setShowToolbar (gboolean show);
             void setWindowSize (gint width, gint height);
