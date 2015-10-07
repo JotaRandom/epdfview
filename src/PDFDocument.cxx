@@ -635,7 +635,7 @@ PDFDocument::renderPage (gint pageNum)
 #if defined (HAVE_POPPLER_0_17_0)
         cairo_surface_t *surface = cairo_image_surface_create_for_data (
                 renderedPage->getData (),
-                CAIRO_FORMAT_RGB24, width, height,
+                CAIRO_FORMAT_ARGB32, width, height,
                 renderedPage->getRowStride ());
         cairo_t *context = cairo_create (surface);
         cairo_save(context);
