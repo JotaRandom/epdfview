@@ -1182,7 +1182,7 @@ _nl_locale_name_default (void)
       case LANG_DUTCH:
 	switch (sub)
 	  {
-	  case SUBLANG_DUTCH: return "nl_NL";
+	  case SUBLANG_DUTCH: return "nl";
 	  case SUBLANG_DUTCH_BELGIAN: /* FLEMISH, VLAAMS */ return "nl_BE";
 	  }
 	return "nl";
@@ -1269,7 +1269,7 @@ _nl_locale_name_default (void)
 	/* FIXME: Do they mean Hawaiian ("haw_US", 1000 speakers)
 	   or Hawaii Creole English ("cpe_US", 600000 speakers)?  */
 	return "cpe_US";
-      case LANG_HEBREW: return "he_IL";
+      case LANG_HEBREW: return "he";
       case LANG_HINDI: return "hi_IN";
       case LANG_HUNGARIAN: return "hu_HU";
       case LANG_IBIBIO: return "nic_NG";
@@ -1347,7 +1347,7 @@ _nl_locale_name_default (void)
       case LANG_PORTUGUESE:
 	switch (sub)
 	  {
-	  case SUBLANG_PORTUGUESE: return "pt_PT";
+	  case SUBLANG_PORTUGUESE: return "pt";
 	  /* Hmm. SUBLANG_PORTUGUESE_BRAZILIAN == SUBLANG_DEFAULT.
 	     Same phenomenon as SUBLANG_ENGLISH_US == SUBLANG_DEFAULT. */
 	  case SUBLANG_PORTUGUESE_BRAZILIAN: return "pt_BR";
