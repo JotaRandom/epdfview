@@ -1,8 +1,9 @@
-TODO: 
+    TODO: 
 	* Add continuous scrolling & maybe an option for toggle hide scrollbars. 
 	* Add shift+scroll for horizontal scrolling
 	* Add CMAke to make it multiplatform easily
 	* Change icons for some more originals to not use GNOME icons anymore
+	* Port to GTK+ 3.0 to keep a lightweigth alternative to evince alive
 
     ePDFView
     ========
@@ -17,7 +18,7 @@ TODO:
     Requirements
     ============
 
-    GTK+ version 2.6.0 or higher ( http://www.gtk.org/ )
-    Poppler version 0.5.0 with glib bindings ( http://poppler.freedesktop.org/ )
-    CppUnit to run the test suite ( http://cppunit.sourceforge.net/ )
-    Doxygen to build the documentation ( http://www.stack.nl/~dimitri/doxygen/ )
+ GTK+ version 2.6.0 or higher ( http://www.gtk.org/ ), but lower than 2.95.0
+ Poppler version 0.5.0 with glib bindings ( http://poppler.freedesktop.org/ )
+ CppUnit to run the test suite ( http://cppunit.sourceforge.net/ )
+ Doxygen to build the documentation ( http://www.stack.nl/~dimitri/doxygen/ )
