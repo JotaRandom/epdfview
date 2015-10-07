@@ -657,7 +657,7 @@ MainView::showErrorMessage (const gchar *title, const gchar *body)
             GTK_BUTTONS_OK,
             "%s",
             title);
-    gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG(errorDialog), 
+    gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG(errorDialog), "%s",
                                               body);
     gtk_dialog_run (GTK_DIALOG (errorDialog));
     gtk_widget_destroy (errorDialog);
