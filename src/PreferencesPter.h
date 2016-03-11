@@ -34,6 +34,7 @@ namespace ePDFView
             void setView (IPreferencesView *view);
 
             void browserCommandLineChanged (void);
+            void backsearchCommandLineChanged (void);
             void closeActivated (void);
 
         protected:
