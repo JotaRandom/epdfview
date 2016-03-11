@@ -79,11 +79,6 @@ PagePter::~PagePter ()
     m_Document->detach (this);
 }
 
-void
-PagePter::setInvertColorToggle(char on) { //krogan
-	m_PageView->setInvertColorToggle(on);
-}
-
 ///
 /// @brief Gets the size of the page view.
 ///
@@ -109,6 +104,71 @@ PagePter::getView ()
     return (*m_PageView);
 }
 
+void
+PagePter::onCtrlButton(gint button, gint state,gint x, gint y)
+{
+	// Use Ctrl-Right click
+	if (1 != button)
+		return;
+	// printf("Returning...\n\n");
+	gchar *backsearchCommandLine =
+		Config::getConfig().getExternalBacksearchCommandLine();
+	
+	// printf("Config:\n%s\n", backsearchCommandLine);
+	// printf("Tokenizing...\n");
+	gchar **backsearchTokens = g_strsplit(backsearchCommandLine," ",-1);
+	
+	for (gint i=0; backsearchTokens[i] != NULL; i++)
+	{
+		gchar *token = backsearchTokens[i];
+		// printf("Token %d: '%s'\n",i,token);
+		
+		if (0 == g_strcmp0(token,"%p"))
+		{
+			g_free(backsearchTokens[i]);
+			gint page = m_Document -> getCurrentPageNum();	// get page number
+			backsearchTokens[i] = g_strdup_printf("%d",page);
+			continue;
+		}
+		
+		if (0 == g_strcmp0(token,"%x"))
+		{
+			g_free(backsearchTokens[i]);
+			backsearchTokens[i] = g_strdup_printf("%d",x);
+			continue;
+		}
+		
+		if (0 == g_strcmp0(token,"%y"))
+		{
+			g_free(backsearchTokens[i]);
+			backsearchTokens[i] = g_strdup_printf("%d",y);
+			continue;
+		}
+			
+		if (0 == g_strcmp0(token,"%f"))
+		{
+			g_free(backsearchTokens[i]);
+			backsearchTokens[i] = g_strdup(m_Document -> getFileName());
+			continue;
+		}
+	}
+	gchar *commandLine = g_strjoinv(" ",backsearchTokens);
+	
+	// printf("Should be executing:\n%s\n",commandLine);
+
+	GError *error = NULL;
+    if ( !g_spawn_command_line_async (commandLine, &error) )
+    {
+        g_error_free (error);
+    }
+	
+	// Cleanup	
+	g_free (commandLine);
+	g_strfreev(backsearchTokens);
+	g_free(backsearchCommandLine);
+	return;
+}
+
 ///
 /// @brief A mouse button has been pressed.
 ///
@@ -116,14 +176,25 @@ PagePter::getView ()
 /// has been pressed.
 ///
 /// @param button The button that has been pressed.
+/// @param state  The state of the keyboard (i.e. Ctrl pressed, etc.)
 /// @param x The X coordinate relative to the top-left corner of the document
 ///          when the button was pressed.
 /// @param y The Y coordinate relative to the top-left corner of the document
 ///          when the button was pressed.
 ///
 void
-PagePter::mouseButtonPressed (gint button, gint x, gint y)
+PagePter::mouseButtonPressed (gint button, gint state,gint x, gint y)
 {
+	//
+	// This is new
+	//
+	if (0 != (state & GDK_CONTROL_MASK))
+	{
+		onCtrlButton(button, state,x , y);
+		return;
+	}
+
+	
     if ( 1 == button )
     {
         if ( m_Document->hasLinkAtPosition (x, y) )
@@ -145,11 +216,6 @@ PagePter::mouseButtonPressed (gint button, gint x, gint y)
                 view.setCursor (PAGE_VIEW_CURSOR_SELECT_TEXT);
         }
     }
-}
-
-void
-PagePter::tryReShowPage() {
-	m_PageView->tryReShowPage();
 }
 
 ///
