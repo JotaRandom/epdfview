@@ -28,10 +28,12 @@ namespace ePDFView
 
             virtual void setPresenter (PreferencesPter *pter);
             virtual const gchar *getBrowserCommandLine (void);
+            virtual const gchar *getBacksearchCommandLine (void);
 
         protected:
             GtkWidget *m_PreferencesDialog;
             GtkWidget *m_BrowserCommandLine;
+            GtkWidget *m_BacksearchCommandLine;
 
             GtkWidget *createExternalCommandsTab (void);
     };

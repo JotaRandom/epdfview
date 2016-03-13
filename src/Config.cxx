@@ -23,6 +23,7 @@ using namespace ePDFView;
 
 // Constants
 static const gchar *DEFAULT_EXTERNAL_BROWSER_COMMAND_LINE = "x-www-browser %s";
+static const gchar *DEFAULT_EXTERNAL_BACKSEARCH_COMMAND_LINE = "epdfsync -l %p %x %y %f";
 static const gchar *DEFAULT_OPEN_FILE_FOLDER = NULL;
 static const gchar *DEFAULT_SAVE_FILE_FOLDER = NULL;
 static const gboolean DEFAULT_SHOW_MENUBAR = TRUE; //krogan edit
@@ -163,6 +164,28 @@ Config::getExternalBrowserCommandLine ()
                       DEFAULT_EXTERNAL_BROWSER_COMMAND_LINE);
 }
 
+/// paag
+/// @brief Gets the command line to use to execute the external backsearch.
+///
+/// The external backsearch is used, when the PDF has an associated synctex.gz
+/// file and you want to get pack to the LaTEX code with Ctrl.Click
+/// %p will be replaced by the page
+/// *x, %y the position in the page
+/// %f the PDF file name
+/// these parameters will be then fed to synctex to do the backsearch
+/// Doing the actual search and opening up the editor is done by the scriot
+/// NOT by epdfview
+///
+/// @return The command line to use to execute the backsearch script
+///
+ 
+gchar *
+Config::getExternalBacksearchCommandLine ()
+{
+	return getString ("command line", "backsearch",
+					  DEFAULT_EXTERNAL_BACKSEARCH_COMMAND_LINE);
+}
+ 
 ///
 /// @brief Gets an integer configuration option.
 ///
@@ -346,6 +369,17 @@ void
 Config::setExternalBrowserCommandLine (const gchar *commandLine)
 {
     g_key_file_set_string (m_Values, "command line", "browser", commandLine);
+}
+
+/// paag
+/// @brief Saves the command line to use to execute the external backsearch script
+///
+/// @param commandLine the backsearch command line to save.
+///
+void
+Config::setExternalBacksearchCommandLine (const gchar *commandLine)
+{
+	g_key_file_set_string (m_Values, "command line", "backsearch", commandLine);
 }
 
 ///

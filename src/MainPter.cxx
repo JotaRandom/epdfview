@@ -638,8 +638,8 @@ MainPter::invertToggleActivated (gboolean invert)
 {
     Config::getConfig().setInvertToggle (invert);
     getView ().invertToggle (invert);
-    m_PagePter->setInvertColorToggle(invert==TRUE);
-    m_PagePter->tryReShowPage();
+    // m_PagePter->setInvertColorToggle(invert==TRUE);
+    // m_PagePter->tryReShowPage();
 }
 
 ///
