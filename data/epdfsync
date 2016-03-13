@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+from __future__ import print_function
+import sys
+import re
+import os
+from subprocess import Popen,PIPE
+
+try:
+    if sys.argv[1] == '-l':
+        LOG = open(os.path.join(os.getenv("HOME"),"epdfsync.log"), "a")
+        arg = 2
+    else:
+        LOG = None
+        arg = 1
+except:
+    print ("%s: execute synctex and open up emacsclient" % os.path.basename(sys.argv[0]))
+    print ("Arguments: [-l] page x y pdffile")
+    print (" -l generates a log in ~/epdfsync.log")
+    raise SystemExit
+
+
+print("Running " + " ".join(sys.argv), file=LOG)
+
+PAGE = int(sys.argv[arg])
+X = int(sys.argv[arg+1])
+Y = int(sys.argv[arg+2])
+PDFFILE = sys.argv[arg+3]
+
+sarg = ":".join(sys.argv[arg:])
+
+CMD = ["synctex", "edit", "-o", "%d:%d:%d:%s" % (PAGE,X,Y,PDFFILE)]
+print("Executing "+" ".join(CMD), file=LOG)
+synctex = Popen(CMD, stdout=PIPE, stderr=None)
+info, _ = synctex.communicate()
+print(info, file=LOG)
+try:
+    inputRe=re.compile(r"Input:(.+)$",re.MULTILINE)
+    fileName=inputRe.search(info).group(1)
+    lineRe=re.compile(r"Line:(.+)$",re.MULTILINE)
+    lineNumber=lineRe.search(info).group(1)
+
+    print("emacsclient +%s %s" % (lineNumber, fileName), file=LOG)
+    emacsclient = ["emacsclient", "-n", "-a", "emacs", "+"+lineNumber, fileName]
+    Popen(emacsclient,stdout=None,stderr=None).communicate()
+except:
+    print ("Something went wrong with synctex")
+    if LOG is None:
+        prin ("Enable loggong in .xpdfrc with '-l'")
+    else:
+        print(info, file=LOG)
