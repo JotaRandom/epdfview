@@ -57,6 +57,8 @@
     <separator/>
     <toolitem name="PageModeScroll" action="PageModeScroll"/>
     <toolitem name="PageModeText" action="PageModeText"/>
+    <separator />
+    <toolitem name="Preferences" action="Preferences"/>
   </toolbar>
 
   <accelerator name="SlashAccelerator" action="Slash"/>
