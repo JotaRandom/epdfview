@@ -80,6 +80,18 @@ MainPter::~MainPter ()
 }
 
 ///
+/// @brief: return TRUE is a document is loaded
+///
+gboolean
+MainPter::isDocumentLoaded(void)
+{
+	gboolean result = FALSE;
+	if (NULL != m_Document)
+		result =  m_Document -> isLoaded();
+	// printf("in MainPter::isDocumentLoaded() result = %d", result);
+	return result;
+}
+///
 /// @brief Checks the zoom settings.
 ///
 /// This function is called when the page rotation changes or the page
@@ -340,7 +352,8 @@ MainPter::findActivated ()
 void
 MainPter::fullScreenActivated (gboolean active)
 {
-    getView ().setFullScreen (active);
+	if (NULL != m_Document)
+		getView ().setFullScreen (active);
 }
 
 ///

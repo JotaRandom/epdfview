@@ -54,7 +54,7 @@ static void main_window_about_box_url_hook (GtkAboutDialog *, const gchar *,
 static void main_window_find_cb (GtkWidget *, gpointer);
 static void main_window_fullscreen_cb (GtkToggleAction *, gpointer);
 static gboolean main_window_moved_or_resized_cb (GtkWidget *,
-                                                 GdkEventConfigure *, gpointer);
+												 GdkEventConfigure *, gpointer);
 static void main_window_go_to_first_page_cb (GtkWidget *, gpointer);
 static void main_window_go_to_last_page_cb (GtkWidget *, gpointer);
 static void main_window_go_to_next_page_cb (GtkWidget *, gpointer);
@@ -1225,7 +1225,14 @@ main_window_fullscreen_cb (GtkToggleAction *action, gpointer data)
     g_assert ( NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
-    pter->fullScreenActivated (gtk_toggle_action_get_active (action));
+	if (pter -> isDocumentLoaded())
+		pter->fullScreenActivated (gtk_toggle_action_get_active (action));
+	else
+	{
+		// Reset the toggle button
+		gboolean current = gtk_toggle_action_get_active(action);
+		gtk_toggle_action_set_active(action, TRUE == current);
+	}
 }
 
 ///
