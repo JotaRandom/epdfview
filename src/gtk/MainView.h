@@ -61,6 +61,7 @@ namespace ePDFView
             void sensitiveZoomOut (gboolean sensitive);
             void sensitiveZoomFit (gboolean sensitive);
             void sensitiveZoomWidth (gboolean sensitive);
+            void sensitiveFullScreen (gboolean sensitive);
             void show (void);
             void showErrorMessage (const gchar *title, const gchar *body);
             void showIndex (gboolean show);

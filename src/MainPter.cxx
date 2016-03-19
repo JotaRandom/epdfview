@@ -153,6 +153,7 @@ MainPter::setInitialState ()
 #if defined (HAVE_CUPS)
         view.sensitivePrint (TRUE);
 #endif // HAVE_CUPS
+        view.sensitiveFullScreen (TRUE);
 
         checkZoomSettings ();
 
@@ -186,6 +187,7 @@ MainPter::setInitialState ()
 #if defined (HAVE_CUPS)
         view.sensitivePrint (FALSE);
 #endif // HAVE_CUPS
+        view.sensitiveFullScreen (FALSE);
     }
 
     // Sensitive the open file action.
@@ -239,6 +241,7 @@ MainPter::setOpenState (const gchar *fileName, gboolean reload)
     view.sensitiveZoomOut (FALSE);
     view.sensitiveZoomFit (FALSE);
     view.sensitiveZoomWidth (FALSE);
+    view.sensitiveFullScreen (FALSE);
     view.sensitiveOpen (FALSE);
 #if defined (HAVE_CUPS)
     view.sensitivePrint (FALSE);
