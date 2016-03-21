@@ -354,6 +354,18 @@ namespace ePDFView
             ///                  insensitive (disable) it.
             ///
             virtual void sensitiveZoomWidth (gboolean sensitive) = 0;
+            ///
+            /// @brief Changes the sensitivity of the "Full Screen" action.
+            ///
+            /// The view must change the sensitivity (it's called enabled or
+            /// disabled on some toolkits) of the "Full Screen" action
+            /// (both on the menu and the toolbar or any other place).
+            ///
+            /// @param sensitive Set to TRUE if need to make sensitive (enable)
+            ///                  the action (enable) or FALSE to 
+            ///                  insensitive (disable) it.
+            ///
+            virtual void sensitiveFullScreen (gboolean sensitive) = 0;
 
             ///
             /// @brief Sets the page view's cursor.

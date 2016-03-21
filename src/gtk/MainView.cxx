@@ -636,6 +636,14 @@ MainView::sensitiveZoomWidth (gboolean sensitive)
 }
 
 void
+MainView::sensitiveFullScreen (gboolean sensitive)
+{
+    GtkAction *fullScreen =
+        gtk_ui_manager_get_action (m_UIManager, "/MenuBar/ViewMenu/FullScreen");
+    gtk_action_set_sensitive (fullScreen, sensitive);
+}
+
+void
 MainView::show (void)
 {
     Config &config = Config::getConfig ();

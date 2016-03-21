@@ -14,6 +14,29 @@
  This software is licensed under the GNU General Public License (GPL).
  The icons used by this software are part of the Gnome Icon Theme, which is copyright The GNOME Project and released under the GNU General Public License (GPL).
 
+    Enhancements by Pedro A. Aranda Gutiérrez
+	=========================================
+
+    epdfsync
+    ========
+
+ epdfsync is a companion script that will be called by epdfview upon a
+Ctrl-Button1Down. This script should call synctex, if you want to have a full 
+edit cycle for LaTEX.
+
+    Tested on:
+    * Lubuntu 15.10
+    * Ubuntu 14.04.3 LTS
+    * FreeBSD 10.2 with XFCE
+
+	TODO
+    ====
+
+	* Integrate with 'latexmk -pvc'. Options: 
+	  * Monitor PDF and reload on change automatically
+	  	* Problem could be that epdfview reloads the PDF file before Latex has
+		  finished generating it.
+	  * Provide a hook to send the USR1 or any other signal to epdfview to force reload 
 
     Requirements
     ============
