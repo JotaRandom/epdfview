@@ -20,6 +20,9 @@
 #include <gettext.h>
 #include <locale.h>
 #include <gtk/gtk.h>
+#ifndef _WIN32
+#include <glib-unix.h>
+#endif
 #include "epdfview.h"
 #include <MainView.h>
 
@@ -52,6 +55,17 @@ loadFileFromCommandLine (gpointer data)
 
     return FALSE;
 }
+
+#ifndef _WIN32
+static gboolean
+handleReloadSignal(gpointer data)
+{
+    MainPter *mainPter = static_cast<MainPter *> (data);
+
+	mainPter->reloadActivated ();
+	return TRUE;
+}
+#endif
 
 int
 main (int argc, char **argv)
@@ -120,6 +134,10 @@ main (int argc, char **argv)
         g_idle_add (loadFileFromCommandLine, info);
     }
 
+#ifndef _WIN32
+	g_unix_signal_add(SIGUSR1,handleReloadSignal,mainPter);
+#endif
+	
     gtk_main();
 
     // There's no need for us to delete the main view, as it's
