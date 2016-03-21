@@ -135,7 +135,7 @@ main (int argc, char **argv)
     }
 
 #ifndef _WIN32
-	g_unix_signal_add(SIGUSR1,handleReloadSignal,mainPter);
+	g_unix_signal_add(SIGHUP,handleReloadSignal,mainPter);
 #endif
 	
     gtk_main();

@@ -8,6 +8,8 @@ EXTRA_DIST =	\
 	stock_rotate-90.png	\
 	stock_rotate-270.png	\
 	stock_zoom-page-width.png	\
+	epdfsync \
+	dot.latexmkrc \
 	epdfview.1	\
 	epdfview-ui.xml	\
 	epdfview-ui-print.xml	\
@@ -28,6 +30,11 @@ uidir = $(pkgdatadir)/ui
 ui_DATA =	\
 	epdfview-ui.xml	\
 	epdfview-ui-print.xml
+
+extradir = $(pkgdatadir)/extra
+extra_DATA = \
+	epdfsync \
+	dot.latexmkrc
 
 desktopdir = $(datadir)/applications
 desktop_DATA =	\
