@@ -29,15 +29,11 @@ edit cycle for LaTEX.
     * Ubuntu 14.04.3 LTS
     * FreeBSD 10.2 with XFCE
 
-	TODO
-    ====
+    SIGHUP
+	======
 
-	* Integrate with 'latexmk -pvc'. Options: 
-	  * Monitor PDF and reload on change automatically
-	  	* Problem could be that epdfview reloads the PDF file before Latex has
-		  finished generating it.
-	  * Provide a hook to send the USR1 or any other signal to epdfview to force reload 
-
+ Reload on SIGHUP to integrate with 'latexmk -pvc'.
+ 
     Requirements
     ============
 
