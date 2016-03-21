@@ -10,6 +10,7 @@ EXTRA_DIST =	\
 	stock_zoom-page-width.png	\
 	epdfsync \
 	dot.latexmkrc \
+	bsd.latexmkrc \
 	epdfview.1	\
 	epdfview-ui.xml	\
 	epdfview-ui-print.xml	\
@@ -34,7 +35,8 @@ ui_DATA =	\
 extradir = $(pkgdatadir)/extra
 extra_DATA = \
 	epdfsync \
-	dot.latexmkrc
+	dot.latexmkrc \
+	bsd.latexmkrc
 
 desktopdir = $(datadir)/applications
 desktop_DATA =	\
