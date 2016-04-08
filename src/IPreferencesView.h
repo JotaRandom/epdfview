@@ -61,6 +61,7 @@ namespace ePDFView
             }
 
             virtual const gchar *getBrowserCommandLine (void) = 0;
+            virtual const gchar *getBacksearchCommandLine (void) = 0;
 
         protected:
             /// The presenter that controls the view.

@@ -90,6 +90,8 @@ namespace ePDFView
             void notifySaveError (const GError *error);
             void notifyTextSelected (const gchar* text);
 
+			gboolean isDocumentLoaded(void);
+			
 #if defined (DEBUG)
             void waitForFileLoaded (void);
             void waitForFileSaved (void);

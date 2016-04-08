@@ -43,7 +43,8 @@ namespace ePDFView
 
             void getSize (gint *width, gint *height);
             IPageView &getView (void);
-            void mouseButtonPressed (gint mouseButton, gint x, gint y);
+            void onCtrlButton (gint mouseButton, gint mouseState,gint x, gint y);
+            void mouseButtonPressed (gint mouseButton, gint mouseState,gint x, gint y);
             void mouseButtonReleased (gint mouseButton);
             void mouseMoved (gint x, gint y);
             void notifyFindChanged (DocumentRectangle *matchRect);
@@ -52,7 +53,7 @@ namespace ePDFView
             void notifyPageRotated (gint rotation);
             void notifyPageZoomed (gdouble zoom);
             void notifyReload (void);
-            void tryReShowPage (void);
+			void tryReShowPage (void);
             static gboolean pageNotAvailable (gpointer user);
             void scrollToNextPage (void);
             void scrollToPreviousPage (void);
@@ -60,8 +61,7 @@ namespace ePDFView
             void setView (IMainView &view);
             void viewResized (gint width, gint height);
             void setMode(PagePterMode mode);
-            
-            void setInvertColorToggle(char on);//krogan
+			void setInvertColorToggle(char on);//krogan
 
         protected:
             /// The document whose page is shown.

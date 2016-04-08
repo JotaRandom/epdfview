@@ -39,6 +39,7 @@ namespace ePDFView
             ~Config (void);
 
             gchar *getExternalBrowserCommandLine (void);
+			gchar *getExternalBacksearchCommandLine (void);
             gchar *getOpenFileFolder (void);
             gchar *getSaveFileFolder (void);
             gint getWindowHeight (void);
@@ -53,7 +54,8 @@ namespace ePDFView
             gboolean zoomToWidth (void);
             void save(void);
             void setExternalBrowserCommandLine (const gchar *commandLine);
-            void setOpenFileFolder (const gchar *folder);
+			void setExternalBacksearchCommandLine (const gchar *commandLine);
+			void setOpenFileFolder (const gchar *folder);
             void setSaveFileFolder (const gchar *folder);
             void setShowMenubar (gboolean show); //krogan
             void setInvertToggle (gboolean on); //krogan

@@ -499,7 +499,7 @@ page_view_button_press_cb (GtkWidget *widget, GdkEventButton *event,
     gint x;
     gint y;
     view->getPagePosition (event_x, event_y, &x, &y);
-    view->getPresenter ()->mouseButtonPressed (event->button, x, y);
+    view->getPresenter ()->mouseButtonPressed (event->button, event->state, x, y);
 
     gtk_widget_grab_focus(view->getTopWidget());
     

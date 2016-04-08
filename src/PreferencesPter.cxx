@@ -53,6 +53,13 @@ PreferencesPter::browserCommandLineChanged ()
 }
 
 void
+PreferencesPter::backsearchCommandLineChanged ()
+{
+    const gchar *commandLine = getView ().getBacksearchCommandLine ();
+    Config::getConfig ().setExternalBacksearchCommandLine (commandLine);
+}
+
+void
 PreferencesPter::closeActivated ()
 {
     delete this;
