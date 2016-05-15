@@ -1,3 +1,26 @@
+    epdfview GIT
+    ============
+    
+    New Features
+    
+    	* SIGHUP handler
+    	* Ctrl-Button1Down handler
+    	
+    Interface Improvements
+    
+    Bug Fixes
+    
+    	* Fix Glib2 missing headers
+    	* Fix problems with modern CUPS
+    	* Use modern argb32 from propper
+    	* Swap the blue and red chanels
+    	
+    Code Changes	
+    	
+    Translation Updates
+    
+    	* es (Pablo Lezaeta)
+
     epdfview 0.1.8
     ==============
 
