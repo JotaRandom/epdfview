@@ -840,21 +840,21 @@ MainView::setOutline (DocumentOutline *outline)
     gtk_tree_path_free (path);
 }
 
-void //krogan edit
-MainView::showMenubar (gboolean hide)
+void // paag: change hide to show
+MainView::showMenubar (gboolean show)
 {
 	GtkWidget *menuBar = gtk_ui_manager_get_widget (m_UIManager, "/MenuBar");
-    GtkAction *toggleAction = gtk_ui_manager_get_action (m_UIManager,
-                                            "/MenuBar/ViewMenu/ShowMenuBar");
-    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (toggleAction), hide);
-    if ( hide )
-    {
-        gtk_widget_hide (menuBar);
-    }
-    else
+    if ( show )
     {
         gtk_widget_show (menuBar);
     }
+    else
+    {
+        gtk_widget_hide (menuBar);
+    }
+    GtkAction *toggleAction = gtk_ui_manager_get_action (m_UIManager,
+                                            "/MenuBar/ViewMenu/ShowMenuBar");
+    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (toggleAction), show);
 }
 
 void //krogan edit

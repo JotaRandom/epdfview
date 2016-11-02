@@ -105,6 +105,7 @@ PreferencesView::createExternalCommandsTab ()
     gtk_table_set_row_spacings (GTK_TABLE (table), 3);
     gtk_table_set_col_spacings (GTK_TABLE (table), 12);
 
+    m_BrowserCommandLine = gtk_entry_new ();
     GtkWidget *webBrowserLabel = gtk_label_new (_("Web_Browser:"));
     gtk_misc_set_alignment (GTK_MISC (webBrowserLabel), 1.0, 0.5);
     gtk_label_set_use_markup (GTK_LABEL (webBrowserLabel), TRUE);
@@ -117,7 +118,6 @@ PreferencesView::createExternalCommandsTab ()
                                (GtkAttachOptions)(GTK_SHRINK),
                                0, 0);
     // The web browser.
-    m_BrowserCommandLine = gtk_entry_new ();
     gchar *browserCommandLine =
         Config::getConfig ().getExternalBrowserCommandLine ();
     gtk_entry_set_text (GTK_ENTRY (m_BrowserCommandLine), browserCommandLine);
@@ -135,6 +135,9 @@ PreferencesView::createExternalCommandsTab ()
                       (GtkAttachOptions)(GTK_SHRINK),
                       0, 12);
 
+	//
+	// Back-searching (through SyncTeX)
+	//
     m_BacksearchCommandLine = gtk_entry_new ();
     GtkWidget *backsearchLabel = gtk_label_new (_("SyncTeX script:"));
     gtk_misc_set_alignment (GTK_MISC (backsearchLabel), 1.0, 0.5);

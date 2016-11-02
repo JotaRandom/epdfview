@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "epdfview.h"
-
+#include <stdio.h>
 using namespace ePDFView;
 
 #if defined (DEBUG)
@@ -193,6 +193,7 @@ MainPter::setInitialState ()
     // Sensitive the open file action.
     view.sensitiveOpen (TRUE);
     // Show the toolbar,menu and status bar depending on the configuration.
+	// printf("menubar is %s\n", config.showMenubar() ? "on" : "off");
     view.showMenubar (config.showMenubar ()); //krogan wuz here
     view.invertToggle (config.invertToggle ()); //krogan
     //(config.invertToggle == TRUE) ? m_PagePter->:;
