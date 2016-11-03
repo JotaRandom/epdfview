@@ -14,6 +14,7 @@ EXTRA_DIST =	\
 	epdfview.1	\
 	epdfview-ui.xml	\
 	epdfview-ui-print.xml	\
+	epdfview.svg \
 	epdfview.desktop
 
 pixmapdir = $(pkgdatadir)/pixmaps
@@ -35,6 +36,7 @@ ui_DATA =	\
 extradir = $(pkgdatadir)/extra
 extra_DATA = \
 	epdfsync \
+	epdfview.svg \
 	dot.latexmkrc \
 	bsd.latexmkrc
 

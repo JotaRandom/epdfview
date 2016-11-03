@@ -325,6 +325,7 @@ EXTRA_DIST = \
 	stock_rotate-90.png	\
 	stock_rotate-270.png	\
 	stock_zoom-page-width.png	\
+	epdfview.svg	\
 	epdfsync \
 	dot.latexmkrc \
 	bsd.latexmkrc \
@@ -351,6 +352,7 @@ ui_DATA = \
 
 extradir = $(pkgdatadir)/extra
 extra_DATA = \
+	epdfview.svg	\
 	epdfsync \
 	dot.latexmkrc \
 	bsd.latexmkrc
