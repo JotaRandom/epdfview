@@ -8,11 +8,15 @@
     ePDFView
     ========
 
+
+![Travis status](https://travis-ci.org/jristz/epdfview.svg)
+
  ePDFView is a simple and lightweight PDF viewer.
  For more general information about ePDFView please visit the project's website at http://www.emma-soft.com/projects/epdfview/ .
 
  This software is licensed under the GNU General Public License (GPL).
- The icons used by this software are part of the Gnome Icon Theme, which is copyright The GNOME Project and released under the GNU General Public License (GPL).
+ The icons used by this software are part of the Gnome Icon Theme, 
+which is copyright The GNOME Project and released under the GNU General Public License (GPL).
 
     Enhancements by Pedro A. Aranda Gutiérrez
     =========================================

@@ -1,0 +1,11 @@
+language: c
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libgtk2.0-dev libpoppler-glib-dev libcups2
+compiler:
+  - clang
+  - gcc
+script:
+  - ./configure --prefix="$HOME/build/jristz/"
+  - make
+  - make DESTDIR="$HOME/build/jristz/" install
