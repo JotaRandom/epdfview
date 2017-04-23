@@ -10,15 +10,16 @@ msgstr ""
 "Project-Id-Version: ePDFView\n"
 "Report-Msgid-Bugs-To: jordi@emma-soft.com\n"
 "POT-Creation-Date: 2017-04-23 03:27-0300\n"
-"PO-Revision-Date: 2015-10-07 00:21-0300\n"
-"Last-Translator: Pablo Roberto Francisco Lezaeta Reyes <prflr88@gmail.com>\n"
+"PO-Revision-Date: 2017-04-23 03:42-0300\n"
+"Last-Translator: Pablo Roberto Francisco Lezaeta Reyes <prflr88@gmail."
+"com>\n"
 "Language-Team: \n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.5\n"
+"X-Generator: Poedit 2.0.1\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
 #: src/FindPter.cxx:187
@@ -49,7 +50,8 @@ msgstr "El archivo PDF está dañado y no puede ser reparado."
 #: src/IDocument.cxx:94
 msgid "The file is encrypted and the password was incorrect or not supplied."
 msgstr ""
-"El archivo está cifrado y la contraseña es incorrecta o no se ha facilitado"
+"El archivo está cifrado y la contraseña es incorrecta o no se ha "
+"facilitado."
 
 #: src/IDocument.cxx:97
 msgid "Nonexistent or invalid highlight file."
@@ -132,7 +134,7 @@ msgstr "A4"
 
 #: src/PrintPter.cxx:314
 msgid "300 DPI"
-msgstr "300 DPI"
+msgstr "300 PPP"
 
 #: src/PrintPter.cxx:342
 msgid "Grayscale"
@@ -213,7 +215,7 @@ msgstr "Guarda una copia de el documento actual"
 
 #: src/gtk/MainView.cxx:110
 msgid "_Print..."
-msgstr "_Imprimir"
+msgstr "_Imprimir..."
 
 #: src/gtk/MainView.cxx:111
 msgid "Print the current document"
@@ -326,19 +328,19 @@ msgstr "Cambia a pantalla completa"
 
 #: src/gtk/MainView.cxx:181
 msgid "Hide _Menubar"
-msgstr ""
+msgstr "Ocultar barra del _menú"
 
 #: src/gtk/MainView.cxx:182
 msgid "Toggle menu bar"
-msgstr ""
+msgstr "Des/Habilita la barra del menú"
 
 #: src/gtk/MainView.cxx:185
 msgid "_Invert Colors"
-msgstr ""
+msgstr "_Invertir colores"
 
 #: src/gtk/MainView.cxx:186
 msgid "Toggle color inversion"
-msgstr ""
+msgstr "Des/Habilita la inversión de colores"
 
 #: src/gtk/MainView.cxx:189
 msgid "Show _Toolbar"
@@ -394,7 +396,7 @@ msgstr "Seleccionar texto"
 
 #: src/gtk/MainView.cxx:216
 msgid " Mouse select text"
-msgstr "Permite seleccionar texto con el ratón"
+msgstr " Permite seleccionar texto con el ratón"
 
 #: src/gtk/MainView.cxx:339
 msgid "Open PDF File"
@@ -402,7 +404,7 @@ msgstr "Abre un archivo PDF"
 
 #: src/gtk/MainView.cxx:359 src/gtk/MainView.cxx:475
 msgid "Portable Document Format (PDF) Files"
-msgstr "Archivos en Formato de Documento Portátil (PDF)"
+msgstr "Archivos en (PDF) Formato de Documento Portátil"
 
 #: src/gtk/MainView.cxx:371 src/gtk/MainView.cxx:487
 msgid "All Files"
@@ -492,7 +494,6 @@ msgid "External Commands"
 msgstr "Órdenes externas"
 
 #: src/gtk/PreferencesView.cxx:109
-#, fuzzy
 msgid "Web_Browser:"
 msgstr "Navegador _Web:"
 
@@ -503,11 +504,11 @@ msgstr "Nota: El parámetro <i>%s</i> se sustituirá por la dirección URI."
 
 #: src/gtk/PreferencesView.cxx:142
 msgid "SyncTeX script:"
-msgstr ""
+msgstr "Intérprete SynTex:"
 
 #: src/gtk/PreferencesView.cxx:162
 msgid "Note: <i>%p</i>=page <i>%x,%y</i>=coordinates <i>%f</i>=PDF file"
-msgstr ""
+msgstr "Nota: <i>%p</i>=página <i>%x,%y</i>=cordenadas <i>%f</i>=Archivo PDF"
 
 #: src/gtk/PrintView.cxx:51
 msgid "Print"
@@ -543,7 +544,7 @@ msgstr "<b>Conjunto de páginas</b>"
 
 #: src/gtk/PrintView.cxx:408
 msgid "A_ll pages"
-msgstr "_Todas la páginas"
+msgstr "Todas _la páginas"
 
 #: src/gtk/PrintView.cxx:412
 msgid "O_dd pages"
@@ -551,7 +552,7 @@ msgstr "Páginas _impares"
 
 #: src/gtk/PrintView.cxx:416
 msgid "_Even pages"
-msgstr "Páginas pare_s"
+msgstr "Páginas par_es"
 
 #: src/gtk/PrintView.cxx:420
 msgid "<b>Copies</b>"
