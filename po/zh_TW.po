@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: epdfview 0.1.6\n"
 "Report-Msgid-Bugs-To: jordi@emma-soft.com\n"
-"POT-Creation-Date: 2011-05-28 12:26+0200\n"
+"POT-Creation-Date: 2017-04-23 03:27-0300\n"
 "PO-Revision-Date: 2007-04-20 12:47+0800\n"
 "Last-Translator: Wei-Lun Chao <william.chao@ossii.com.tw>\n"
 "Language-Team: Chinese (traditional) <zh-l10n@linux.org.tw>\n"
@@ -74,79 +74,79 @@ msgstr "檔案 I/O 錯誤。"
 msgid "Unknown error (%d)."
 msgstr "不明的錯誤 (%d)。"
 
-#: src/main.cxx:91
+#: src/main.cxx:105
 msgid "[FILE] - view PDF documents"
 msgstr "[FILE] - 檢視 PDF 文件"
 
-#: src/main.cxx:104 src/MainPter.cxx:156
+#: src/main.cxx:118 src/MainPter.cxx:169
 msgid "PDF Viewer"
 msgstr "PDF 檢視器"
 
-#: src/MainPter.cxx:235
+#: src/MainPter.cxx:254
 #, c-format
 msgid "Reloading file %s..."
 msgstr "正在重新載入檔案 %s…"
 
-#: src/MainPter.cxx:239
+#: src/MainPter.cxx:258
 #, c-format
 msgid "Loading file %s..."
 msgstr "載入檔案 %s…"
 
-#: src/MainPter.cxx:415 src/MainPter.cxx:897
+#: src/MainPter.cxx:435 src/MainPter.cxx:943
 #, c-format
 msgid "of %d"
 msgstr "之於 %d"
 
-#: src/MainPter.cxx:591
+#: src/MainPter.cxx:611
 #, c-format
 msgid "Saving document to %s..."
 msgstr "儲存文件至 %s…"
 
-#: src/MainPter.cxx:835 src/MainPter.cxx:876
+#: src/MainPter.cxx:881 src/MainPter.cxx:922
 msgid "Error Loading File"
 msgstr "載入檔案時發生錯誤"
 
-#: src/MainPter.cxx:877
+#: src/MainPter.cxx:923
 msgid "The password you have supplied is not a valid password for this file."
 msgstr "您提供的密碼對於此檔案無效。"
 
-#: src/MainPter.cxx:962
+#: src/MainPter.cxx:1008
 msgid "Error Saving File"
 msgstr "儲存檔案時發生錯誤"
 
-#: src/PagePter.cxx:338
+#: src/PagePter.cxx:424
 msgid "Loading..."
 msgstr "載入…"
 
-#: src/PrintPter.cxx:252
+#: src/PrintPter.cxx:286
 msgid "A4"
 msgstr ""
 
-#: src/PrintPter.cxx:280
+#: src/PrintPter.cxx:314
 msgid "300 DPI"
 msgstr ""
 
-#: src/PrintPter.cxx:308
+#: src/PrintPter.cxx:342
 msgid "Grayscale"
 msgstr "灰階"
 
-#: src/PrintPter.cxx:409
+#: src/PrintPter.cxx:443
 msgid "Idle"
 msgstr "閒置"
 
-#: src/PrintPter.cxx:412
+#: src/PrintPter.cxx:446
 msgid "Stopped"
 msgstr "已停止"
 
-#: src/PrintPter.cxx:415
+#: src/PrintPter.cxx:449
 msgid "Processing"
 msgstr "處理中"
 
-#: src/PrintPter.cxx:418
+#: src/PrintPter.cxx:452
 msgid "Unknown"
 msgstr "未知"
 
-#: src/PDFDocument.cxx:275
+#: src/PDFDocument.cxx:294
 #, c-format
 msgid ""
 "Failed to load document '%s'.\n"
@@ -159,261 +159,277 @@ msgstr ""
 msgid "Find:"
 msgstr "尋找："
 
-#: src/gtk/MainView.cxx:89
+#: src/gtk/MainView.cxx:91
 msgid "_File"
 msgstr "檔案(_F)"
 
-#: src/gtk/MainView.cxx:90
+#: src/gtk/MainView.cxx:92
 msgid "_Edit"
 msgstr "編輯(_E)"
 
-#: src/gtk/MainView.cxx:91
+#: src/gtk/MainView.cxx:93
 msgid "_View"
 msgstr "檢視(_V)"
 
-#: src/gtk/MainView.cxx:92
+#: src/gtk/MainView.cxx:94
 msgid "_Go"
 msgstr "前往(_G)"
 
-#: src/gtk/MainView.cxx:93
+#: src/gtk/MainView.cxx:95
 msgid "_Help"
 msgstr "求助(_H)"
 
-#: src/gtk/MainView.cxx:95
+#: src/gtk/MainView.cxx:97
 msgid "_Open"
 msgstr "開啟(_O)"
 
-#: src/gtk/MainView.cxx:96
+#: src/gtk/MainView.cxx:98
 msgid "Open a PDF document"
 msgstr "開啟 PDF 文件"
 
-#: src/gtk/MainView.cxx:99
+#: src/gtk/MainView.cxx:101
 msgid "_Reload"
 msgstr "重新載入(_R)"
 
-#: src/gtk/MainView.cxx:100
+#: src/gtk/MainView.cxx:102
 msgid "Reload the current document"
 msgstr "重新載入目前文件"
 
-#: src/gtk/MainView.cxx:103
+#: src/gtk/MainView.cxx:105
 msgid "_Save a Copy..."
 msgstr "儲存複本(_S)…"
 
-#: src/gtk/MainView.cxx:104
+#: src/gtk/MainView.cxx:106
 msgid "Save a copy of the current document"
 msgstr "儲存目前文件的複本"
 
-#: src/gtk/MainView.cxx:108
+#: src/gtk/MainView.cxx:110
 msgid "_Print..."
 msgstr "列印(_P)…"
 
-#: src/gtk/MainView.cxx:109
+#: src/gtk/MainView.cxx:111
 msgid "Print the current document"
 msgstr "列印目前文件"
 
-#: src/gtk/MainView.cxx:113
+#: src/gtk/MainView.cxx:115
 msgid "_Close"
 msgstr "關閉(_C)"
 
-#: src/gtk/MainView.cxx:114
+#: src/gtk/MainView.cxx:116
 msgid "Close this window"
 msgstr "關閉此視窗"
 
-#: src/gtk/MainView.cxx:117
+#: src/gtk/MainView.cxx:119
 msgid "_Find"
 msgstr "尋找(_F)"
 
-#: src/gtk/MainView.cxx:118
+#: src/gtk/MainView.cxx:120
 msgid "Find a word in the document"
 msgstr "在文件中尋找字詞"
 
-#: src/gtk/MainView.cxx:121
+#: src/gtk/MainView.cxx:123
 #, fuzzy
 msgid "_Preferences..."
 msgstr "偏好設定…"
 
-#: src/gtk/MainView.cxx:122
+#: src/gtk/MainView.cxx:124
 msgid "Change the application's preferences"
 msgstr "改變應用軟體的偏好設定"
 
-#: src/gtk/MainView.cxx:125
+#: src/gtk/MainView.cxx:127
 msgid "Zoom _In"
 msgstr "放大(_I)"
 
-#: src/gtk/MainView.cxx:126
+#: src/gtk/MainView.cxx:128
 msgid "Enlarge the document"
 msgstr "放大文件"
 
-#: src/gtk/MainView.cxx:129
+#: src/gtk/MainView.cxx:131
 msgid "Zoom _Out"
 msgstr "縮小(_O)"
 
-#: src/gtk/MainView.cxx:130
+#: src/gtk/MainView.cxx:132
 msgid "Shrink the document"
 msgstr "收縮文件"
 
-#: src/gtk/MainView.cxx:133 src/gtk/StockIcons.cxx:43
+#: src/gtk/MainView.cxx:135 src/gtk/StockIcons.cxx:43
 msgid "Rotate _Right"
 msgstr "向右旋轉(_R)"
 
-#: src/gtk/MainView.cxx:134
+#: src/gtk/MainView.cxx:136
 msgid "Rotate the document 90 degrees clockwise"
 msgstr "順時針旋轉文件 90 度"
 
-#: src/gtk/MainView.cxx:137 src/gtk/StockIcons.cxx:42
+#: src/gtk/MainView.cxx:139 src/gtk/StockIcons.cxx:42
 msgid "Rotate _Left"
 msgstr "向左旋轉(_L)"
 
-#: src/gtk/MainView.cxx:138
+#: src/gtk/MainView.cxx:140
 msgid "Rotate the document 90 degrees counter-clockwise"
 msgstr "逆時針旋轉文件 90 度"
 
-#: src/gtk/MainView.cxx:141
+#: src/gtk/MainView.cxx:143
 msgid "_First Page"
 msgstr "首頁(_F)"
 
-#: src/gtk/MainView.cxx:142
+#: src/gtk/MainView.cxx:144
 msgid "Go to the first page"
 msgstr "前往第一頁"
 
-#: src/gtk/MainView.cxx:145
+#: src/gtk/MainView.cxx:147
 msgid "_Next Page"
 msgstr "下頁(_N)"
 
-#: src/gtk/MainView.cxx:146
+#: src/gtk/MainView.cxx:148
 msgid "Go to the next page"
 msgstr "前往下一頁"
 
-#: src/gtk/MainView.cxx:149
+#: src/gtk/MainView.cxx:151
 msgid "_Previous Page"
 msgstr "上頁(_P)"
 
-#: src/gtk/MainView.cxx:150
+#: src/gtk/MainView.cxx:152
 msgid "Go to the previous page"
 msgstr "前往上一頁"
 
-#: src/gtk/MainView.cxx:153
+#: src/gtk/MainView.cxx:155
 msgid "_Last Page"
 msgstr "末頁(_L)"
 
-#: src/gtk/MainView.cxx:154
+#: src/gtk/MainView.cxx:156
 msgid "Go to the last page"
 msgstr "前往最末頁"
 
-#: src/gtk/MainView.cxx:157
+#: src/gtk/MainView.cxx:159
 msgid "_About"
 msgstr "關於(_A)"
 
-#: src/gtk/MainView.cxx:158
+#: src/gtk/MainView.cxx:160
 msgid "Display application's credits"
 msgstr "顯示應用程式的鳴謝"
 
-#: src/gtk/MainView.cxx:175
+#: src/gtk/MainView.cxx:177
 msgid "F_ull screen"
 msgstr "全螢幕(_U)"
 
-#: src/gtk/MainView.cxx:176
+#: src/gtk/MainView.cxx:178
 msgid "Toggle full screen window"
 msgstr "切換到全螢幕視窗"
 
-#: src/gtk/MainView.cxx:179
+#: src/gtk/MainView.cxx:181
+msgid "Hide _Menubar"
+msgstr ""
+
+#: src/gtk/MainView.cxx:182
+msgid "Toggle menu bar"
+msgstr ""
+
+#: src/gtk/MainView.cxx:185
+msgid "_Invert Colors"
+msgstr ""
+
+#: src/gtk/MainView.cxx:186
+msgid "Toggle color inversion"
+msgstr ""
+
+#: src/gtk/MainView.cxx:189
 msgid "Show _Toolbar"
 msgstr "顯示工具列(_T)"
 
-#: src/gtk/MainView.cxx:180
+#: src/gtk/MainView.cxx:190
 msgid "Show or hide the toolbar"
 msgstr "顯示或隱藏工具列"
 
-#: src/gtk/MainView.cxx:183
+#: src/gtk/MainView.cxx:193
 msgid "Show _Statusbar"
 msgstr "顯示狀態列(_S)"
 
-#: src/gtk/MainView.cxx:184
+#: src/gtk/MainView.cxx:194
 msgid "Show or hide the statusbar"
 msgstr "顯示或隱藏狀態列"
 
-#: src/gtk/MainView.cxx:187
+#: src/gtk/MainView.cxx:197
 msgid "Show I_ndex"
 msgstr "顯示索引(_N)"
 
-#: src/gtk/MainView.cxx:188
+#: src/gtk/MainView.cxx:198
 msgid "Show or hide the document's outline"
 msgstr "顯示或隱藏文件外框"
 
-#: src/gtk/MainView.cxx:191
+#: src/gtk/MainView.cxx:201
 msgid "Zoom to _Fit"
 msgstr "符合視窗(_F)"
 
-#: src/gtk/MainView.cxx:192
+#: src/gtk/MainView.cxx:202
 msgid "Make the current document fill the window"
 msgstr "將目前文件填滿視窗"
 
-#: src/gtk/MainView.cxx:195 src/gtk/StockIcons.cxx:44
+#: src/gtk/MainView.cxx:205 src/gtk/StockIcons.cxx:44
 msgid "Zoom to _Width"
 msgstr "符合寬度(_W)"
 
-#: src/gtk/MainView.cxx:196
+#: src/gtk/MainView.cxx:206
 msgid "Make the current document fill the window width"
 msgstr "將目前文件填滿視窗寬度"
 
-#: src/gtk/MainView.cxx:202
+#: src/gtk/MainView.cxx:212
 msgid "Scroll"
 msgstr ""
 
-#: src/gtk/MainView.cxx:203
+#: src/gtk/MainView.cxx:213
 msgid "Mouse scroll page"
 msgstr ""
 
-#: src/gtk/MainView.cxx:205
+#: src/gtk/MainView.cxx:215
 msgid "Select Text"
 msgstr ""
 
-#: src/gtk/MainView.cxx:206
+#: src/gtk/MainView.cxx:216
 msgid " Mouse select text"
 msgstr ""
 
-#: src/gtk/MainView.cxx:329
+#: src/gtk/MainView.cxx:339
 msgid "Open PDF File"
 msgstr "開啟 PDF 檔案"
 
-#: src/gtk/MainView.cxx:349 src/gtk/MainView.cxx:465
+#: src/gtk/MainView.cxx:359 src/gtk/MainView.cxx:475
 msgid "Portable Document Format (PDF) Files"
 msgstr "可攜式文件格式 (PDF) 檔案"
 
-#: src/gtk/MainView.cxx:361 src/gtk/MainView.cxx:477
+#: src/gtk/MainView.cxx:371 src/gtk/MainView.cxx:487
 msgid "All Files"
 msgstr "所有檔案"
 
-#: src/gtk/MainView.cxx:413
+#: src/gtk/MainView.cxx:423
 msgid "Password"
 msgstr "密碼"
 
-#: src/gtk/MainView.cxx:437
+#: src/gtk/MainView.cxx:447
 msgid "Save PDF File"
 msgstr "儲存 PDF 檔案"
 
-#: src/gtk/MainView.cxx:869
+#: src/gtk/MainView.cxx:921
 msgid "Page"
 msgstr "頁面"
 
-#: src/gtk/MainView.cxx:879
+#: src/gtk/MainView.cxx:931
 msgid "of 0"
 msgstr "之於 0"
 
-#: src/gtk/MainView.cxx:932
+#: src/gtk/MainView.cxx:984
 msgid "Index"
 msgstr "索引"
 
-#: src/gtk/MainView.cxx:1002 src/gtk/MainView.cxx:1012
+#: src/gtk/MainView.cxx:1054 src/gtk/MainView.cxx:1064
 #, c-format
 msgid "Error building UI manager: %s\n"
 msgstr "建立 UI 管理員時發生錯誤：%s\n"
 
-#: src/gtk/MainView.cxx:1119
+#: src/gtk/MainView.cxx:1171
 msgid "A lightweight PDF viewer"
 msgstr "輕量級的 PDF 檢視器"
 
-#: src/gtk/MainView.cxx:1122
+#: src/gtk/MainView.cxx:1174
 msgid ""
 "ePDFView is free software; you can redistribute it and/or modify\n"
 "it under the terms of the GNU General Public License as published by\n"
@@ -424,7 +440,7 @@ msgstr ""
 "條款規定，就本程式再為散布與／或修改；無論您依據的是本授權的第二版或\n"
 "（您自行選擇的）任何稍後發行的版本。\n"
 
-#: src/gtk/MainView.cxx:1126
+#: src/gtk/MainView.cxx:1178
 msgid ""
 "ePDFView is distributes in the hope that it will be useful,\n"
 "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
@@ -434,7 +450,7 @@ msgstr ""
 "ePDFView 係基於使用目的而加以散布，然而不負任何擔保責任；亦無對適售性\n"
 "或特定目的適用性所為的默示性擔保。詳情請參照 GNU 通用公共授權。\n"
 
-#: src/gtk/MainView.cxx:1130
+#: src/gtk/MainView.cxx:1182
 msgid ""
 "You should have received a copy of the GNU General Public License\n"
 "along with ePDFView; if not, write to the Free Software Foundation,Inc.,\n"
@@ -444,30 +460,39 @@ msgstr ""
 "自由軟體基金會: \n"
 "59 Temple Place – Suite 330, Boston, Ma 02111-1307, USA。\n"
 
-#: src/gtk/MainView.cxx:1139
+#: src/gtk/MainView.cxx:1191
 msgid "ePDFView"
 msgstr "ePDFView"
 
-#: src/gtk/MainView.cxx:1146
+#: src/gtk/MainView.cxx:1198
 msgid "translator-credits"
 msgstr "趙惟倫 <william.chao@ossii.com.tw>"
 
-#: src/gtk/PreferencesView.cxx:32
+#: src/gtk/PreferencesView.cxx:33
 msgid "Preferences"
 msgstr "偏好設定"
 
-#: src/gtk/PreferencesView.cxx:46
+#: src/gtk/PreferencesView.cxx:48
 msgid "External Commands"
 msgstr "外部命令"
 
-#: src/gtk/PreferencesView.cxx:105
-msgid "Web _Browser:"
+#: src/gtk/PreferencesView.cxx:109
+#, fuzzy
+msgid "Web_Browser:"
 msgstr "網頁瀏覽器(_B)："
 
-#: src/gtk/PreferencesView.cxx:118
+#: src/gtk/PreferencesView.cxx:130
 #, c-format
 msgid "Note: <i>%s</i> will be replaced by the URI."
 msgstr "注意：<i>%s</i> 將會被 URI 所取代。"
+
+#: src/gtk/PreferencesView.cxx:142
+msgid "SyncTeX script:"
+msgstr ""
+
+#: src/gtk/PreferencesView.cxx:162
+msgid "Note: <i>%p</i>=page <i>%x,%y</i>=coordinates <i>%f</i>=PDF file"
+msgstr ""
 
 #: src/gtk/PrintView.cxx:51
 msgid "Print"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ePDFView 0.1.5\n"
 "Report-Msgid-Bugs-To: jordi@emma-soft.com\n"
-"POT-Creation-Date: 2011-05-28 12:26+0200\n"
+"POT-Creation-Date: 2017-04-23 03:27-0300\n"
 "PO-Revision-Date:  2006-06-14 20:11+0100\n"
 "Last-Translator:  VnPenguin <vnpenguin@gmail.com>\n"
 "Language-Team: Vietnamese <i18n@vnoss.org>\n"
@@ -75,79 +75,79 @@ msgstr "Lỗi vào/ra file."
 msgid "Unknown error (%d)."
 msgstr "Lỗi không xác định (%d)."
 
-#: src/main.cxx:91
+#: src/main.cxx:105
 msgid "[FILE] - view PDF documents"
 msgstr "[FILE] - xem tài liệu PDF"
 
-#: src/main.cxx:104 src/MainPter.cxx:156
+#: src/main.cxx:118 src/MainPter.cxx:169
 msgid "PDF Viewer"
 msgstr "Trình xem PDF"
 
-#: src/MainPter.cxx:235
+#: src/MainPter.cxx:254
 #, c-format
 msgid "Reloading file %s..."
 msgstr "Đang tải lại file %s..."
 
-#: src/MainPter.cxx:239
+#: src/MainPter.cxx:258
 #, c-format
 msgid "Loading file %s..."
 msgstr "Tải file %s..."
 
-#: src/MainPter.cxx:415 src/MainPter.cxx:897
+#: src/MainPter.cxx:435 src/MainPter.cxx:943
 #, c-format
 msgid "of %d"
 msgstr "của %d"
 
-#: src/MainPter.cxx:591
+#: src/MainPter.cxx:611
 #, c-format
 msgid "Saving document to %s..."
 msgstr "Đang ghi tài liệu vào %s..."
 
-#: src/MainPter.cxx:835 src/MainPter.cxx:876
+#: src/MainPter.cxx:881 src/MainPter.cxx:922
 msgid "Error Loading File"
 msgstr "Lỗi tải file"
 
-#: src/MainPter.cxx:877
+#: src/MainPter.cxx:923
 msgid "The password you have supplied is not a valid password for this file."
 msgstr "Mật mã mà bạn cung cấp là không hợp lệ cho file này."
 
-#: src/MainPter.cxx:962
+#: src/MainPter.cxx:1008
 msgid "Error Saving File"
 msgstr "Lỗi ghi file"
 
-#: src/PagePter.cxx:338
+#: src/PagePter.cxx:424
 msgid "Loading..."
 msgstr "Đang tải ..."
 
-#: src/PrintPter.cxx:252
+#: src/PrintPter.cxx:286
 msgid "A4"
 msgstr ""
 
-#: src/PrintPter.cxx:280
+#: src/PrintPter.cxx:314
 msgid "300 DPI"
 msgstr ""
 
-#: src/PrintPter.cxx:308
+#: src/PrintPter.cxx:342
 msgid "Grayscale"
 msgstr "Kiểu đen trắng"
 
-#: src/PrintPter.cxx:409
+#: src/PrintPter.cxx:443
 msgid "Idle"
 msgstr "Nghỉ"
 
-#: src/PrintPter.cxx:412
+#: src/PrintPter.cxx:446
 msgid "Stopped"
 msgstr "Dừng"
 
-#: src/PrintPter.cxx:415
+#: src/PrintPter.cxx:449
 msgid "Processing"
 msgstr "Đang xử lý"
 
-#: src/PrintPter.cxx:418
+#: src/PrintPter.cxx:452
 msgid "Unknown"
 msgstr "Không xác định"
 
-#: src/PDFDocument.cxx:275
+#: src/PDFDocument.cxx:294
 #, c-format
 msgid ""
 "Failed to load document '%s'.\n"
@@ -160,261 +160,277 @@ msgstr ""
 msgid "Find:"
 msgstr "Tìm kiếm:"
 
-#: src/gtk/MainView.cxx:89
+#: src/gtk/MainView.cxx:91
 msgid "_File"
 msgstr "_File"
 
-#: src/gtk/MainView.cxx:90
+#: src/gtk/MainView.cxx:92
 msgid "_Edit"
 msgstr "_Sửa đổi"
 
-#: src/gtk/MainView.cxx:91
+#: src/gtk/MainView.cxx:93
 msgid "_View"
 msgstr "_Xem"
 
-#: src/gtk/MainView.cxx:92
+#: src/gtk/MainView.cxx:94
 msgid "_Go"
 msgstr "_Chuyển trang"
 
-#: src/gtk/MainView.cxx:93
+#: src/gtk/MainView.cxx:95
 msgid "_Help"
 msgstr "_Trợ giúp"
 
-#: src/gtk/MainView.cxx:95
+#: src/gtk/MainView.cxx:97
 msgid "_Open"
 msgstr "_Mở file"
 
-#: src/gtk/MainView.cxx:96
+#: src/gtk/MainView.cxx:98
 msgid "Open a PDF document"
 msgstr "Mở một tài liệu PDF"
 
-#: src/gtk/MainView.cxx:99
+#: src/gtk/MainView.cxx:101
 msgid "_Reload"
 msgstr "_Tải lại"
 
-#: src/gtk/MainView.cxx:100
+#: src/gtk/MainView.cxx:102
 msgid "Reload the current document"
 msgstr "Tải lại tài liệu hiện tại"
 
-#: src/gtk/MainView.cxx:103
+#: src/gtk/MainView.cxx:105
 msgid "_Save a Copy..."
 msgstr "_Lưu một bản..."
 
-#: src/gtk/MainView.cxx:104
+#: src/gtk/MainView.cxx:106
 msgid "Save a copy of the current document"
 msgstr "Lưu một bản của tài liệu hiện tại"
 
-#: src/gtk/MainView.cxx:108
+#: src/gtk/MainView.cxx:110
 msgid "_Print..."
 msgstr "_In ra..."
 
-#: src/gtk/MainView.cxx:109
+#: src/gtk/MainView.cxx:111
 msgid "Print the current document"
 msgstr "In tài liệu hiện tại"
 
-#: src/gtk/MainView.cxx:113
+#: src/gtk/MainView.cxx:115
 msgid "_Close"
 msgstr "_Đóng"
 
-#: src/gtk/MainView.cxx:114
+#: src/gtk/MainView.cxx:116
 msgid "Close this window"
 msgstr "Đóng cửa sổ này"
 
-#: src/gtk/MainView.cxx:117
+#: src/gtk/MainView.cxx:119
 msgid "_Find"
 msgstr "_Tìm"
 
-#: src/gtk/MainView.cxx:118
+#: src/gtk/MainView.cxx:120
 msgid "Find a word in the document"
 msgstr "Tìm một từ trong tài liệu"
 
-#: src/gtk/MainView.cxx:121
+#: src/gtk/MainView.cxx:123
 #, fuzzy
 msgid "_Preferences..."
 msgstr "Xác lập..."
 
-#: src/gtk/MainView.cxx:122
+#: src/gtk/MainView.cxx:124
 msgid "Change the application's preferences"
 msgstr "Thay đổi các xác lập của ứng dụng"
 
-#: src/gtk/MainView.cxx:125
+#: src/gtk/MainView.cxx:127
 msgid "Zoom _In"
 msgstr "Phóng _to"
 
-#: src/gtk/MainView.cxx:126
+#: src/gtk/MainView.cxx:128
 msgid "Enlarge the document"
 msgstr "Phóng to tài liệu"
 
-#: src/gtk/MainView.cxx:129
+#: src/gtk/MainView.cxx:131
 msgid "Zoom _Out"
 msgstr "Thu _nhỏ"
 
-#: src/gtk/MainView.cxx:130
+#: src/gtk/MainView.cxx:132
 msgid "Shrink the document"
 msgstr "Thu nhỏ tài liệu"
 
-#: src/gtk/MainView.cxx:133 src/gtk/StockIcons.cxx:43
+#: src/gtk/MainView.cxx:135 src/gtk/StockIcons.cxx:43
 msgid "Rotate _Right"
 msgstr "Quay _phải"
 
-#: src/gtk/MainView.cxx:134
+#: src/gtk/MainView.cxx:136
 msgid "Rotate the document 90 degrees clockwise"
 msgstr "Quay tài liệu hiện tại 90 độ theo chiều kim đồng hồ"
 
-#: src/gtk/MainView.cxx:137 src/gtk/StockIcons.cxx:42
+#: src/gtk/MainView.cxx:139 src/gtk/StockIcons.cxx:42
 msgid "Rotate _Left"
 msgstr "Quay _trái"
 
-#: src/gtk/MainView.cxx:138
+#: src/gtk/MainView.cxx:140
 msgid "Rotate the document 90 degrees counter-clockwise"
 msgstr "Quay tài liệu hiện tại 90 độ theo ngược chiều kim đồng hồ"
 
-#: src/gtk/MainView.cxx:141
+#: src/gtk/MainView.cxx:143
 msgid "_First Page"
 msgstr "_Trang đầu tiên"
 
-#: src/gtk/MainView.cxx:142
+#: src/gtk/MainView.cxx:144
 msgid "Go to the first page"
 msgstr "Đi đến trang đầu tiên"
 
-#: src/gtk/MainView.cxx:145
+#: src/gtk/MainView.cxx:147
 msgid "_Next Page"
 msgstr "Trang _kế"
 
-#: src/gtk/MainView.cxx:146
+#: src/gtk/MainView.cxx:148
 msgid "Go to the next page"
 msgstr "Đi đến trang kế tiếp"
 
-#: src/gtk/MainView.cxx:149
+#: src/gtk/MainView.cxx:151
 msgid "_Previous Page"
 msgstr "Trang trước"
 
-#: src/gtk/MainView.cxx:150
+#: src/gtk/MainView.cxx:152
 msgid "Go to the previous page"
 msgstr "Đi đến trang trước"
 
-#: src/gtk/MainView.cxx:153
+#: src/gtk/MainView.cxx:155
 msgid "_Last Page"
 msgstr "Trang cuối"
 
-#: src/gtk/MainView.cxx:154
+#: src/gtk/MainView.cxx:156
 msgid "Go to the last page"
 msgstr "Đi đến trang cuối"
 
-#: src/gtk/MainView.cxx:157
+#: src/gtk/MainView.cxx:159
 msgid "_About"
 msgstr "_Về..."
 
-#: src/gtk/MainView.cxx:158
+#: src/gtk/MainView.cxx:160
 msgid "Display application's credits"
 msgstr "Hiển thị danh sách đóng góp"
 
-#: src/gtk/MainView.cxx:175
+#: src/gtk/MainView.cxx:177
 msgid "F_ull screen"
 msgstr ""
 
-#: src/gtk/MainView.cxx:176
+#: src/gtk/MainView.cxx:178
 msgid "Toggle full screen window"
 msgstr ""
 
-#: src/gtk/MainView.cxx:179
+#: src/gtk/MainView.cxx:181
+msgid "Hide _Menubar"
+msgstr ""
+
+#: src/gtk/MainView.cxx:182
+msgid "Toggle menu bar"
+msgstr ""
+
+#: src/gtk/MainView.cxx:185
+msgid "_Invert Colors"
+msgstr ""
+
+#: src/gtk/MainView.cxx:186
+msgid "Toggle color inversion"
+msgstr ""
+
+#: src/gtk/MainView.cxx:189
 msgid "Show _Toolbar"
 msgstr "Hiển thị thanh công cụ"
 
-#: src/gtk/MainView.cxx:180
+#: src/gtk/MainView.cxx:190
 msgid "Show or hide the toolbar"
 msgstr "Hiển thị hoặc dấu thanh công cụ"
 
-#: src/gtk/MainView.cxx:183
+#: src/gtk/MainView.cxx:193
 msgid "Show _Statusbar"
 msgstr "Hiển thị thanh trạng thái"
 
-#: src/gtk/MainView.cxx:184
+#: src/gtk/MainView.cxx:194
 msgid "Show or hide the statusbar"
 msgstr "Hiển thị hoặc dấu thanh trạng thái"
 
-#: src/gtk/MainView.cxx:187
+#: src/gtk/MainView.cxx:197
 msgid "Show I_ndex"
 msgstr "Hiển thị chỉ mục"
 
-#: src/gtk/MainView.cxx:188
+#: src/gtk/MainView.cxx:198
 msgid "Show or hide the document's outline"
 msgstr "Hiển thị hoặc dấu hình dáng bên ngoài của tài liệu"
 
-#: src/gtk/MainView.cxx:191
+#: src/gtk/MainView.cxx:201
 msgid "Zoom to _Fit"
 msgstr "Hiệu chỉnh _hợp với cửa sổ"
 
-#: src/gtk/MainView.cxx:192
+#: src/gtk/MainView.cxx:202
 msgid "Make the current document fill the window"
 msgstr "Hiệu chỉnh tài liệu hiện tại lấp đầy cửa sổ"
 
-#: src/gtk/MainView.cxx:195 src/gtk/StockIcons.cxx:44
+#: src/gtk/MainView.cxx:205 src/gtk/StockIcons.cxx:44
 msgid "Zoom to _Width"
 msgstr "Hiệu chỉnh theo bề _rộng trang"
 
-#: src/gtk/MainView.cxx:196
+#: src/gtk/MainView.cxx:206
 msgid "Make the current document fill the window width"
 msgstr "Hiệu chỉnh tài liệu hiện tại hợp với bề rộng trang"
 
-#: src/gtk/MainView.cxx:202
+#: src/gtk/MainView.cxx:212
 msgid "Scroll"
 msgstr ""
 
-#: src/gtk/MainView.cxx:203
+#: src/gtk/MainView.cxx:213
 msgid "Mouse scroll page"
 msgstr ""
 
-#: src/gtk/MainView.cxx:205
+#: src/gtk/MainView.cxx:215
 msgid "Select Text"
 msgstr ""
 
-#: src/gtk/MainView.cxx:206
+#: src/gtk/MainView.cxx:216
 msgid " Mouse select text"
 msgstr ""
 
-#: src/gtk/MainView.cxx:329
+#: src/gtk/MainView.cxx:339
 msgid "Open PDF File"
 msgstr "Mở file PDF"
 
-#: src/gtk/MainView.cxx:349 src/gtk/MainView.cxx:465
+#: src/gtk/MainView.cxx:359 src/gtk/MainView.cxx:475
 msgid "Portable Document Format (PDF) Files"
 msgstr "file PDF"
 
-#: src/gtk/MainView.cxx:361 src/gtk/MainView.cxx:477
+#: src/gtk/MainView.cxx:371 src/gtk/MainView.cxx:487
 msgid "All Files"
 msgstr "Tất cả các file"
 
-#: src/gtk/MainView.cxx:413
+#: src/gtk/MainView.cxx:423
 msgid "Password"
 msgstr "Mật mã"
 
-#: src/gtk/MainView.cxx:437
+#: src/gtk/MainView.cxx:447
 msgid "Save PDF File"
 msgstr "Lưu file PDF"
 
-#: src/gtk/MainView.cxx:869
+#: src/gtk/MainView.cxx:921
 msgid "Page"
 msgstr "Trang"
 
-#: src/gtk/MainView.cxx:879
+#: src/gtk/MainView.cxx:931
 msgid "of 0"
 msgstr "0/0"
 
-#: src/gtk/MainView.cxx:932
+#: src/gtk/MainView.cxx:984
 msgid "Index"
 msgstr "Chỉ mục"
 
-#: src/gtk/MainView.cxx:1002 src/gtk/MainView.cxx:1012
+#: src/gtk/MainView.cxx:1054 src/gtk/MainView.cxx:1064
 #, c-format
 msgid "Error building UI manager: %s\n"
 msgstr "Lỗi khi tạo quản lý giao diện người dùng: %s\n"
 
-#: src/gtk/MainView.cxx:1119
+#: src/gtk/MainView.cxx:1171
 msgid "A lightweight PDF viewer"
 msgstr "Một trình xem PDF nhỏ gọn"
 
-#: src/gtk/MainView.cxx:1122
+#: src/gtk/MainView.cxx:1174
 msgid ""
 "ePDFView is free software; you can redistribute it and/or modify\n"
 "it under the terms of the GNU General Public License as published by\n"
@@ -426,7 +442,7 @@ msgstr ""
 "bởi Free Software Foundation; phiên bản 2 hoặc (theo lựa chọn của bạn)\n"
 " bất kì phiên bản mới nào.\n"
 
-#: src/gtk/MainView.cxx:1126
+#: src/gtk/MainView.cxx:1178
 msgid ""
 "ePDFView is distributes in the hope that it will be useful,\n"
 "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
@@ -438,7 +454,7 @@ msgstr ""
 "ngay cả cho MERCHANTABILITY hoặc FITNESS FOR A PARTICULAR PURPOSE.\n"
 " Xem giấy phép GNU GPL để biết thêm chi tiết.\n"
 
-#: src/gtk/MainView.cxx:1130
+#: src/gtk/MainView.cxx:1182
 msgid ""
 "You should have received a copy of the GNU General Public License\n"
 "along with ePDFView; if not, write to the Free Software Foundation,Inc.,\n"
@@ -448,30 +464,39 @@ msgstr ""
 "ePDFView; nếu không, thì hãy liên lạc Free Software Foundation, Inc., 59 "
 "Temple Place, Suite 330, Boston, MA 02111-1307 USA\n"
 
-#: src/gtk/MainView.cxx:1139
+#: src/gtk/MainView.cxx:1191
 msgid "ePDFView"
 msgstr "ePDFView"
 
-#: src/gtk/MainView.cxx:1146
+#: src/gtk/MainView.cxx:1198
 msgid "translator-credits"
 msgstr "VnPenguin <vnpenguin@gmail.com>"
 
-#: src/gtk/PreferencesView.cxx:32
+#: src/gtk/PreferencesView.cxx:33
 msgid "Preferences"
 msgstr "Xác lập"
 
-#: src/gtk/PreferencesView.cxx:46
+#: src/gtk/PreferencesView.cxx:48
 msgid "External Commands"
 msgstr "Lệnh ngoài"
 
-#: src/gtk/PreferencesView.cxx:105
-msgid "Web _Browser:"
+#: src/gtk/PreferencesView.cxx:109
+#, fuzzy
+msgid "Web_Browser:"
 msgstr "Trình duyệt web:"
 
-#: src/gtk/PreferencesView.cxx:118
+#: src/gtk/PreferencesView.cxx:130
 #, c-format
 msgid "Note: <i>%s</i> will be replaced by the URI."
 msgstr "Chú ý: <i>%s</i> sẽ được thay thế bằng URI."
+
+#: src/gtk/PreferencesView.cxx:142
+msgid "SyncTeX script:"
+msgstr ""
+
+#: src/gtk/PreferencesView.cxx:162
+msgid "Note: <i>%p</i>=page <i>%x,%y</i>=coordinates <i>%f</i>=PDF file"
+msgstr ""
 
 #: src/gtk/PrintView.cxx:51
 msgid "Print"

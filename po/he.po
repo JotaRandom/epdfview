@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ePDFView 0.1.7\n"
 "Report-Msgid-Bugs-To: jordi@emma-soft.com\n"
-"POT-Creation-Date: 2011-05-28 12:26+0200\n"
+"POT-Creation-Date: 2017-04-23 03:27-0300\n"
 "PO-Revision-Date: 2009-03-04 00:39+0200\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <none@none.org>\n"
@@ -78,79 +78,79 @@ msgstr "שגיאת קלט/פלט בקובץ"
 msgid "Unknown error (%d)."
 msgstr "שגיאה לא ידועה (%d)."
 
-#: src/main.cxx:91
+#: src/main.cxx:105
 msgid "[FILE] - view PDF documents"
 msgstr "[FILE] - צפיה במסמכי PDF"
 
-#: src/main.cxx:104 src/MainPter.cxx:156
+#: src/main.cxx:118 src/MainPter.cxx:169
 msgid "PDF Viewer"
 msgstr "מציג PDF"
 
-#: src/MainPter.cxx:235
+#: src/MainPter.cxx:254
 #, c-format
 msgid "Reloading file %s..."
 msgstr "טעינת הקובץ %s מחדש..."
 
-#: src/MainPter.cxx:239
+#: src/MainPter.cxx:258
 #, c-format
 msgid "Loading file %s..."
 msgstr "טעינת הקובץ %s..."
 
-#: src/MainPter.cxx:415 src/MainPter.cxx:897
+#: src/MainPter.cxx:435 src/MainPter.cxx:943
 #, c-format
 msgid "of %d"
 msgstr "מתוך %d"
 
-#: src/MainPter.cxx:591
+#: src/MainPter.cxx:611
 #, c-format
 msgid "Saving document to %s..."
 msgstr "שמירת המסמך אל %s..."
 
-#: src/MainPter.cxx:835 src/MainPter.cxx:876
+#: src/MainPter.cxx:881 src/MainPter.cxx:922
 msgid "Error Loading File"
 msgstr "שגיאה בטעינת הקובץ"
 
-#: src/MainPter.cxx:877
+#: src/MainPter.cxx:923
 msgid "The password you have supplied is not a valid password for this file."
 msgstr "הסיסמה שסופקה אינה סיסמה התקפה לקובץ זה."
 
-#: src/MainPter.cxx:962
+#: src/MainPter.cxx:1008
 msgid "Error Saving File"
 msgstr "שגיאה בשמירת הקובץ"
 
-#: src/PagePter.cxx:338
+#: src/PagePter.cxx:424
 msgid "Loading..."
 msgstr "נטען..."
 
-#: src/PrintPter.cxx:252
+#: src/PrintPter.cxx:286
 msgid "A4"
 msgstr "A4"
 
-#: src/PrintPter.cxx:280
+#: src/PrintPter.cxx:314
 msgid "300 DPI"
 msgstr "300 DPI"
 
-#: src/PrintPter.cxx:308
+#: src/PrintPter.cxx:342
 msgid "Grayscale"
 msgstr "גווני אפור"
 
-#: src/PrintPter.cxx:409
+#: src/PrintPter.cxx:443
 msgid "Idle"
 msgstr "בהמתנה"
 
-#: src/PrintPter.cxx:412
+#: src/PrintPter.cxx:446
 msgid "Stopped"
 msgstr "נעצר"
 
-#: src/PrintPter.cxx:415
+#: src/PrintPter.cxx:449
 msgid "Processing"
 msgstr "מעבד"
 
-#: src/PrintPter.cxx:418
+#: src/PrintPter.cxx:452
 msgid "Unknown"
 msgstr "לא ידוע"
 
-#: src/PDFDocument.cxx:275
+#: src/PDFDocument.cxx:294
 #, c-format
 msgid ""
 "Failed to load document '%s'.\n"
@@ -163,260 +163,276 @@ msgstr ""
 msgid "Find:"
 msgstr "חיפוש:"
 
-#: src/gtk/MainView.cxx:89
+#: src/gtk/MainView.cxx:91
 msgid "_File"
 msgstr "_קובץ"
 
-#: src/gtk/MainView.cxx:90
+#: src/gtk/MainView.cxx:92
 msgid "_Edit"
 msgstr "_עריכה"
 
-#: src/gtk/MainView.cxx:91
+#: src/gtk/MainView.cxx:93
 msgid "_View"
 msgstr "_תצוגה"
 
-#: src/gtk/MainView.cxx:92
+#: src/gtk/MainView.cxx:94
 msgid "_Go"
 msgstr "_מעבר"
 
-#: src/gtk/MainView.cxx:93
+#: src/gtk/MainView.cxx:95
 msgid "_Help"
 msgstr "ע_זרה"
 
-#: src/gtk/MainView.cxx:95
+#: src/gtk/MainView.cxx:97
 msgid "_Open"
 msgstr "_פתיחה"
 
-#: src/gtk/MainView.cxx:96
+#: src/gtk/MainView.cxx:98
 msgid "Open a PDF document"
 msgstr "פתיחת מסמך PDF"
 
-#: src/gtk/MainView.cxx:99
+#: src/gtk/MainView.cxx:101
 msgid "_Reload"
 msgstr "_טעינה מחדש"
 
-#: src/gtk/MainView.cxx:100
+#: src/gtk/MainView.cxx:102
 msgid "Reload the current document"
 msgstr "טעינת המסמך הנוכחי מחדש"
 
-#: src/gtk/MainView.cxx:103
+#: src/gtk/MainView.cxx:105
 msgid "_Save a Copy..."
 msgstr "ש_מירת עותק..."
 
-#: src/gtk/MainView.cxx:104
+#: src/gtk/MainView.cxx:106
 msgid "Save a copy of the current document"
 msgstr "שמירת עותק של המסמך הנוכחי"
 
-#: src/gtk/MainView.cxx:108
+#: src/gtk/MainView.cxx:110
 msgid "_Print..."
 msgstr "ה_דפסה..."
 
-#: src/gtk/MainView.cxx:109
+#: src/gtk/MainView.cxx:111
 msgid "Print the current document"
 msgstr "הדפסת המסמך הנוכחי"
 
-#: src/gtk/MainView.cxx:113
+#: src/gtk/MainView.cxx:115
 msgid "_Close"
 msgstr "_סגירה"
 
-#: src/gtk/MainView.cxx:114
+#: src/gtk/MainView.cxx:116
 msgid "Close this window"
 msgstr "סגירת החלון"
 
-#: src/gtk/MainView.cxx:117
+#: src/gtk/MainView.cxx:119
 msgid "_Find"
 msgstr "_חיפוש"
 
-#: src/gtk/MainView.cxx:118
+#: src/gtk/MainView.cxx:120
 msgid "Find a word in the document"
 msgstr "חיפוש במילה במסמך"
 
-#: src/gtk/MainView.cxx:121
+#: src/gtk/MainView.cxx:123
 msgid "_Preferences..."
 msgstr "ה_עדפות..."
 
-#: src/gtk/MainView.cxx:122
+#: src/gtk/MainView.cxx:124
 msgid "Change the application's preferences"
 msgstr "שינוי העדפות היישום"
 
-#: src/gtk/MainView.cxx:125
+#: src/gtk/MainView.cxx:127
 msgid "Zoom _In"
 msgstr "הת_קרבות"
 
-#: src/gtk/MainView.cxx:126
+#: src/gtk/MainView.cxx:128
 msgid "Enlarge the document"
 msgstr "הגדלת המסמך"
 
-#: src/gtk/MainView.cxx:129
+#: src/gtk/MainView.cxx:131
 msgid "Zoom _Out"
 msgstr "הת_רחקות"
 
-#: src/gtk/MainView.cxx:130
+#: src/gtk/MainView.cxx:132
 msgid "Shrink the document"
 msgstr "כיווץ המסמך"
 
-#: src/gtk/MainView.cxx:133 src/gtk/StockIcons.cxx:43
+#: src/gtk/MainView.cxx:135 src/gtk/StockIcons.cxx:43
 msgid "Rotate _Right"
 msgstr "הטייה י_מינה"
 
-#: src/gtk/MainView.cxx:134
+#: src/gtk/MainView.cxx:136
 msgid "Rotate the document 90 degrees clockwise"
 msgstr "הטיית המסמך ב־90 מעלות עם כיוון השעון"
 
-#: src/gtk/MainView.cxx:137 src/gtk/StockIcons.cxx:42
+#: src/gtk/MainView.cxx:139 src/gtk/StockIcons.cxx:42
 msgid "Rotate _Left"
 msgstr "הטייה _שמאלה"
 
-#: src/gtk/MainView.cxx:138
+#: src/gtk/MainView.cxx:140
 msgid "Rotate the document 90 degrees counter-clockwise"
 msgstr "הטיית המסמך ב־90 מעלות נגד כיוון השעון"
 
-#: src/gtk/MainView.cxx:141
+#: src/gtk/MainView.cxx:143
 msgid "_First Page"
 msgstr "העמוד הר_אשון"
 
-#: src/gtk/MainView.cxx:142
+#: src/gtk/MainView.cxx:144
 msgid "Go to the first page"
 msgstr "מעבר אל העמוד הראשון"
 
-#: src/gtk/MainView.cxx:145
+#: src/gtk/MainView.cxx:147
 msgid "_Next Page"
 msgstr "העמוד ה_בא"
 
-#: src/gtk/MainView.cxx:146
+#: src/gtk/MainView.cxx:148
 msgid "Go to the next page"
 msgstr "מעבר אל העמוד הבא"
 
-#: src/gtk/MainView.cxx:149
+#: src/gtk/MainView.cxx:151
 msgid "_Previous Page"
 msgstr "העמוד ה_קודם"
 
-#: src/gtk/MainView.cxx:150
+#: src/gtk/MainView.cxx:152
 msgid "Go to the previous page"
 msgstr "מעבר אל העמוד הקודם"
 
-#: src/gtk/MainView.cxx:153
+#: src/gtk/MainView.cxx:155
 msgid "_Last Page"
 msgstr "העמוד הא_חרון"
 
-#: src/gtk/MainView.cxx:154
+#: src/gtk/MainView.cxx:156
 msgid "Go to the last page"
 msgstr "מעבר אל העמוד האחרון"
 
-#: src/gtk/MainView.cxx:157
+#: src/gtk/MainView.cxx:159
 msgid "_About"
 msgstr "_אודות"
 
-#: src/gtk/MainView.cxx:158
+#: src/gtk/MainView.cxx:160
 msgid "Display application's credits"
 msgstr "הצגת מסך התודות של היישום"
 
-#: src/gtk/MainView.cxx:175
+#: src/gtk/MainView.cxx:177
 msgid "F_ull screen"
 msgstr "מ_סך מלא"
 
-#: src/gtk/MainView.cxx:176
+#: src/gtk/MainView.cxx:178
 msgid "Toggle full screen window"
 msgstr "החלפה בין מסך מלא לרגיל"
 
-#: src/gtk/MainView.cxx:179
+#: src/gtk/MainView.cxx:181
+msgid "Hide _Menubar"
+msgstr ""
+
+#: src/gtk/MainView.cxx:182
+msgid "Toggle menu bar"
+msgstr ""
+
+#: src/gtk/MainView.cxx:185
+msgid "_Invert Colors"
+msgstr ""
+
+#: src/gtk/MainView.cxx:186
+msgid "Toggle color inversion"
+msgstr ""
+
+#: src/gtk/MainView.cxx:189
 msgid "Show _Toolbar"
 msgstr "הצגת סרגל ה_כלים"
 
-#: src/gtk/MainView.cxx:180
+#: src/gtk/MainView.cxx:190
 msgid "Show or hide the toolbar"
 msgstr "הצגה או הסתרה של סרגל הכלים"
 
-#: src/gtk/MainView.cxx:183
+#: src/gtk/MainView.cxx:193
 msgid "Show _Statusbar"
 msgstr "הצגת _שורת המצב"
 
-#: src/gtk/MainView.cxx:184
+#: src/gtk/MainView.cxx:194
 msgid "Show or hide the statusbar"
 msgstr "הצגה או הסתרה של שורת המצב"
 
-#: src/gtk/MainView.cxx:187
+#: src/gtk/MainView.cxx:197
 msgid "Show I_ndex"
 msgstr "הצגת האי_נדקס"
 
-#: src/gtk/MainView.cxx:188
+#: src/gtk/MainView.cxx:198
 msgid "Show or hide the document's outline"
 msgstr "הצגה או הסתרה של מבנה המסמך"
 
-#: src/gtk/MainView.cxx:191
+#: src/gtk/MainView.cxx:201
 msgid "Zoom to _Fit"
 msgstr "תקריב לה_תאמה"
 
-#: src/gtk/MainView.cxx:192
+#: src/gtk/MainView.cxx:202
 msgid "Make the current document fill the window"
 msgstr "פריסת המסמך הנוכחי כך שימלא את החלון"
 
-#: src/gtk/MainView.cxx:195 src/gtk/StockIcons.cxx:44
+#: src/gtk/MainView.cxx:205 src/gtk/StockIcons.cxx:44
 msgid "Zoom to _Width"
 msgstr "תקריב ל_רוחב"
 
-#: src/gtk/MainView.cxx:196
+#: src/gtk/MainView.cxx:206
 msgid "Make the current document fill the window width"
 msgstr "פריסת המסמך הנוכחי כך שימלא את כל רוחב החלון"
 
-#: src/gtk/MainView.cxx:202
+#: src/gtk/MainView.cxx:212
 msgid "Scroll"
 msgstr "גלילה"
 
-#: src/gtk/MainView.cxx:203
+#: src/gtk/MainView.cxx:213
 msgid "Mouse scroll page"
 msgstr "גלילת העמוד עם העכבר"
 
-#: src/gtk/MainView.cxx:205
+#: src/gtk/MainView.cxx:215
 msgid "Select Text"
 msgstr "בחירת טקסט"
 
-#: src/gtk/MainView.cxx:206
+#: src/gtk/MainView.cxx:216
 msgid " Mouse select text"
 msgstr " בחירת הטקסט עם העכבר"
 
-#: src/gtk/MainView.cxx:329
+#: src/gtk/MainView.cxx:339
 msgid "Open PDF File"
 msgstr "פתיחת קובץ PDF"
 
-#: src/gtk/MainView.cxx:349 src/gtk/MainView.cxx:465
+#: src/gtk/MainView.cxx:359 src/gtk/MainView.cxx:475
 msgid "Portable Document Format (PDF) Files"
 msgstr "קובצי PDF (מבנה קובץ נייד)"
 
-#: src/gtk/MainView.cxx:361 src/gtk/MainView.cxx:477
+#: src/gtk/MainView.cxx:371 src/gtk/MainView.cxx:487
 msgid "All Files"
 msgstr "כל הקבצים"
 
-#: src/gtk/MainView.cxx:413
+#: src/gtk/MainView.cxx:423
 msgid "Password"
 msgstr "סיסמה"
 
-#: src/gtk/MainView.cxx:437
+#: src/gtk/MainView.cxx:447
 msgid "Save PDF File"
 msgstr "שמירת קובץ PDF"
 
-#: src/gtk/MainView.cxx:869
+#: src/gtk/MainView.cxx:921
 msgid "Page"
 msgstr "עמוד"
 
-#: src/gtk/MainView.cxx:879
+#: src/gtk/MainView.cxx:931
 msgid "of 0"
 msgstr "מתוך 0"
 
-#: src/gtk/MainView.cxx:932
+#: src/gtk/MainView.cxx:984
 msgid "Index"
 msgstr "אינדקס"
 
-#: src/gtk/MainView.cxx:1002 src/gtk/MainView.cxx:1012
+#: src/gtk/MainView.cxx:1054 src/gtk/MainView.cxx:1064
 #, c-format
 msgid "Error building UI manager: %s\n"
 msgstr "שגיאה בבניית מנהל מנשק המשתמש: %s\n"
 
-#: src/gtk/MainView.cxx:1119
+#: src/gtk/MainView.cxx:1171
 msgid "A lightweight PDF viewer"
 msgstr "מציג PDF קל משקל"
 
-#: src/gtk/MainView.cxx:1122
+#: src/gtk/MainView.cxx:1174
 msgid ""
 "ePDFView is free software; you can redistribute it and/or modify\n"
 "it under the terms of the GNU General Public License as published by\n"
@@ -428,7 +444,7 @@ msgstr ""
 "קרן התוכנה החופשית; או גירסה 2 של הרשיון, או\n"
 "(לשיקול המפיץ) כל גירסה מאוחרת יותר.\n"
 
-#: src/gtk/MainView.cxx:1126
+#: src/gtk/MainView.cxx:1178
 msgid ""
 "ePDFView is distributes in the hope that it will be useful,\n"
 "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
@@ -440,7 +456,7 @@ msgstr ""
 "או להתאמה לצרכים מסויימים.  ניתן לעיין\n"
 "ברשיון הציבורי הכללי של GNU לפרטים נוספים.\n"
 
-#: src/gtk/MainView.cxx:1130
+#: src/gtk/MainView.cxx:1182
 msgid ""
 "You should have received a copy of the GNU General Public License\n"
 "along with ePDFView; if not, write to the Free Software Foundation,Inc.,\n"
@@ -450,30 +466,39 @@ msgstr ""
 "הכללי של GNU; במידה שלא כתוב אל Free Software Foundation,Inc.,\n"
 "59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n"
 
-#: src/gtk/MainView.cxx:1139
+#: src/gtk/MainView.cxx:1191
 msgid "ePDFView"
 msgstr "ePDFView"
 
-#: src/gtk/MainView.cxx:1146
+#: src/gtk/MainView.cxx:1198
 msgid "translator-credits"
 msgstr "Yaron Shahrabani <sh.yaron@gmail.com>"
 
-#: src/gtk/PreferencesView.cxx:32
+#: src/gtk/PreferencesView.cxx:33
 msgid "Preferences"
 msgstr "העדפות"
 
-#: src/gtk/PreferencesView.cxx:46
+#: src/gtk/PreferencesView.cxx:48
 msgid "External Commands"
 msgstr "פקודות חיצוניות"
 
-#: src/gtk/PreferencesView.cxx:105
-msgid "Web _Browser:"
+#: src/gtk/PreferencesView.cxx:109
+#, fuzzy
+msgid "Web_Browser:"
 msgstr "ד_פדפן האינטרנט:"
 
-#: src/gtk/PreferencesView.cxx:118
+#: src/gtk/PreferencesView.cxx:130
 #, c-format
 msgid "Note: <i>%s</i> will be replaced by the URI."
 msgstr "הערה: <i>%s</i> יוחלף בכתובת."
+
+#: src/gtk/PreferencesView.cxx:142
+msgid "SyncTeX script:"
+msgstr ""
+
+#: src/gtk/PreferencesView.cxx:162
+msgid "Note: <i>%p</i>=page <i>%x,%y</i>=coordinates <i>%f</i>=PDF file"
+msgstr ""
 
 #: src/gtk/PrintView.cxx:51
 msgid "Print"

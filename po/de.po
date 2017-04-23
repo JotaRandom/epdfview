@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ePDFView 0.1.6\n"
 "Report-Msgid-Bugs-To: jordi@emma-soft.com\n"
-"POT-Creation-Date: 2011-05-28 12:26+0200\n"
+"POT-Creation-Date: 2017-04-23 03:27-0300\n"
 "PO-Revision-Date: 2007-04-16 15:33+0100\n"
 "Last-Translator: Enrico Tröger <enrico.troeger@uvena.de>\n"
 "Language-Team: German\n"
@@ -77,79 +77,79 @@ msgstr "Datei I/O Fehler"
 msgid "Unknown error (%d)."
 msgstr "Unbekannter Fehler (%d)."
 
-#: src/main.cxx:91
+#: src/main.cxx:105
 msgid "[FILE] - view PDF documents"
 msgstr "[DATEI] - PDF Dateien anschauen"
 
-#: src/main.cxx:104 src/MainPter.cxx:156
+#: src/main.cxx:118 src/MainPter.cxx:169
 msgid "PDF Viewer"
 msgstr "PDF Betrachter"
 
-#: src/MainPter.cxx:235
+#: src/MainPter.cxx:254
 #, c-format
 msgid "Reloading file %s..."
 msgstr "Lade Datei %s neu..."
 
-#: src/MainPter.cxx:239
+#: src/MainPter.cxx:258
 #, c-format
 msgid "Loading file %s..."
 msgstr "Lade Datei %s..."
 
-#: src/MainPter.cxx:415 src/MainPter.cxx:897
+#: src/MainPter.cxx:435 src/MainPter.cxx:943
 #, c-format
 msgid "of %d"
 msgstr "von %d"
 
-#: src/MainPter.cxx:591
+#: src/MainPter.cxx:611
 #, c-format
 msgid "Saving document to %s..."
 msgstr "Speiche Dokument als %s..."
 
-#: src/MainPter.cxx:835 src/MainPter.cxx:876
+#: src/MainPter.cxx:881 src/MainPter.cxx:922
 msgid "Error Loading File"
 msgstr "Fehler beim Laden der Datei"
 
-#: src/MainPter.cxx:877
+#: src/MainPter.cxx:923
 msgid "The password you have supplied is not a valid password for this file."
 msgstr "Das angegebene Passwort ist ungültig für dieses Dokument."
 
-#: src/MainPter.cxx:962
+#: src/MainPter.cxx:1008
 msgid "Error Saving File"
 msgstr "Fehler beim Speichern der Datei."
 
-#: src/PagePter.cxx:338
+#: src/PagePter.cxx:424
 msgid "Loading..."
 msgstr "Lade..."
 
-#: src/PrintPter.cxx:252
+#: src/PrintPter.cxx:286
 msgid "A4"
 msgstr ""
 
-#: src/PrintPter.cxx:280
+#: src/PrintPter.cxx:314
 msgid "300 DPI"
 msgstr ""
 
-#: src/PrintPter.cxx:308
+#: src/PrintPter.cxx:342
 msgid "Grayscale"
 msgstr "Graustufen"
 
-#: src/PrintPter.cxx:409
+#: src/PrintPter.cxx:443
 msgid "Idle"
 msgstr "Untätig"
 
-#: src/PrintPter.cxx:412
+#: src/PrintPter.cxx:446
 msgid "Stopped"
 msgstr "Angehalten"
 
-#: src/PrintPter.cxx:415
+#: src/PrintPter.cxx:449
 msgid "Processing"
 msgstr "Drucke"
 
-#: src/PrintPter.cxx:418
+#: src/PrintPter.cxx:452
 msgid "Unknown"
 msgstr "Unbekannt"
 
-#: src/PDFDocument.cxx:275
+#: src/PDFDocument.cxx:294
 #, c-format
 msgid ""
 "Failed to load document '%s'.\n"
@@ -162,261 +162,277 @@ msgstr ""
 msgid "Find:"
 msgstr "Suche:"
 
-#: src/gtk/MainView.cxx:89
+#: src/gtk/MainView.cxx:91
 msgid "_File"
 msgstr "_Datei"
 
-#: src/gtk/MainView.cxx:90
+#: src/gtk/MainView.cxx:92
 msgid "_Edit"
 msgstr "_Bearbeiten"
 
-#: src/gtk/MainView.cxx:91
+#: src/gtk/MainView.cxx:93
 msgid "_View"
 msgstr "_Ansicht"
 
-#: src/gtk/MainView.cxx:92
+#: src/gtk/MainView.cxx:94
 msgid "_Go"
 msgstr "_Gehe zu"
 
-#: src/gtk/MainView.cxx:93
+#: src/gtk/MainView.cxx:95
 msgid "_Help"
 msgstr "_Hilfe"
 
-#: src/gtk/MainView.cxx:95
+#: src/gtk/MainView.cxx:97
 msgid "_Open"
 msgstr "_Öffnen"
 
-#: src/gtk/MainView.cxx:96
+#: src/gtk/MainView.cxx:98
 msgid "Open a PDF document"
 msgstr "Öffne ein PDF Dokument"
 
-#: src/gtk/MainView.cxx:99
+#: src/gtk/MainView.cxx:101
 msgid "_Reload"
 msgstr "_Neu laden"
 
-#: src/gtk/MainView.cxx:100
+#: src/gtk/MainView.cxx:102
 msgid "Reload the current document"
 msgstr "Lade das Dokument neu"
 
-#: src/gtk/MainView.cxx:103
+#: src/gtk/MainView.cxx:105
 msgid "_Save a Copy..."
 msgstr "_Kopie speichern unter"
 
-#: src/gtk/MainView.cxx:104
+#: src/gtk/MainView.cxx:106
 msgid "Save a copy of the current document"
 msgstr "Speichert eine Kopie des Dokuments"
 
-#: src/gtk/MainView.cxx:108
+#: src/gtk/MainView.cxx:110
 msgid "_Print..."
 msgstr "_Drucken..."
 
-#: src/gtk/MainView.cxx:109
+#: src/gtk/MainView.cxx:111
 msgid "Print the current document"
 msgstr "Druckt das Dokument"
 
-#: src/gtk/MainView.cxx:113
+#: src/gtk/MainView.cxx:115
 msgid "_Close"
 msgstr "_Schließen"
 
-#: src/gtk/MainView.cxx:114
+#: src/gtk/MainView.cxx:116
 msgid "Close this window"
 msgstr "Schließe dieses Fenster"
 
-#: src/gtk/MainView.cxx:117
+#: src/gtk/MainView.cxx:119
 msgid "_Find"
 msgstr "_Suche"
 
-#: src/gtk/MainView.cxx:118
+#: src/gtk/MainView.cxx:120
 msgid "Find a word in the document"
 msgstr "Sucht im Dokument nach einem Wort"
 
-#: src/gtk/MainView.cxx:121
+#: src/gtk/MainView.cxx:123
 #, fuzzy
 msgid "_Preferences..."
 msgstr "Einstellungen..."
 
-#: src/gtk/MainView.cxx:122
+#: src/gtk/MainView.cxx:124
 msgid "Change the application's preferences"
 msgstr "Ändert die Programmeinstellungen"
 
-#: src/gtk/MainView.cxx:125
+#: src/gtk/MainView.cxx:127
 msgid "Zoom _In"
 msgstr "Hera_nzoomen"
 
-#: src/gtk/MainView.cxx:126
+#: src/gtk/MainView.cxx:128
 msgid "Enlarge the document"
 msgstr "Dokument vergrößern"
 
-#: src/gtk/MainView.cxx:129
+#: src/gtk/MainView.cxx:131
 msgid "Zoom _Out"
 msgstr "Hera_uszoomen"
 
-#: src/gtk/MainView.cxx:130
+#: src/gtk/MainView.cxx:132
 msgid "Shrink the document"
 msgstr "Dokument verkleinern"
 
-#: src/gtk/MainView.cxx:133 src/gtk/StockIcons.cxx:43
+#: src/gtk/MainView.cxx:135 src/gtk/StockIcons.cxx:43
 msgid "Rotate _Right"
 msgstr "Nach _rechts rotieren"
 
-#: src/gtk/MainView.cxx:134
+#: src/gtk/MainView.cxx:136
 msgid "Rotate the document 90 degrees clockwise"
 msgstr "Das Dokument um 90 Grad im Uhrzeigersinn drehen"
 
-#: src/gtk/MainView.cxx:137 src/gtk/StockIcons.cxx:42
+#: src/gtk/MainView.cxx:139 src/gtk/StockIcons.cxx:42
 msgid "Rotate _Left"
 msgstr "Nach _links rotieren"
 
-#: src/gtk/MainView.cxx:138
+#: src/gtk/MainView.cxx:140
 msgid "Rotate the document 90 degrees counter-clockwise"
 msgstr "Das Dokument um 90 Grad gegen den Uhrzeigersinn drehen"
 
-#: src/gtk/MainView.cxx:141
+#: src/gtk/MainView.cxx:143
 msgid "_First Page"
 msgstr "_Erste Seite"
 
-#: src/gtk/MainView.cxx:142
+#: src/gtk/MainView.cxx:144
 msgid "Go to the first page"
 msgstr "Gehe zur ersten Seite"
 
-#: src/gtk/MainView.cxx:145
+#: src/gtk/MainView.cxx:147
 msgid "_Next Page"
 msgstr "_Nächste Seite"
 
-#: src/gtk/MainView.cxx:146
+#: src/gtk/MainView.cxx:148
 msgid "Go to the next page"
 msgstr "Gehe zur ersten Seite"
 
-#: src/gtk/MainView.cxx:149
+#: src/gtk/MainView.cxx:151
 msgid "_Previous Page"
 msgstr "_Vorherige Seite"
 
-#: src/gtk/MainView.cxx:150
+#: src/gtk/MainView.cxx:152
 msgid "Go to the previous page"
 msgstr "Gehe zur vorherigen Seite"
 
-#: src/gtk/MainView.cxx:153
+#: src/gtk/MainView.cxx:155
 msgid "_Last Page"
 msgstr "_Letzte Seite"
 
-#: src/gtk/MainView.cxx:154
+#: src/gtk/MainView.cxx:156
 msgid "Go to the last page"
 msgstr "Gehe zur letzten Seite"
 
-#: src/gtk/MainView.cxx:157
+#: src/gtk/MainView.cxx:159
 msgid "_About"
 msgstr "_Über"
 
-#: src/gtk/MainView.cxx:158
+#: src/gtk/MainView.cxx:160
 msgid "Display application's credits"
 msgstr "Credits anzeigen"
 
-#: src/gtk/MainView.cxx:175
+#: src/gtk/MainView.cxx:177
 msgid "F_ull screen"
 msgstr "_Vollbild"
 
-#: src/gtk/MainView.cxx:176
+#: src/gtk/MainView.cxx:178
 msgid "Toggle full screen window"
 msgstr "In Vollbildmodus umschalten"
 
-#: src/gtk/MainView.cxx:179
+#: src/gtk/MainView.cxx:181
+msgid "Hide _Menubar"
+msgstr ""
+
+#: src/gtk/MainView.cxx:182
+msgid "Toggle menu bar"
+msgstr ""
+
+#: src/gtk/MainView.cxx:185
+msgid "_Invert Colors"
+msgstr ""
+
+#: src/gtk/MainView.cxx:186
+msgid "Toggle color inversion"
+msgstr ""
+
+#: src/gtk/MainView.cxx:189
 msgid "Show _Toolbar"
 msgstr "_Werkzeugleiste anzeigen"
 
-#: src/gtk/MainView.cxx:180
+#: src/gtk/MainView.cxx:190
 msgid "Show or hide the toolbar"
 msgstr "Werkzeugleiste anzeigen oder verstecken"
 
-#: src/gtk/MainView.cxx:183
+#: src/gtk/MainView.cxx:193
 msgid "Show _Statusbar"
 msgstr "_Statusleiste anzeigen"
 
-#: src/gtk/MainView.cxx:184
+#: src/gtk/MainView.cxx:194
 msgid "Show or hide the statusbar"
 msgstr "Statusleiste anzeigen oder verstecken"
 
-#: src/gtk/MainView.cxx:187
+#: src/gtk/MainView.cxx:197
 msgid "Show I_ndex"
 msgstr "Ü_bersicht anzeigen"
 
-#: src/gtk/MainView.cxx:188
+#: src/gtk/MainView.cxx:198
 msgid "Show or hide the document's outline"
 msgstr "Übersicht des Dokuments anzeigen oder verstecken"
 
-#: src/gtk/MainView.cxx:191
+#: src/gtk/MainView.cxx:201
 msgid "Zoom to _Fit"
 msgstr "Zoom zur _Fenstergröße"
 
-#: src/gtk/MainView.cxx:192
+#: src/gtk/MainView.cxx:202
 msgid "Make the current document fill the window"
 msgstr "Zoome das Dokument bis zur Größe des Fensters heran"
 
-#: src/gtk/MainView.cxx:195 src/gtk/StockIcons.cxx:44
+#: src/gtk/MainView.cxx:205 src/gtk/StockIcons.cxx:44
 msgid "Zoom to _Width"
 msgstr "Zoom zur F_ensterweite"
 
-#: src/gtk/MainView.cxx:196
+#: src/gtk/MainView.cxx:206
 msgid "Make the current document fill the window width"
 msgstr "Zoome das Dokument heran, bis es die Fensterbreite füllt"
 
-#: src/gtk/MainView.cxx:202
+#: src/gtk/MainView.cxx:212
 msgid "Scroll"
 msgstr ""
 
-#: src/gtk/MainView.cxx:203
+#: src/gtk/MainView.cxx:213
 msgid "Mouse scroll page"
 msgstr ""
 
-#: src/gtk/MainView.cxx:205
+#: src/gtk/MainView.cxx:215
 msgid "Select Text"
 msgstr ""
 
-#: src/gtk/MainView.cxx:206
+#: src/gtk/MainView.cxx:216
 msgid " Mouse select text"
 msgstr ""
 
-#: src/gtk/MainView.cxx:329
+#: src/gtk/MainView.cxx:339
 msgid "Open PDF File"
 msgstr "PDF Datei öffnen"
 
-#: src/gtk/MainView.cxx:349 src/gtk/MainView.cxx:465
+#: src/gtk/MainView.cxx:359 src/gtk/MainView.cxx:475
 msgid "Portable Document Format (PDF) Files"
 msgstr "Portable Document Format (PDF) Dateien"
 
-#: src/gtk/MainView.cxx:361 src/gtk/MainView.cxx:477
+#: src/gtk/MainView.cxx:371 src/gtk/MainView.cxx:487
 msgid "All Files"
 msgstr "Alle Dateien"
 
-#: src/gtk/MainView.cxx:413
+#: src/gtk/MainView.cxx:423
 msgid "Password"
 msgstr "Passwort"
 
-#: src/gtk/MainView.cxx:437
+#: src/gtk/MainView.cxx:447
 msgid "Save PDF File"
 msgstr "PDF Datei speichern"
 
-#: src/gtk/MainView.cxx:869
+#: src/gtk/MainView.cxx:921
 msgid "Page"
 msgstr "Seite"
 
-#: src/gtk/MainView.cxx:879
+#: src/gtk/MainView.cxx:931
 msgid "of 0"
 msgstr "von 0"
 
-#: src/gtk/MainView.cxx:932
+#: src/gtk/MainView.cxx:984
 msgid "Index"
 msgstr "Inhalt"
 
-#: src/gtk/MainView.cxx:1002 src/gtk/MainView.cxx:1012
+#: src/gtk/MainView.cxx:1054 src/gtk/MainView.cxx:1064
 #, c-format
 msgid "Error building UI manager: %s\n"
 msgstr "Fehler beim Erstellen des UI Managers: %s\n"
 
-#: src/gtk/MainView.cxx:1119
+#: src/gtk/MainView.cxx:1171
 msgid "A lightweight PDF viewer"
 msgstr "Ein kleiner, schneller PDF Betrachter"
 
-#: src/gtk/MainView.cxx:1122
+#: src/gtk/MainView.cxx:1174
 msgid ""
 "ePDFView is free software; you can redistribute it and/or modify\n"
 "it under the terms of the GNU General Public License as published by\n"
@@ -428,7 +444,7 @@ msgstr ""
 "Lizenz, wie von der Free Software Foundation herausgegeben,\n"
 "beachten; Entweder Version 2 oder jede nächsthöhere Version.\n"
 
-#: src/gtk/MainView.cxx:1126
+#: src/gtk/MainView.cxx:1178
 msgid ""
 "ePDFView is distributes in the hope that it will be useful,\n"
 "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
@@ -441,7 +457,7 @@ msgstr ""
 "FUNKTION mit ein. Für Details wird auf die GNU General Public Lizenz\n"
 "verwiesen.\n"
 
-#: src/gtk/MainView.cxx:1130
+#: src/gtk/MainView.cxx:1182
 msgid ""
 "You should have received a copy of the GNU General Public License\n"
 "along with ePDFView; if not, write to the Free Software Foundation,Inc.,\n"
@@ -455,32 +471,41 @@ msgstr ""
 "Boston, MA  02111-1307\n"
 "USA\n"
 
-#: src/gtk/MainView.cxx:1139
+#: src/gtk/MainView.cxx:1191
 msgid "ePDFView"
 msgstr "ePDFView"
 
-#: src/gtk/MainView.cxx:1146
+#: src/gtk/MainView.cxx:1198
 msgid "translator-credits"
 msgstr ""
 "Moritz Heiber <moe@xfce.org>,\n"
 "Enrico Tröger <enrico.troeger@uvena.de>"
 
-#: src/gtk/PreferencesView.cxx:32
+#: src/gtk/PreferencesView.cxx:33
 msgid "Preferences"
 msgstr "Einstellungen"
 
-#: src/gtk/PreferencesView.cxx:46
+#: src/gtk/PreferencesView.cxx:48
 msgid "External Commands"
 msgstr "Externe Befehle"
 
-#: src/gtk/PreferencesView.cxx:105
-msgid "Web _Browser:"
+#: src/gtk/PreferencesView.cxx:109
+#, fuzzy
+msgid "Web_Browser:"
 msgstr "_Webbrowser:"
 
-#: src/gtk/PreferencesView.cxx:118
+#: src/gtk/PreferencesView.cxx:130
 #, c-format
 msgid "Note: <i>%s</i> will be replaced by the URI."
 msgstr "Hinweis: <i>%s</i> wird durch die URL ersetzt."
+
+#: src/gtk/PreferencesView.cxx:142
+msgid "SyncTeX script:"
+msgstr ""
+
+#: src/gtk/PreferencesView.cxx:162
+msgid "Note: <i>%p</i>=page <i>%x,%y</i>=coordinates <i>%f</i>=PDF file"
+msgstr ""
 
 #: src/gtk/PrintView.cxx:51
 msgid "Print"
