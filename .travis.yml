@@ -1,7 +1,7 @@
 language: c
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq libgtk2.0-dev libpoppler-glib-dev libcups2
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -qq libgtk2.0-dev libpoppler-glib-dev libcups2 ; fi
 compiler:
   - clang
   - gcc
