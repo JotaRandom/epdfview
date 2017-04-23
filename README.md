@@ -1,22 +1,27 @@
-    TODO: 
+    TODO (So any pull request is apreciated): 
 	* Add continuous scrolling & maybe an option for toggle hide scrollbars. 
 	* Add shift+scroll for horizontal scrolling
-	* Add CMAke to make it multiplatform easily
+	* Move to CMake to make it multiplatform easily
+           (If Meson support Windows then it become also an option)
 	* Change icons for some more originals to not use GNOME icons anymore
-	* Port to GTK+ 3.0 to keep a lightweigth alternative to evince alive
+	* Port to GTK+ 3.0 to keep a lightweight alternative to evince alive
+    (Any pull request to add functionality is also apreciated).
 
-    ePDFView
-    ========
+
+ ePDFView
+ ========
 
 
 ![Travis status](https://travis-ci.org/jristz/epdfview.svg)
 
  ePDFView is a simple and lightweight PDF viewer.
- For more general information about ePDFView please visit the project's website at http://www.emma-soft.com/projects/epdfview/ .
+ For more general information about the original ePDFView please visit the project's website at 
+ http://www.emma-soft.com/projects/epdfview/ .
+ For info about this fork check the source code or ask a question on the bugtracker.
 
  This software is licensed under the GNU General Public License (GPL).
  The icons used by this software are part of the Gnome Icon Theme, 
-which is copyright The GNOME Project and released under the GNU General Public License (GPL).
+ which is copyright The GNOME Project and released under the GNU General Public License (GPL).
 
     Enhancements by Pedro A. Aranda Gutiérrez
     =========================================
@@ -28,17 +33,19 @@ which is copyright The GNOME Project and released under the GNU General Public L
 	Ctrl-Button1Down. This script should call synctex, if you want to have a full 
 	edit cycle for LaTEX.
 	Tested on:
-	    * Lubuntu 15.10
-	    * Ubuntu 14.04.3 LTS
-	    * FreeBSD 10.2 with XFCE
+	    * Lubuntu 15.10 (LXDE)
+	    * Ubuntu 14.04.3 LTS (Unity)
+	    * FreeBSD 10.2 (Xfce)
+            * ArchLinux on 2017/04/23 (Xfce)
 	SIGHUP
 	======
 
 	Reload on SIGHUP to integrate with 'latexmk -pvc'.
- 
-    Requirements
-    ============
 
+
+ Requirements
+ ============
+ 
  GTK+ version 2.6.0 or higher ( http://www.gtk.org/ ), but lower than 2.95.0
  Poppler version 0.5.0 with glib bindings ( http://poppler.freedesktop.org/ )
  CppUnit to run the test suite ( http://cppunit.sourceforge.net/ )
