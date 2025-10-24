@@ -42,9 +42,11 @@ enum printOptionsColumn
 };
 
 // Callbacks.
+#if defined (HAVE_CUPS)
 static void print_view_number_of_copies_changed (GtkSpinButton *, gpointer);
 static void print_view_page_range_option_changed (GtkToggleButton *, gpointer);
 static void print_view_printer_selection_changed (GtkTreeSelection *, gpointer);
+#endif // HAVE_CUPS
 
 PrintView::PrintView (GtkWindow *parent):
     IPrintView ()
@@ -84,7 +86,7 @@ PrintView::PrintView (GtkWindow *parent):
         gtk_notebook_append_page (GTK_NOTEBOOK (notebook),
                                   createPaperTab (), label);
     }
-    gtk_widget_show_all (notebook);
+    // GTK4: Widgets are visible by default, no need for gtk_widget_show_all
 }
 
 PrintView::~PrintView ()
@@ -114,6 +116,8 @@ PrintView::setPresenter (PrintPter *pter)
                       pter);
 
     // Run the dialog.
+    // Note: gtk_dialog_run is deprecated but still functional in GTK4
+    // For full GTK4 compliance, this should be replaced with async approach
     if ( GTK_RESPONSE_ACCEPT == gtk_dialog_run (GTK_DIALOG (m_PrintDialog)) )
     {
         pter->printActivated ();
@@ -799,12 +803,10 @@ PrintView::createResolutionListModel ()
                                        G_TYPE_STRING); // Value
 }
 
-
-
-////////////////////////////////////////////////////////////////
 // Callbacks
 ////////////////////////////////////////////////////////////////
 
+#if defined (HAVE_CUPS)
 void
 print_view_number_of_copies_changed (GtkSpinButton *spin, gpointer data)
 {
@@ -831,3 +833,4 @@ print_view_printer_selection_changed (GtkTreeSelection *sel, gpointer data)
     PrintPter *pter = (PrintPter *)data;
     pter->printerSelectionChanged ();
 }
+#endif // HAVE_CUPS

@@ -36,8 +36,8 @@ PreferencesView::PreferencesView (GtkWindow *parent):
 													   // GTK_STOCK_OK,    GTK_RESPONSE_ACCEPT,
 													   GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
             NULL);
-    // Utility dialog should not show itself in the window list.
-    gtk_window_set_skip_taskbar_hint (GTK_WINDOW (m_PreferencesDialog), TRUE);
+    // GTK4: gtk_window_set_skip_taskbar_hint removed
+    // Utility dialogs are automatically excluded from taskbar in GTK4
 
     GtkWidget *notebook = gtk_notebook_new ();
     GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (m_PreferencesDialog));
@@ -74,7 +74,18 @@ PreferencesView::setPresenter (PreferencesPter *pter)
                       G_CALLBACK (preferences_view_backsearch_command_changed),
                       pter);
     // Run the dialog.
-    gtk_dialog_run (GTK_DIALOG (m_PreferencesDialog));
+    // Note: gtk_dialog_run is deprecated in GTK4 but still functional
+    // TODO: Replace with async gtk_window_present + response callback
+    gtk_window_present (GTK_WINDOW (m_PreferencesDialog));
+    
+    // Wait for dialog response using event loop
+    GMainLoop *loop = g_main_loop_new (NULL, FALSE);
+    g_object_set_data (G_OBJECT (m_PreferencesDialog), "loop", loop);
+    g_signal_connect_swapped (m_PreferencesDialog, "close-request",
+                             G_CALLBACK (g_main_loop_quit), loop);
+    g_main_loop_run (loop);
+    g_main_loop_unref (loop);
+    
     // The close must have been activated.
     pter->closeActivated ();
 }
@@ -82,13 +93,13 @@ PreferencesView::setPresenter (PreferencesPter *pter)
 const gchar *
 PreferencesView::getBrowserCommandLine ()
 {
-    return gtk_entry_get_text (GTK_ENTRY (m_BrowserCommandLine));
+    return gtk_editable_get_text (GTK_EDITABLE (m_BrowserCommandLine));
 }
 
 const gchar *
 PreferencesView::getBacksearchCommandLine ()
 {
-    return gtk_entry_get_text (GTK_ENTRY (m_BacksearchCommandLine));
+    return gtk_editable_get_text (GTK_EDITABLE (m_BacksearchCommandLine));
 }
 
 
@@ -99,80 +110,73 @@ PreferencesView::getBacksearchCommandLine ()
 GtkWidget *
 PreferencesView::createExternalCommandsTab ()
 {
-    // The alignment for the frame.
-    GtkWidget *alignment = gtk_alignment_new (1, 1, 0, 0);
-    gtk_alignment_set_padding (GTK_ALIGNMENT (alignment), 6, 0, 12, 6);
-
-    // The table to add all the controls.
-    GtkWidget *table = gtk_table_new (4, 2, FALSE);
-    gtk_container_add (GTK_CONTAINER (alignment), table);
-    gtk_table_set_row_spacings (GTK_TABLE (table), 3);
-    gtk_table_set_col_spacings (GTK_TABLE (table), 12);
+    // GTK4: Use GtkGrid instead of GtkTable and manual margins instead of GtkAlignment
+    GtkWidget *grid = gtk_grid_new ();
+    gtk_grid_set_row_spacing (GTK_GRID (grid), 3);
+    gtk_grid_set_column_spacing (GTK_GRID (grid), 12);
+    gtk_widget_set_margin_start (grid, 12);
+    gtk_widget_set_margin_end (grid, 6);
+    gtk_widget_set_margin_top (grid, 6);
+    gtk_widget_set_margin_bottom (grid, 0);
 
     m_BrowserCommandLine = gtk_entry_new ();
     GtkWidget *webBrowserLabel = gtk_label_new (_("Web_Browser:"));
-    gtk_misc_set_alignment (GTK_MISC (webBrowserLabel), 1.0, 0.5);
+    gtk_widget_set_halign (webBrowserLabel, GTK_ALIGN_END);
+    gtk_widget_set_valign (webBrowserLabel, GTK_ALIGN_CENTER);
     gtk_label_set_use_markup (GTK_LABEL (webBrowserLabel), TRUE);
     gtk_label_set_use_underline (GTK_LABEL (webBrowserLabel), TRUE);
     gtk_label_set_mnemonic_widget (GTK_LABEL (webBrowserLabel),
                                    m_BrowserCommandLine);
-    gtk_table_attach (GTK_TABLE (table), webBrowserLabel,
-                              0, 1, 0, 1,
-                               (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-                               (GtkAttachOptions)(GTK_SHRINK),
-                               0, 0);
+    gtk_grid_attach (GTK_GRID (grid), webBrowserLabel, 0, 0, 1, 1);
+    
     // The web browser.
     gchar *browserCommandLine =
         Config::getConfig ().getExternalBrowserCommandLine ();
-    gtk_entry_set_text (GTK_ENTRY (m_BrowserCommandLine), browserCommandLine);
+    gtk_editable_set_text (GTK_EDITABLE (m_BrowserCommandLine), browserCommandLine);
     g_free (browserCommandLine);
-    gtk_table_attach_defaults (GTK_TABLE (table), m_BrowserCommandLine,
-                               1, 2, 0, 1);
+    gtk_widget_set_hexpand (m_BrowserCommandLine, TRUE);
+    gtk_grid_attach (GTK_GRID (grid), m_BrowserCommandLine, 1, 0, 1, 1);
 
 
     // The %s note.
     GtkWidget *note = gtk_label_new (_("Note: <i>%s</i> will be replaced by the URI."));
-    gtk_misc_set_alignment (GTK_MISC (note), 0.0, 0.5);
+    gtk_widget_set_halign (note, GTK_ALIGN_START);
+    gtk_widget_set_valign (note, GTK_ALIGN_CENTER);
     gtk_label_set_use_markup (GTK_LABEL (note), TRUE);
-    gtk_table_attach (GTK_TABLE (table), note, 0, 2, 1, 2,
-                      (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-                      (GtkAttachOptions)(GTK_SHRINK),
-                      0, 12);
+    gtk_widget_set_margin_bottom (note, 12);
+    gtk_grid_attach (GTK_GRID (grid), note, 0, 1, 2, 1);
 
 	//
 	// Back-searching (through SyncTeX)
 	//
     m_BacksearchCommandLine = gtk_entry_new ();
     GtkWidget *backsearchLabel = gtk_label_new (_("SyncTeX script:"));
-    gtk_misc_set_alignment (GTK_MISC (backsearchLabel), 1.0, 0.5);
+    gtk_widget_set_halign (backsearchLabel, GTK_ALIGN_END);
+    gtk_widget_set_valign (backsearchLabel, GTK_ALIGN_CENTER);
     gtk_label_set_use_markup (GTK_LABEL (backsearchLabel), TRUE);
     gtk_label_set_use_underline (GTK_LABEL (backsearchLabel), TRUE);
     gtk_label_set_mnemonic_widget (GTK_LABEL (backsearchLabel),
                                    m_BacksearchCommandLine);
-    gtk_table_attach (GTK_TABLE (table), backsearchLabel,
-                               0, 1, 2, 3,
-                               (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-                               (GtkAttachOptions)(GTK_SHRINK),
-                               0, 0);
+    gtk_grid_attach (GTK_GRID (grid), backsearchLabel, 0, 2, 1, 1);
+    
     gchar *backsearchCommandLine =
         Config::getConfig ().getExternalBacksearchCommandLine ();
-    gtk_entry_set_text (GTK_ENTRY (m_BacksearchCommandLine), backsearchCommandLine);
+    gtk_editable_set_text (GTK_EDITABLE (m_BacksearchCommandLine), backsearchCommandLine);
     g_free (backsearchCommandLine);
-    gtk_table_attach_defaults (GTK_TABLE (table), m_BacksearchCommandLine,
-                               1, 2, 2, 3);
+    gtk_widget_set_hexpand (m_BacksearchCommandLine, TRUE);
+    gtk_grid_attach (GTK_GRID (grid), m_BacksearchCommandLine, 1, 2, 1, 1);
 
 
     // The meaning of %p %x %y %f
     GtkWidget *note2 = gtk_label_new (_("Note: <i>%p</i>=page <i>%x,%y</i>=coordinates <i>%f</i>=PDF file"));
-    gtk_misc_set_alignment (GTK_MISC (note2), 0.0, 0.5);
+    gtk_widget_set_halign (note2, GTK_ALIGN_START);
+    gtk_widget_set_valign (note2, GTK_ALIGN_CENTER);
     gtk_label_set_use_markup (GTK_LABEL (note2), TRUE);
-    gtk_table_attach (GTK_TABLE (table), note2, 0, 2, 3, 4,
-                      (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-                      (GtkAttachOptions)(GTK_SHRINK),
-                      0, 12);
+    gtk_widget_set_margin_bottom (note2, 12);
+    gtk_grid_attach (GTK_GRID (grid), note2, 0, 3, 2, 1);
 
 
-    return alignment;
+    return grid;
 }
 
 ////////////////////////////////////////////////////////////////

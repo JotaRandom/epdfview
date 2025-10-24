@@ -19,7 +19,6 @@ sources = [
   'PagePter.cxx',
   'PDFDocument.cxx',
   'PreferencesPter.cxx',
-  'PrintPter.cxx',
 ]
 
 # GTK4 UI sources
@@ -28,7 +27,6 @@ gtk_sources = [
   'gtk/MainView.cxx',
   'gtk/PageView.cxx',
   'gtk/PreferencesView.cxx',
-  'gtk/PrintView.cxx',
   'gtk/StockIcons.cxx',
 ]
 
@@ -41,8 +39,10 @@ epdfview_deps = [
   pango_dep,
 ]
 
+# Only compile print-related files when CUPS is available
 if cups_dep.found() and host_machine.system() != 'windows'
   epdfview_deps += cups_dep
+  sources += ['PrintPter.cxx', 'gtk/PrintView.cxx']
 endif
 
 # Create executable

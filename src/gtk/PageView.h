@@ -55,6 +55,7 @@ namespace ePDFView
             GtkWidget *m_EventBox;
             GtkWidget *m_PageImage;
             GtkWidget *m_PageScroll;
+            GdkPixbuf *m_CurrentPixbuf; // GTK4: Store current pixbuf separately
 
             GdkPixbuf *getPixbufFromPage (DocumentPage *page);
             

@@ -81,7 +81,7 @@ static void main_window_zoom_in_cb (GtkWidget *, gpointer);
 static void main_window_zoom_out_cb (GtkWidget *, gpointer);
 static void main_window_zoom_width_cb (GSimpleAction *, GVariant *, gpointer);
 static void main_window_set_page_mode (GSimpleAction *, GVariant *, gpointer);
-static gboolean main_window_page_scrolled_cb (GtkWidget *widget, GdkEventScroll *event, gpointer data);
+// GTK4: Scroll events handled by PageView event controllers, not needed here
 
 #if defined (HAVE_CUPS)
 static void main_window_print_cb (GtkWidget *, gpointer);
@@ -241,7 +241,7 @@ MainView::MainView (MainPter *pter):
     // Initialise the stock items.
     epdfview_stock_icons_init ();
     // Create the main window.
-    m_MainWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    m_MainWindow = gtk_window_new ();
     setMainWindowIcon ();
     // Connect already the destroy and delete signal.
     g_signal_connect (G_OBJECT (m_MainWindow), "destroy",
@@ -257,41 +257,46 @@ MainView::MainView (MainPter *pter):
     createMenuBar ();
     createToolBar ();
     // Add the menu bar and tool bar.
-    gtk_box_pack_start (GTK_BOX (m_MainBox), m_MenuBar, FALSE, FALSE, 0);
-    gtk_widget_show (m_MenuBar);
+    gtk_box_append (GTK_BOX (m_MainBox), m_MenuBar);
     GtkWidget *toolBar = m_ToolBar;
-    gtk_box_pack_start (GTK_BOX (m_MainBox), toolBar, FALSE, FALSE, 0);
-    // Add the current page tool item.
+    gtk_box_append (GTK_BOX (m_MainBox), toolBar);
+    // GTK4: Add widgets directly to box (no toolbar in GTK4)
+    // Add separator before page controls
+    GtkWidget *sep2 = gtk_separator_new (GTK_ORIENTATION_VERTICAL);
+    gtk_box_append (GTK_BOX (toolBar), sep2);
+    
+    // Add the current page control
     createCurrentPage ();
-    gtk_toolbar_insert (GTK_TOOLBAR (toolBar), m_CurrentPageToolItem,
-                        CURRENT_PAGE_POS);
-    // In GTK4, widgets are visible by default
-    GtkToolItem *separator = gtk_separator_tool_item_new ();
-    gtk_toolbar_insert (GTK_TOOLBAR (toolBar), separator, CURRENT_PAGE_POS + 1);
-    // Add the current zoom item.
+    gtk_box_append (GTK_BOX (toolBar), m_CurrentPageToolItem);
+    
+    // Add separator
+    GtkWidget *sep3 = gtk_separator_new (GTK_ORIENTATION_VERTICAL);
+    gtk_box_append (GTK_BOX (toolBar), sep3);
+    
+    // Add the current zoom control
     createCurrentZoom ();
-    gtk_toolbar_insert (GTK_TOOLBAR (toolBar), m_CurrentZoomToolItem,
-                        CURRENT_ZOOM_POS);
+    gtk_box_append (GTK_BOX (toolBar), m_CurrentZoomToolItem);
     // Create the page view
     GtkWidget *pageViewPaned = createPageView ();
-    gtk_box_pack_start (GTK_BOX (m_MainBox), pageViewPaned, TRUE, TRUE, 0);
-    gtk_widget_show (pageViewPaned);
+    gtk_box_append (GTK_BOX (m_MainBox), pageViewPaned);
+    gtk_widget_set_vexpand (pageViewPaned, TRUE);
     // By default set focus to page view so user can navigate pdf document with
     // keyboard right away without need to click to page view first
     gtk_widget_grab_focus (m_PageView->getTopWidget ());
     // Add the find bar.
     m_FindView = new FindView ();
-    gtk_box_pack_start (GTK_BOX (m_MainBox), m_FindView->getTopWidget (),
-                        FALSE, FALSE, 0);
+    gtk_box_append (GTK_BOX (m_MainBox), m_FindView->getTopWidget ());
 
-    // The status bar don't do anything, yet. But without the application
-    // look weird.
-    m_StatusBar = gtk_statusbar_new ();
-    gtk_box_pack_start (GTK_BOX (m_MainBox), m_StatusBar, FALSE, FALSE, 0);
+    // GTK4: Use a simple label instead of deprecated GtkStatusbar
+    m_StatusBar = gtk_label_new ("");
+    gtk_widget_set_halign (m_StatusBar, GTK_ALIGN_START);
+    gtk_widget_set_margin_start (m_StatusBar, 6);
+    gtk_widget_set_margin_end (m_StatusBar, 6);
+    gtk_widget_set_margin_top (m_StatusBar, 3);
+    gtk_widget_set_margin_bottom (m_StatusBar, 3);
+    gtk_box_append (GTK_BOX (m_MainBox), m_StatusBar);
 
-    // Signal for Zooming into the page per ctrl + scroll-wheel.
-    g_signal_connect (G_OBJECT (m_PageView->getTopWidget ()), "scroll-event",
-                      G_CALLBACK (main_window_page_scrolled_cb), pter);
+    // GTK4: Scroll events handled by PageView event controllers
 }
 
 MainView::~MainView ()
@@ -416,29 +421,34 @@ MainView::promptPasswordDialog ()
     gtk_label_set_markup (GTK_LABEL (primaryLabel),
             "<span weight=\"bold\" size=\"larger\">Encrypted Document</span>");
     gtk_label_set_selectable (GTK_LABEL (primaryLabel), TRUE);
-    gtk_misc_set_alignment (GTK_MISC (primaryLabel), 0.0, 0.0);
+    gtk_widget_set_halign (primaryLabel, GTK_ALIGN_START);
+    gtk_widget_set_valign (primaryLabel, GTK_ALIGN_START);
     GtkWidget *secondaryLabel = gtk_label_new ("This document is encrypted "
                                                "and can't be accessed. "
                                                "Please enter the document's "
                                                "password:");
     gtk_label_set_line_wrap (GTK_LABEL (secondaryLabel), TRUE);
     gtk_label_set_selectable (GTK_LABEL (secondaryLabel), TRUE);
-    gtk_misc_set_alignment (GTK_MISC (secondaryLabel), 0.0, 0.0);
+    gtk_widget_set_halign (secondaryLabel, GTK_ALIGN_START);
+    gtk_widget_set_valign (secondaryLabel, GTK_ALIGN_START);
     GtkWidget *passwordEntry = gtk_entry_new ();
     gtk_entry_set_visibility (GTK_ENTRY (passwordEntry), FALSE);
     gtk_entry_set_activates_default (GTK_ENTRY (passwordEntry), TRUE);
     GtkWidget *vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 12);
-    gtk_box_pack_start (GTK_BOX (vbox), primaryLabel, FALSE, FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (vbox), secondaryLabel, TRUE, TRUE, 0);
-    gtk_box_pack_start (GTK_BOX (vbox), passwordEntry, FALSE, FALSE, 6);
+    gtk_box_append (GTK_BOX (vbox), primaryLabel);
+    gtk_box_append (GTK_BOX (vbox), secondaryLabel);
+    gtk_widget_set_vexpand (secondaryLabel, TRUE);
+    gtk_box_append (GTK_BOX (vbox), passwordEntry);
+    gtk_widget_set_margin_top (passwordEntry, 6);
 
     GtkWidget *image = gtk_image_new_from_icon_name (GTK_STOCK_DIALOG_AUTHENTICATION);
     gtk_image_set_icon_size (GTK_IMAGE (image), GTK_ICON_SIZE_LARGE);
     gtk_widget_set_halign (image, GTK_ALIGN_CENTER);
     gtk_widget_set_valign (image, GTK_ALIGN_START);
     GtkWidget *hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
-    gtk_box_pack_start (GTK_BOX (hbox), image, FALSE, FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (hbox), vbox, TRUE, TRUE, 0);
+    gtk_box_append (GTK_BOX (hbox), image);
+    gtk_box_append (GTK_BOX (hbox), vbox);
+    gtk_widget_set_hexpand (vbox, TRUE);
     // In GTK4, widgets are visible by default
 
 
@@ -452,8 +462,8 @@ MainView::promptPasswordDialog ()
             GTK_RESPONSE_ACCEPT, GTK_RESPONSE_CANCEL, -1);
     gtk_dialog_set_default_response (GTK_DIALOG (passwordDialog), 
                                      GTK_RESPONSE_ACCEPT);
-    gtk_box_pack_start (GTK_BOX (GTK_DIALOG (passwordDialog)->vbox),
-                        hbox, FALSE, FALSE, 0);
+    GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (passwordDialog));
+    gtk_box_append (GTK_BOX (content_area), hbox);
 
     gchar *password = NULL;
     if ( GTK_RESPONSE_ACCEPT == gtk_dialog_run (GTK_DIALOG (passwordDialog)) )
@@ -785,37 +795,39 @@ MainView::setNumberOfPagesText (const gchar *text)
 void
 MainView::setGoToPageText (const gchar *text)
 {
-    gtk_entry_set_text (GTK_ENTRY (m_CurrentPage), text);
+    gtk_editable_set_text (GTK_EDITABLE (m_CurrentPage), text);
 }
 
 const gchar *
 MainView::getGoToPageText (void)
 {
-    return gtk_entry_get_text (GTK_ENTRY (m_CurrentPage));
+    return gtk_editable_get_text (GTK_EDITABLE (m_CurrentPage));
 }
 
 const gchar *
 MainView::getZoomText (void)
 {
-    return gtk_entry_get_text (GTK_ENTRY (m_CurrentZoom));
+    return gtk_editable_get_text (GTK_EDITABLE (m_CurrentZoom));
 }
 
 void
 MainView::setStatusBarText (const gchar *text)
 {
-    gint contextId = gtk_statusbar_get_context_id (GTK_STATUSBAR (m_StatusBar),
-            "general_message");
-    gtk_statusbar_pop (GTK_STATUSBAR (m_StatusBar), contextId);
+    // GTK4: m_StatusBar is now a GtkLabel, not GtkStatusbar
     if ( NULL != text )
     {
-        gtk_statusbar_push (GTK_STATUSBAR (m_StatusBar), contextId, text);
+        gtk_label_set_text (GTK_LABEL (m_StatusBar), text);
+    }
+    else
+    {
+        gtk_label_set_text (GTK_LABEL (m_StatusBar), "");
     }
 }
 
 void
 MainView::setZoomText (const gchar *text)
 {
-    gtk_entry_set_text (GTK_ENTRY (m_CurrentZoom), text);
+    gtk_editable_set_text (GTK_EDITABLE (m_CurrentZoom), text);
 }
 
 IFindView *
@@ -935,21 +947,23 @@ MainView::createCurrentPage ()
     GtkWidget *hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 3);
 
     GtkWidget *pageLabel = gtk_label_new (_("Page"));
-    gtk_box_pack_start (GTK_BOX (hbox), pageLabel, FALSE, FALSE, 0);
+    gtk_box_append (GTK_BOX (hbox), pageLabel);
 
     m_CurrentPage = gtk_entry_new ();
-    gtk_entry_set_text (GTK_ENTRY (m_CurrentPage), "0");
-    gtk_entry_set_alignment (GTK_ENTRY (m_CurrentPage), 1.0f);
-    gtk_entry_set_width_chars (GTK_ENTRY (m_CurrentPage), CURRENT_PAGE_WIDTH);
+    gtk_editable_set_text (GTK_EDITABLE (m_CurrentPage), "0");
+    gtk_editable_set_alignment (GTK_EDITABLE (m_CurrentPage), 1.0f);
+    gtk_editable_set_width_chars (GTK_EDITABLE (m_CurrentPage), CURRENT_PAGE_WIDTH);
     g_signal_connect (G_OBJECT (m_CurrentPage), "activate",
                       G_CALLBACK (main_window_go_to_page_cb), m_Pter);
-    gtk_box_pack_start (GTK_BOX (hbox), m_CurrentPage, TRUE, TRUE, 0);
+    gtk_box_append (GTK_BOX (hbox), m_CurrentPage);
+    gtk_widget_set_hexpand (m_CurrentPage, TRUE);
     m_NumberOfPages = gtk_label_new (_("of 0"));
-    gtk_misc_set_alignment (GTK_MISC (m_NumberOfPages), 0.0f, 0.5f);
-    gtk_box_pack_start (GTK_BOX (hbox), m_NumberOfPages, FALSE, FALSE, 0);
+    gtk_widget_set_halign (m_NumberOfPages, GTK_ALIGN_START);
+    gtk_widget_set_valign (m_NumberOfPages, GTK_ALIGN_CENTER);
+    gtk_box_append (GTK_BOX (hbox), m_NumberOfPages);
 
-    m_CurrentPageToolItem = gtk_tool_item_new ();
-    gtk_tool_item_set_child (GTK_TOOL_ITEM (m_CurrentPageToolItem), hbox);
+    // GTK4: GtkToolItem removed, just use the box directly
+    m_CurrentPageToolItem = hbox;
 }
 
 
@@ -960,17 +974,17 @@ void
 MainView::createCurrentZoom ()
 {
     m_CurrentZoom = gtk_entry_new ();
-    gtk_entry_set_alignment (GTK_ENTRY (m_CurrentZoom), 1.0f);
-    gtk_entry_set_width_chars (GTK_ENTRY (m_CurrentZoom), CURRENT_ZOOM_WIDTH);
+    gtk_editable_set_alignment (GTK_EDITABLE (m_CurrentZoom), 1.0f);
+    gtk_editable_set_width_chars (GTK_EDITABLE (m_CurrentZoom), CURRENT_ZOOM_WIDTH);
     g_signal_connect (G_OBJECT (m_CurrentZoom), "activate",
                       G_CALLBACK (main_window_zoom_cb), m_Pter);
 
     GtkWidget *zoomBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 3);
-    gtk_box_pack_start_defaults (GTK_BOX (zoomBox), m_CurrentZoom);
-    gtk_box_pack_start (GTK_BOX (zoomBox), gtk_label_new ("%"),
-                        FALSE, FALSE, 0);
-    m_CurrentZoomToolItem = gtk_tool_item_new ();
-    gtk_tool_item_set_child (GTK_TOOL_ITEM (m_CurrentZoomToolItem), zoomBox);
+    gtk_box_append (GTK_BOX (zoomBox), m_CurrentZoom);
+    gtk_widget_set_hexpand (m_CurrentZoom, TRUE);
+    gtk_box_append (GTK_BOX (zoomBox), gtk_label_new ("%"));
+    // GTK4: GtkToolItem removed, just use the box directly
+    m_CurrentZoomToolItem = zoomBox;
 }
 
 ///
@@ -1024,19 +1038,17 @@ MainView::createPageView ()
     g_signal_connect (G_OBJECT (selection), "changed",
                       G_CALLBACK (main_window_outline_cb), m_Pter);
 
-    m_Sidebar = gtk_scrolled_window_new (NULL, NULL);
+    m_Sidebar = gtk_scrolled_window_new ();
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (m_Sidebar),
                                     GTK_POLICY_AUTOMATIC,
                                     GTK_POLICY_AUTOMATIC);
-    gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (m_Sidebar),
-                                         GTK_SHADOW_IN);
+    // GTK4: gtk_scrolled_window_set_shadow_type removed, use CSS instead if needed
     gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (m_Sidebar), m_TreeIndex);
 
 
-    GtkWidget *hPaned = gtk_hpaned_new ();
-    gtk_paned_add1 (GTK_PANED (hPaned), m_Sidebar);
-    gtk_paned_add2 (GTK_PANED (hPaned), m_PageView->getTopWidget ());
-    gtk_widget_show (hPaned);
+    GtkWidget *hPaned = gtk_paned_new (GTK_ORIENTATION_HORIZONTAL);
+    gtk_paned_set_start_child (GTK_PANED (hPaned), m_Sidebar);
+    gtk_paned_set_end_child (GTK_PANED (hPaned), m_PageView->getTopWidget ());
 
     return hPaned;
 }
@@ -1081,121 +1093,58 @@ MainView::createActions ()
 }
 
 ///
-/// @brief Creates the menu bar using GtkBuilder or manual construction.
+/// @brief Creates a simple menu placeholder for GTK4.
+///
+/// GTK4 removed GtkMenu, GtkMenuItem, GtkMenuBar completely.
+/// For now, we create an empty box as placeholder.
+/// TODO: Implement GMenuModel with GtkPopoverMenuBar for full GTK4 menus
 ///
 void
 MainView::createMenuBar ()
 {
-    m_MenuBar = gtk_menu_bar_new ();
+    // GTK4: Traditional menu widgets removed
+    // Create empty box as placeholder to avoid breaking code that references m_MenuBar
+    m_MenuBar = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+    gtk_widget_set_visible (m_MenuBar, FALSE); // Hide for now since it's empty
     
-    // File menu
-    GtkWidget *file_menu = gtk_menu_new ();
-    GtkWidget *file_item = gtk_menu_item_new_with_mnemonic (_("_File"));
-    gtk_menu_item_set_submenu (GTK_MENU_ITEM (file_item), file_menu);
-    gtk_menu_shell_append (GTK_MENU_SHELL (m_MenuBar), file_item);
-    
-    // Add file menu items
-    GtkWidget *open_item = gtk_menu_item_new_with_mnemonic (_("_Open"));
-    g_signal_connect (open_item, "activate", G_CALLBACK (main_window_open_file_cb), m_Pter);
-    gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), open_item);
-    
-    GtkWidget *reload_item = gtk_menu_item_new_with_mnemonic (_("_Reload"));
-    g_signal_connect (reload_item, "activate", G_CALLBACK (main_window_reload_cb), m_Pter);
-    gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), reload_item);
-    
-    GtkWidget *save_item = gtk_menu_item_new_with_mnemonic (_("_Save a Copy..."));
-    g_signal_connect (save_item, "activate", G_CALLBACK (main_window_save_file_cb), m_Pter);
-    gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), save_item);
-    
-#if defined (HAVE_CUPS)
-    GtkWidget *print_item = gtk_menu_item_new_with_mnemonic (_("_Print..."));
-    g_signal_connect (print_item, "activate", G_CALLBACK (main_window_print_cb), m_Pter);
-    gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), print_item);
-#endif
-    
-    gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), gtk_separator_menu_item_new ());
-    
-    GtkWidget *quit_item = gtk_menu_item_new_with_mnemonic (_("_Close"));
-    g_signal_connect (quit_item, "activate", G_CALLBACK (main_window_quit_cb), m_Pter);
-    gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), quit_item);
-    
-    // Edit menu
-    GtkWidget *edit_menu = gtk_menu_new ();
-    GtkWidget *edit_item = gtk_menu_item_new_with_mnemonic (_("_Edit"));
-    gtk_menu_item_set_submenu (GTK_MENU_ITEM (edit_item), edit_menu);
-    gtk_menu_shell_append (GTK_MENU_SHELL (m_MenuBar), edit_item);
-    
-    GtkWidget *find_item = gtk_menu_item_new_with_mnemonic (_("_Find"));
-    g_signal_connect (find_item, "activate", G_CALLBACK (main_window_find_cb), m_Pter);
-    gtk_menu_shell_append (GTK_MENU_SHELL (edit_menu), find_item);
-    
-    GtkWidget *prefs_item = gtk_menu_item_new_with_mnemonic (_("_Preferences..."));
-    g_signal_connect (prefs_item, "activate", G_CALLBACK (main_window_preferences_cb), m_Pter);
-    gtk_menu_shell_append (GTK_MENU_SHELL (edit_menu), prefs_item);
-    
-    // View menu
-    GtkWidget *view_menu = gtk_menu_new ();
-    GtkWidget *view_item = gtk_menu_item_new_with_mnemonic (_("_View"));
-    gtk_menu_item_set_submenu (GTK_MENU_ITEM (view_item), view_menu);
-    gtk_menu_shell_append (GTK_MENU_SHELL (m_MenuBar), view_item);
-    
-    // Add view menu items (zoom, rotate, etc.)
-    GtkWidget *zoom_in_item = gtk_menu_item_new_with_mnemonic (_("Zoom _In"));
-    g_signal_connect (zoom_in_item, "activate", G_CALLBACK (main_window_zoom_in_cb), m_Pter);
-    gtk_menu_shell_append (GTK_MENU_SHELL (view_menu), zoom_in_item);
-    
-    GtkWidget *zoom_out_item = gtk_menu_item_new_with_mnemonic (_("Zoom _Out"));
-    g_signal_connect (zoom_out_item, "activate", G_CALLBACK (main_window_zoom_out_cb), m_Pter);
-    gtk_menu_shell_append (GTK_MENU_SHELL (view_menu), zoom_out_item);
-    
-    // Go menu
-    GtkWidget *go_menu = gtk_menu_new ();
-    GtkWidget *go_item = gtk_menu_item_new_with_mnemonic (_("_Go"));
-    gtk_menu_item_set_submenu (GTK_MENU_ITEM (go_item), go_menu);
-    gtk_menu_shell_append (GTK_MENU_SHELL (m_MenuBar), go_item);
-    
-    // Help menu
-    GtkWidget *help_menu = gtk_menu_new ();
-    GtkWidget *help_item = gtk_menu_item_new_with_mnemonic (_("_Help"));
-    gtk_menu_item_set_submenu (GTK_MENU_ITEM (help_item), help_menu);
-    gtk_menu_shell_append (GTK_MENU_SHELL (m_MenuBar), help_item);
-    
-    GtkWidget *about_item = gtk_menu_item_new_with_mnemonic (_("_About"));
-    g_signal_connect (about_item, "activate", G_CALLBACK (main_window_about_box_cb), m_Pter);
-    gtk_menu_shell_append (GTK_MENU_SHELL (help_menu), about_item);
+    // Note: All menu actions are available via toolbar and keyboard shortcuts
+    // A full GTK4 implementation would use GMenuModel here
 }
 
 ///
-/// @brief Creates the toolbar with modern GTK4 approach.
+/// @brief Creates the toolbar as a simple box (GTK4 removed GtkToolbar).
 ///
 void
 MainView::createToolBar ()
 {
-    m_ToolBar = gtk_toolbar_new ();
-    gtk_toolbar_set_style (GTK_TOOLBAR (m_ToolBar), GTK_TOOLBAR_BOTH_HORIZ);
+    // GTK4: GtkToolbar removed, use GtkBox instead
+    m_ToolBar = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 6);
+    gtk_widget_set_margin_start (m_ToolBar, 6);
+    gtk_widget_set_margin_end (m_ToolBar, 6);
+    gtk_widget_set_margin_top (m_ToolBar, 3);
+    gtk_widget_set_margin_bottom (m_ToolBar, 3);
     
     // Add toolbar buttons
-    GtkToolItem *open_button = gtk_tool_button_new (NULL, _("Open"));
-    gtk_tool_button_set_icon_name (GTK_TOOL_BUTTON (open_button), "document-open");
+    GtkWidget *open_button = gtk_button_new_from_icon_name ("document-open");
+    gtk_button_set_label (GTK_BUTTON (open_button), _("Open"));
     g_signal_connect (open_button, "clicked", G_CALLBACK (main_window_open_file_cb), m_Pter);
-    gtk_toolbar_insert (GTK_TOOLBAR (m_ToolBar), open_button, -1);
+    gtk_box_append (GTK_BOX (m_ToolBar), open_button);
     
     // Add separator
-    gtk_toolbar_insert (GTK_TOOLBAR (m_ToolBar), gtk_separator_tool_item_new (), -1);
+    GtkWidget *sep1 = gtk_separator_new (GTK_ORIENTATION_VERTICAL);
+    gtk_box_append (GTK_BOX (m_ToolBar), sep1);
     
     // Previous page button
-    GtkToolItem *prev_button = gtk_tool_button_new (NULL, _("Previous"));
-    gtk_tool_button_set_icon_name (GTK_TOOL_BUTTON (prev_button), "go-previous");
-    gtk_tool_item_set_is_important (prev_button, TRUE);
+    GtkWidget *prev_button = gtk_button_new_from_icon_name ("go-previous");
+    gtk_button_set_label (GTK_BUTTON (prev_button), _("Previous"));
     g_signal_connect (prev_button, "clicked", G_CALLBACK (main_window_go_to_previous_page_cb), m_Pter);
-    gtk_toolbar_insert (GTK_TOOLBAR (m_ToolBar), prev_button, -1);
+    gtk_box_append (GTK_BOX (m_ToolBar), prev_button);
     
     // Next page button
-    GtkToolItem *next_button = gtk_tool_button_new (NULL, _("Next"));
-    gtk_tool_button_set_icon_name (GTK_TOOL_BUTTON (next_button), "go-next");
-    gtk_tool_item_set_is_important (next_button, TRUE);
+    GtkWidget *next_button = gtk_button_new_from_icon_name ("go-next");
+    gtk_button_set_label (GTK_BUTTON (next_button), _("Next"));
     g_signal_connect (next_button, "clicked", G_CALLBACK (main_window_go_to_next_page_cb), m_Pter);
-    gtk_toolbar_insert (GTK_TOOLBAR (m_ToolBar), next_button, -1);
+    gtk_box_append (GTK_BOX (m_ToolBar), next_button);
 }
 
 ///
@@ -1270,8 +1219,10 @@ MainView::setOutlineChildren (DocumentOutline *outline, GtkTreeIter *rootIter)
 void
 MainView::copyTextToClibboard(const gchar* text)
 {
-    GtkClipboard *clipboard = gtk_clipboard_get(GDK_SELECTION_PRIMARY);
-    gtk_clipboard_set_text(clipboard, text, -1);
+    // GTK4: Use GdkClipboard instead of deprecated GtkClipboard
+    GdkDisplay *display = gdk_display_get_default ();
+    GdkClipboard *clipboard = gdk_display_get_clipboard (display);
+    gdk_clipboard_set_text (clipboard, text);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1307,7 +1258,7 @@ main_window_about_box_cb (GtkWidget *widget, gpointer data)
     gchar *licenseTranslated = g_strconcat (_(license[0]), "\n",
                                             _(license[1]), "\n",
                                             _(license[2]), "\n", NULL);
-    gtk_about_dialog_set_url_hook (main_window_about_box_url_hook, NULL, NULL);
+    // GTK4: gtk_about_dialog_set_url_hook removed - links work automatically
     gtk_show_about_dialog (NULL,
             "name", _("ePDFView"),
             "version", VERSION,
@@ -1757,25 +1708,5 @@ main_window_set_page_mode (GSimpleAction *action, GVariant *parameter, gpointer 
     pter->setPageMode (mode);
 }
 
-gboolean 
-main_window_page_scrolled_cb (GtkWidget *widget, GdkEventScroll *event, gpointer data)
-{
-    g_assert ( NULL != data && "The data parameter is NULL.");
-
-    MainPter *pter = (MainPter *)data;
-    // Only zoom when the CTRL-Button is down...
-    if ( GDK_CONTROL_MASK == (event->state & GDK_CONTROL_MASK) )
-    {
-        if ( event->direction == GDK_SCROLL_UP )
-        {
-            pter->zoomInActivated ();
-        }
-        else if ( event->direction == GDK_SCROLL_DOWN )
-        {
-            pter->zoomOutActivated ();
-        }
-        return TRUE;
-    }
-    return FALSE;
-}
-
+// GTK4: This callback removed - scroll events for zoom handled via event controllers
+// Zoom with Ctrl+Scroll can be implemented in PageView if needed

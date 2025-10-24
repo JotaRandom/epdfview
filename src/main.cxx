@@ -37,23 +37,23 @@
 
 using namespace ePDFView;
 
-struct LoadFileInfo
+// Application data structure
+struct AppData
 {
-    gchar *fileName;
+    GtkApplication *app;
+    gchar *fileToOpen;
     MainPter *mainPter;
     PDFDocument *document;
+    MainView *mainView;
 };
 
 static int
 loadFileFromCommandLine (gpointer data)
 {
-    LoadFileInfo *info = static_cast<LoadFileInfo *> (data);
+    AppData *appData = static_cast<AppData *> (data);
 
-    info->mainPter->setOpenState (info->fileName, FALSE);
-    info->document->load (info->fileName, NULL);
-
-    g_free (info->fileName);
-    delete info;
+    appData->mainPter->setOpenState (appData->fileToOpen, FALSE);
+    appData->document->load (appData->fileToOpen, NULL);
 
     return FALSE;
 }
@@ -69,7 +69,48 @@ handleReloadSignal(gpointer data)
 }
 #endif
 
-// GTK4 initialization uses direct approach without GtkApplication for now
+// GTK4 Application callbacks
+static void
+on_activate (GtkApplication *app, gpointer user_data)
+{
+    AppData *appData = static_cast<AppData *> (user_data);
+    
+    // Create the main presenter and document
+    appData->document = new PDFDocument;
+    appData->mainPter = new MainPter (appData->document);
+    
+    // Create the main view
+    appData->mainView = new MainView (appData->mainPter);
+    
+    // Let the presenter know which is its view
+    appData->mainPter->setView (appData->mainView);
+    
+    // If we have a file to open, schedule it
+    if (appData->fileToOpen != NULL)
+    {
+        g_idle_add (loadFileFromCommandLine, appData);
+    }
+    
+#ifndef _WIN32
+    g_unix_signal_add(SIGHUP, handleReloadSignal, appData->mainPter);
+#endif
+}
+
+static void
+on_shutdown (GtkApplication *app, gpointer user_data)
+{
+    AppData *appData = static_cast<AppData *> (user_data);
+    
+    // Delete the main presenter (which also deletes the view)
+    if (appData->mainPter != NULL)
+    {
+        delete appData->mainPter;
+        appData->mainPter = NULL;
+    }
+    
+    // Save the configuration
+    Config::getConfig().save ();
+}
 
 int
 main (int argc, char **argv)
@@ -104,56 +145,44 @@ main (int argc, char **argv)
     bindtextdomain (PACKAGE, LOCALEDIR);
     bind_textdomain_codeset (PACKAGE, "UTF-8");
     textdomain (PACKAGE);
-    // Create the command line options context.
-    GOptionContext *optionContext = 
-        g_option_context_new (_("[FILE] - view PDF documents"));
-    GError *error = NULL;
-    if ( !g_option_context_parse (optionContext, &argc, &argv, &error) )
-    {
-        g_critical ("Error parsing command line options: %s\n", error->message);
-        g_error_free (error);
-        exit (EXIT_FAILURE);
-    }
+    
     // Initialise the working thread.
     IJob::init ();
-    // Initialise the GTK library.
-    gtk_init();
+    
+    // Create the GTK4 application
+    GtkApplication *app = gtk_application_new ("org.emma-soft.epdfview",
+                                               G_APPLICATION_HANDLES_OPEN);
+    
+    // Set application name
     g_set_application_name (_("PDF Viewer"));
-    // Create the main presenter.
-    PDFDocument *document = new PDFDocument;
-    MainPter *mainPter = new MainPter (document);
-    // Create the main view.
-    MainView *mainView = new MainView (mainPter);
-    // Let know to the presenter which is its view.
-    mainPter->setView (mainView);
-    // Now check if we have additional parameters. Any additional parameter
-    // will be a file name to open.
-    if ( argc > 1 )
+    
+    // Initialize application data
+    AppData appData = { 0 };
+    appData.app = app;
+    appData.fileToOpen = NULL;
+    appData.mainPter = NULL;
+    appData.document = NULL;
+    appData.mainView = NULL;
+    
+    // Check if we have a file to open from command line
+    if (argc > 1)
     {
-        LoadFileInfo *info = new LoadFileInfo;
-        info->mainPter = mainPter;
-        info->document = document;
-        info->fileName = g_strdup (argv[1]);
-        g_idle_add (loadFileFromCommandLine, info);
+        appData.fileToOpen = g_strdup (argv[1]);
     }
-
-#ifndef _WIN32
-	g_unix_signal_add(SIGHUP,handleReloadSignal,mainPter);
-#endif
-	
-    GMainLoop *loop = g_main_loop_new(NULL, FALSE);
-    g_main_loop_run(loop);
-    g_main_loop_unref(loop);
-
-    // There's no need for us to delete the main view, as it's
-    // the presenter's responsibility.
-    delete mainPter;
-
-    // Save the configuration.
-    Config::getConfig().save ();
-
-    g_option_context_free (optionContext);
-
-    // All done!.
-    return EXIT_SUCCESS;
+    
+    // Connect application signals
+    g_signal_connect (app, "activate", G_CALLBACK (on_activate), &appData);
+    g_signal_connect (app, "shutdown", G_CALLBACK (on_shutdown), &appData);
+    
+    // Run the application
+    int status = g_application_run (G_APPLICATION (app), argc, argv);
+    
+    // Cleanup
+    if (appData.fileToOpen != NULL)
+    {
+        g_free (appData.fileToOpen);
+    }
+    g_object_unref (app);
+    
+    return status;
 }
