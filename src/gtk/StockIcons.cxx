@@ -17,16 +17,18 @@
 
 #include <config.h>
 #include <gettext.h>
-#include <gtk/gtkstock.h>
-#include <gtk/gtkiconfactory.h>
-#include <gdk/gdkpixbuf.h>
+#include <gtk/gtk.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
 #include "StockIcons.h"
 
+// GTK4 stock icon definitions moved to StockIcons.h
+
+// Custom ePDFView icons that need to be loaded from files
 static const struct 
 {
     const char *iconName;
     const char *iconFile;
-} g_StockIcons[] =
+} g_CustomIcons[] =
 {
     { EPDFVIEW_STOCK_FIND_NEXT, "stock_find_next_24.png" },
     { EPDFVIEW_STOCK_FIND_PREVIOUS, "stock_find_previous_24.png" },
@@ -35,38 +37,16 @@ static const struct
     { EPDFVIEW_STOCK_ZOOM_WIDTH, "stock_zoom-page-width.png" }
 };
 
-static GtkStockItem g_StockItems[] =
-{
-    { EPDFVIEW_STOCK_FIND_NEXT, N_("Find _Next"), (GdkModifierType)0, 0, PACKAGE },
-    { EPDFVIEW_STOCK_FIND_PREVIOUS, N_("Find _Previous"), (GdkModifierType)0, 0, PACKAGE },
-    { EPDFVIEW_STOCK_ROTATE_LEFT, N_("Rotate _Left"), (GdkModifierType)0, 0, PACKAGE },
-    { EPDFVIEW_STOCK_ROTATE_RIGHT, N_("Rotate _Right"), (GdkModifierType)0, 0, PACKAGE },
-    { EPDFVIEW_STOCK_ZOOM_WIDTH, N_("Zoom to _Width"), (GdkModifierType)0, 0, PACKAGE }
-};
-
 void
 epdfview_stock_icons_init (void)
 {
-    GtkIconFactory *factory = gtk_icon_factory_new ();
-    gtk_icon_factory_add_default (factory);
-
-    // Add the custom stock icons.
-    int numIcons = G_N_ELEMENTS (g_StockIcons);
-    for ( int iconIndex = 0 ; iconIndex < numIcons ; iconIndex++ )
-    {
-        gchar *fileName = g_strdup_printf ("%s/pixmaps/%s", DATADIR,
-                g_StockIcons[iconIndex].iconFile);
-        GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file (fileName, NULL);        
-        g_free (fileName);
-        if ( NULL != pixbuf )
-        {
-            GtkIconSet *iconSet = gtk_icon_set_new_from_pixbuf (pixbuf);
-            gtk_icon_factory_add (factory, g_StockIcons[iconIndex].iconName, 
-                                  iconSet);
-            gtk_icon_set_unref (iconSet);
-        }
-    }
-    g_object_unref (G_OBJECT (factory));
-
-    gtk_stock_add_static (g_StockItems, G_N_ELEMENTS (g_StockItems));
+    // In GTK4, we add the data directory to the icon theme search path
+    // This allows the icon theme to find our custom icons
+    GtkIconTheme *icon_theme = gtk_icon_theme_get_for_display (gdk_display_get_default ());
+    
+    // Add the data directory to the icon theme search path
+    gtk_icon_theme_add_search_path (icon_theme, DATADIR);
+    
+    // The custom icons will be automatically found by their names when requested
+    // No need to manually load them - GTK4 icon theme handles this
 }

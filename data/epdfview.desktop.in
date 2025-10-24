@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=ePDFView
+GenericName=PDF Viewer
+Comment=View PDF documents
+Exec=epdfview %f
+Icon=epdfview
+Terminal=false
+Type=Application
+MimeType=application/pdf;application/x-pdf;
+Categories=Office;Viewer;
+Keywords=PDF;Viewer;

@@ -789,10 +789,10 @@ PDFDocument::setTextSelection (DocumentRectangle *rect)
         g_free(text);
 }
 
-GdkRegion*
+cairo_region_t*
 PDFDocument::getTextRegion (DocumentRectangle *r)
 {
-    GdkRegion *res = NULL;
+    cairo_region_t *res = NULL;
     PopplerPage *page = poppler_document_get_page (m_Document, getCurrentPageNum()-1);
     if(!page)
         return NULL;
@@ -809,7 +809,7 @@ PDFDocument::getTextRegion (DocumentRectangle *r)
 #if defined (HAVE_POPPLER_0_8_0)
     GList *selections = poppler_page_get_selection_region(page, getZoom(),
              POPPLER_SELECTION_GLYPH, &rect);
-    res = gdk_region_new();
+    res = cairo_region_create();
     for (GList *selection = g_list_first (selections) ;
          NULL != selection ; selection = g_list_next (selection)) {
         PopplerRectangle *rectangle = (PopplerRectangle *)selection->data;
@@ -820,7 +820,7 @@ PDFDocument::getTextRegion (DocumentRectangle *r)
         rect.width  = (gint) (rectangle->x2 - rectangle->x1);
         rect.height = (gint) (rectangle->y2 - rectangle->y1);
 
-        gdk_region_union_with_rect (res, &rect);
+        cairo_region_union_rectangle(res, (const cairo_rectangle_int_t*)&rect);
     }
     poppler_page_selection_region_free (selections);
 #elif defined (HAVE_POPPLER_0_6_0)

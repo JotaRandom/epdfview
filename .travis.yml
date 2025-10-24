@@ -1,11 +1,15 @@
-language: c
+language: cpp
+dist: focal
+
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -qq libgtk2.0-dev libpoppler-glib-dev libcups2 ; fi
-compiler:
-  - clang
-  - gcc
+  - sudo apt-get update -qq
+  - sudo apt-get install -y meson ninja-build libgtk-4-dev libpoppler-glib-dev libcups2-dev gettext
+
 script:
-  - ./configure --prefix="$HOME/build/jristz/"
-  - make
-  - make DESTDIR="$HOME/build/jristz/" install
+  - meson setup builddir
+  - cd builddir
+  - ninja
+  - ninja test
+
+notifications:
+  email: false

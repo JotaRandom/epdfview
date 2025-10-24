@@ -75,6 +75,10 @@ PagePter::PagePter (IDocument *document)
 ///
 PagePter::~PagePter ()
 {
+    if (m_LastSelection) {
+        cairo_region_destroy(m_LastSelection);
+        m_LastSelection = NULL;
+    }
     delete m_DragInfo;
     m_Document->detach (this);
 }
@@ -242,7 +246,7 @@ PagePter::mouseButtonReleased (gint button)
     if ( 1 == button )
     {
         if(m_LastSelection)
-            gdk_region_destroy(m_LastSelection);
+            cairo_region_destroy(m_LastSelection);
         m_LastSelection = NULL;
 
         if ( m_Document->isLoaded() &&
@@ -304,16 +308,24 @@ PagePter::mouseMoved (gint x, gint y)
             DocumentRectangle rect(m_DragInfo->startX, m_DragInfo->startY,
                                           m_DragInfo->x, m_DragInfo->y);
 
-            GdkRegion *region = m_Document->getTextRegion (&rect);
+            cairo_region_t *region = m_Document->getTextRegion (&rect);
+            if (NULL == region)
+                return;
 
-            if( !m_LastSelection || !gdk_region_equal(m_LastSelection, region)){
-                if(m_LastSelection)
-                    gdk_region_destroy(m_LastSelection);
-                m_LastSelection = gdk_region_copy(region);
+            if( !m_LastSelection || 
+                !cairo_region_equal(m_LastSelection, region)
+            ){
+                if(m_LastSelection) {
+                    cairo_region_destroy(m_LastSelection);
+                }
+                m_LastSelection = cairo_region_copy(region);
                 DocumentPage *page = m_Document->getCurrentPage();
                 if ( NULL != page )
                     refreshPage (PAGE_SCROLL_NONE, FALSE);
             }
+            
+            // Free the temporary region returned by getTextRegion
+            cairo_region_destroy(region);
         }
     }
 }

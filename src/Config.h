@@ -18,6 +18,17 @@
 #if !defined (__CONFIG_H__)
 #define __CONFIG_H__
 
+#include <glib.h>
+
+#define PACKAGE_DATA_DIR "/usr/local/share"
+#define PACKAGE_LOCALE_DIR "/usr/local/share/locale"
+#define PACKAGE_NAME "epdfview"
+#define PACKAGE_VERSION "0.1.8"
+#define PACKAGE "epdfview"
+#define DATADIR PACKAGE_DATA_DIR
+#define LOCALEDIR PACKAGE_LOCALE_DIR
+#define VERSION PACKAGE_VERSION
+
 namespace ePDFView
 {
     ///

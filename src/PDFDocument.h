@@ -54,7 +54,7 @@ namespace ePDFView
 
             DocumentPage *renderPage (gint pageNum);
             gboolean saveFile (const gchar *fileName, GError **error);
-            GdkRegion* getTextRegion (DocumentRectangle* rect);
+            cairo_region_t* getTextRegion (DocumentRectangle* rect);
             void setTextSelection (DocumentRectangle *rect);
 
         protected:

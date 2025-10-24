@@ -24,7 +24,9 @@
 #include <glib-unix.h>
 #endif
 #include "epdfview.h"
-#include <MainView.h>
+#include "gtk/MainView.h"
+
+// GTK4 initialization - no compatibility layer needed
 
 #ifdef _WIN32
 #include <io.h>
@@ -67,6 +69,8 @@ handleReloadSignal(gpointer data)
 }
 #endif
 
+// GTK4 initialization uses direct approach without GtkApplication for now
+
 int
 main (int argc, char **argv)
 {
@@ -103,7 +107,6 @@ main (int argc, char **argv)
     // Create the command line options context.
     GOptionContext *optionContext = 
         g_option_context_new (_("[FILE] - view PDF documents"));
-    g_option_context_add_group (optionContext, gtk_get_option_group (TRUE));
     GError *error = NULL;
     if ( !g_option_context_parse (optionContext, &argc, &argv, &error) )
     {
@@ -114,7 +117,7 @@ main (int argc, char **argv)
     // Initialise the working thread.
     IJob::init ();
     // Initialise the GTK library.
-    gtk_init (&argc, &argv);
+    gtk_init();
     g_set_application_name (_("PDF Viewer"));
     // Create the main presenter.
     PDFDocument *document = new PDFDocument;
@@ -138,7 +141,9 @@ main (int argc, char **argv)
 	g_unix_signal_add(SIGHUP,handleReloadSignal,mainPter);
 #endif
 	
-    gtk_main();
+    GMainLoop *loop = g_main_loop_new(NULL, FALSE);
+    g_main_loop_run(loop);
+    g_main_loop_unref(loop);
 
     // There's no need for us to delete the main view, as it's
     // the presenter's responsibility.

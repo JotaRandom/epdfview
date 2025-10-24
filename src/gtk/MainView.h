@@ -89,9 +89,9 @@ namespace ePDFView
 
         protected:
             GtkWidget *m_CurrentPage;
-            GtkToolItem *m_CurrentPageToolItem;
+            GtkWidget *m_CurrentPageToolItem;
             GtkWidget *m_CurrentZoom;
-            GtkToolItem *m_CurrentZoomToolItem;
+            GtkWidget *m_CurrentZoomToolItem;
             FindView *m_FindView;
             GtkWidget *m_MainWindow;
             GtkWidget *m_MainBox;
@@ -101,12 +101,16 @@ namespace ePDFView
             GtkWidget *m_Sidebar;
             GtkWidget *m_StatusBar;
             GtkWidget *m_TreeIndex;
-            GtkUIManager *m_UIManager;
+            GSimpleActionGroup *m_ActionGroup;
+            GtkWidget *m_MenuBar;
+            GtkWidget *m_ToolBar;
 
             void createCurrentPage (void);
             void createCurrentZoom (void);
             GtkWidget *createPageView (void);
-            void createUIManager (void);
+            void createActions (void);
+            void createMenuBar (void);
+            void createToolBar (void);
             void setMainWindowIcon (void);
             void setOutlineChildren (DocumentOutline *outline, 
                                      GtkTreeIter *rootIter);

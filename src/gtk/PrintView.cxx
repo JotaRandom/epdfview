@@ -19,6 +19,7 @@
 #include <gettext.h>
 #include <gtk/gtk.h>
 #include <epdfview.h>
+#include "StockIcons.h"
 #include "PrintView.h"
 
 using namespace ePDFView;
@@ -60,9 +61,12 @@ PrintView::PrintView (GtkWindow *parent):
     gtk_window_set_skip_taskbar_hint (GTK_WINDOW (m_PrintDialog), TRUE);
 
     GtkWidget *notebook = gtk_notebook_new ();
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (m_PrintDialog)->vbox),
-                       notebook);
-    gtk_container_set_border_width (GTK_CONTAINER (notebook), 6);
+    GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (m_PrintDialog));
+    gtk_box_append (GTK_BOX (content_area), notebook);
+    gtk_widget_set_margin_start (notebook, 6);
+    gtk_widget_set_margin_end (notebook, 6);
+    gtk_widget_set_margin_top (notebook, 6);
+    gtk_widget_set_margin_bottom (notebook, 6);
 
     // Add the notebook's tabs.
     {
@@ -85,7 +89,7 @@ PrintView::PrintView (GtkWindow *parent):
 
 PrintView::~PrintView ()
 {
-    gtk_widget_destroy (m_PrintDialog);
+    gtk_window_destroy (GTK_WINDOW (m_PrintDialog));
 }
 
 void
@@ -352,7 +356,7 @@ PrintView::getOptionFromComboBox (GtkWidget *comboBox, gpointer value)
 GtkWidget *
 PrintView::createJobTab ()
 {
-    GtkWidget *mainBox = gtk_vbox_new (FALSE, 12);
+    GtkWidget *mainBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 12);
     gtk_container_set_border_width (GTK_CONTAINER (mainBox), 3);
 
     // Print range frame.
@@ -401,7 +405,8 @@ PrintView::createJobTab ()
     gtk_alignment_set_padding (GTK_ALIGNMENT (pageSetAlign), 6, 0, 12, 6);
     gtk_container_add (GTK_CONTAINER (pageSetFrame), pageSetAlign);
     // The vbox to add all controls.
-    GtkWidget *pageSetBox = gtk_vbox_new (TRUE, 3);
+    GtkWidget *pageSetBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 3);
+    gtk_box_set_homogeneous (GTK_BOX (pageSetBox), TRUE);
     gtk_container_add (GTK_CONTAINER (pageSetAlign), pageSetBox);
     // Add the three radio buttons
     GtkWidget *allPageSetRadio =
@@ -458,7 +463,7 @@ PrintView::createJobTab ()
 GtkWidget *
 PrintView::createPaperTab ()
 {
-    GtkWidget *mainBox = gtk_vbox_new (FALSE, 12);
+    GtkWidget *mainBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 12);
     gtk_container_set_border_width (GTK_CONTAINER (mainBox), 3);
 
     // Paper frame
@@ -645,7 +650,7 @@ PrintView::createPaperTab ()
 GtkWidget *
 PrintView::createPrinterTab ()
 {
-    GtkWidget *mainBox = gtk_vbox_new (FALSE, 12);
+    GtkWidget *mainBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 12);
     gtk_container_set_border_width (GTK_CONTAINER (mainBox), 3);
 
     createPrinterListModel ();

@@ -17,7 +17,6 @@
 
 #include <config.h>
 #include <string.h>
-#include <gdk/gdkcolor.h>
 #include "epdfview.h"
 
 using namespace ePDFView;

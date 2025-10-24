@@ -32,6 +32,8 @@
 
 using namespace ePDFView;
 
+// GTK4 direct API usage - no compatibility layer needed
+
 // Constants.
 static gint CURRENT_PAGE_POS = 5;
 static gint CURRENT_PAGE_WIDTH = 5;
@@ -52,7 +54,7 @@ static void main_window_about_box_cb (GtkWidget *, gpointer);
 static void main_window_about_box_url_hook (GtkAboutDialog *, const gchar *,
                                             gpointer);
 static void main_window_find_cb (GtkWidget *, gpointer);
-static void main_window_fullscreen_cb (GtkToggleAction *, gpointer);
+static void main_window_fullscreen_cb (GSimpleAction *, GVariant *, gpointer);
 static gboolean main_window_moved_or_resized_cb (GtkWidget *,
 												 GdkEventConfigure *, gpointer);
 static void main_window_go_to_first_page_cb (GtkWidget *, gpointer);
@@ -68,151 +70,163 @@ static void main_window_outline_cb (GtkTreeSelection *, gpointer);
 static void main_window_preferences_cb (GtkWidget *, gpointer);
 static void main_window_quit_cb (GtkWidget *, gpointer);
 static void main_window_save_file_cb (GtkWidget *, gpointer);
-static void main_window_show_index_cb (GtkToggleAction *, gpointer);
-static void main_window_show_menubar_cb (GtkToggleAction *, gpointer); //krogan custom edit
-static void main_window_invert_color_cb (GtkToggleAction *, gpointer); //krogan custom edit
-static void main_window_show_statusbar_cb (GtkToggleAction *, gpointer);
-static void main_window_show_toolbar_cb (GtkToggleAction *, gpointer);
+static void main_window_show_index_cb (GSimpleAction *, GVariant *, gpointer);
+static void main_window_show_menubar_cb (GSimpleAction *, GVariant *, gpointer);
+static void main_window_invert_color_cb (GSimpleAction *, GVariant *, gpointer);
+static void main_window_show_statusbar_cb (GSimpleAction *, GVariant *, gpointer);
+static void main_window_show_toolbar_cb (GSimpleAction *, GVariant *, gpointer);
 static void main_window_zoom_cb (GtkWidget *, gpointer);
-static void main_window_zoom_fit_cb (GtkToggleAction *, gpointer);
+static void main_window_zoom_fit_cb (GSimpleAction *, GVariant *, gpointer);
 static void main_window_zoom_in_cb (GtkWidget *, gpointer);
 static void main_window_zoom_out_cb (GtkWidget *, gpointer);
-static void main_window_zoom_width_cb (GtkToggleAction *, gpointer);
-static void main_window_set_page_mode (GtkRadioAction *, GtkRadioAction *, gpointer);
+static void main_window_zoom_width_cb (GSimpleAction *, GVariant *, gpointer);
+static void main_window_set_page_mode (GSimpleAction *, GVariant *, gpointer);
 static gboolean main_window_page_scrolled_cb (GtkWidget *widget, GdkEventScroll *event, gpointer data);
 
 #if defined (HAVE_CUPS)
 static void main_window_print_cb (GtkWidget *, gpointer);
 #endif // HAVE_CUPS
 
-// The actions for menus and toolbars.
-static const GtkActionEntry g_NormalEntries[] =
-{
-    { "FileMenu", NULL, N_("_File"), NULL, NULL, NULL },
-    { "EditMenu", NULL, N_("_Edit"), NULL, NULL, NULL },
-    { "ViewMenu", NULL, N_("_View"), NULL, NULL, NULL },
-    { "GoMenu", NULL, N_("_Go"), NULL, NULL, NULL },
-    { "HelpMenu", NULL, N_("_Help"), NULL, NULL, NULL },
-
-    { "OpenFile", GTK_STOCK_OPEN, N_("_Open"), "<control>O",
+// GTK4 action entries for GSimpleAction
+static const struct {
+    const gchar *name;
+    const gchar *icon_name;
+    const gchar *label;
+    const gchar *accelerator;
+    const gchar *tooltip;
+    GCallback callback;
+} g_NormalEntries[] = {
+    { "open-file", "document-open", N_("_Open"), "<Control>o",
       N_("Open a PDF document"),
       G_CALLBACK (main_window_open_file_cb) },
 
-    { "ReloadFile", GTK_STOCK_REFRESH, N_("_Reload"), "<control>R",
+    { "reload-file", "view-refresh", N_("_Reload"), "<control>R",
       N_("Reload the current document"),
       G_CALLBACK (main_window_reload_cb) },
 
-    { "SaveFile", GTK_STOCK_SAVE, N_("_Save a Copy..."), "<control>S",
+    { "save-file", "document-save", N_("_Save a Copy..."), "<control>S",
       N_("Save a copy of the current document"),
       G_CALLBACK (main_window_save_file_cb) },
 
 #if defined (HAVE_CUPS)
-    { "Print", GTK_STOCK_PRINT, N_("_Print..."), "<control>P",
+    { "print", "document-print", N_("_Print..."), "<control>P",
       N_("Print the current document"),
       G_CALLBACK (main_window_print_cb) },
 #endif // HAVE_CUPS
 
-    { "Quit", GTK_STOCK_CLOSE, N_("_Close"), "<control>W",
+    { "quit", "window-close", N_("_Close"), "<control>W",
       N_("Close this window"),
       G_CALLBACK (main_window_quit_cb) },
 
-    { "Find", GTK_STOCK_FIND, N_("_Find"), "<control>F",
+    { "find", "edit-find", N_("_Find"), "<control>F",
       N_("Find a word in the document"),
       G_CALLBACK (main_window_find_cb) },
 
-    { "Preferences", GTK_STOCK_PREFERENCES, N_("_Preferences..."), NULL,
+    { "preferences", "preferences-system", N_("_Preferences..."), NULL,
       N_("Change the application's preferences"),
       G_CALLBACK (main_window_preferences_cb) },
 
-    { "ZoomIn", GTK_STOCK_ZOOM_IN, N_("Zoom _In"), "<control>plus",
+    { "zoom-in", "zoom-in", N_("Zoom _In"), "<control>plus",
       N_("Enlarge the document"),
       G_CALLBACK (main_window_zoom_in_cb) },
 
-    { "ZoomOut", GTK_STOCK_ZOOM_OUT, N_("Zoom _Out"), "<control>minus",
+    { "zoom-out", "zoom-out", N_("Zoom _Out"), "<control>minus",
       N_("Shrink the document"),
       G_CALLBACK (main_window_zoom_out_cb) },
 
-    { "RotateRight", EPDFVIEW_STOCK_ROTATE_RIGHT, N_("Rotate _Right"), "<control>bracketright",
+    { "rotate-right", "object-rotate-right", N_("Rotate _Right"), "<control>bracketright",
       N_("Rotate the document 90 degrees clockwise"),
       G_CALLBACK (main_window_rotate_right_cb) },
 
-    { "RotateLeft", EPDFVIEW_STOCK_ROTATE_LEFT, N_("Rotate _Left"), "<control>bracketleft",
+    { "rotate-left", "object-rotate-left", N_("Rotate _Left"), "<control>bracketleft",
       N_("Rotate the document 90 degrees counter-clockwise"),
       G_CALLBACK (main_window_rotate_left_cb) },
 
-    { "GoToFirstPage", GTK_STOCK_GOTO_FIRST, N_("_First Page"), "<control>Home",
+    { "go-first", "go-first", N_("_First Page"), "<control>Home",
       N_("Go to the first page"),
       G_CALLBACK (main_window_go_to_first_page_cb) },
 
-    { "GoToNextPage", GTK_STOCK_GO_FORWARD, N_("_Next Page"), "<Shift>Page_Down",
+    { "go-next", "go-next", N_("_Next Page"), "<Shift>Page_Down",
       N_("Go to the next page"),
       G_CALLBACK (main_window_go_to_next_page_cb) },
 
-    { "GoToPreviousPage", GTK_STOCK_GO_BACK, N_("_Previous Page"), "<Shift>Page_Up",
+    { "go-previous", "go-previous", N_("_Previous Page"), "<Shift>Page_Up",
       N_("Go to the previous page"),
       G_CALLBACK (main_window_go_to_previous_page_cb) },
 
-    { "GoToLastPage", GTK_STOCK_GOTO_LAST, N_("_Last Page"), "<control>End",
+    { "go-last", "go-last", N_("_Last Page"), "<control>End",
       N_("Go to the last page"),
       G_CALLBACK (main_window_go_to_last_page_cb) },
 
-    { "About", GTK_STOCK_ABOUT, N_("_About"), NULL,
+    { "about", "help-about", N_("_About"), NULL,
       N_("Display application's credits"),
       G_CALLBACK (main_window_about_box_cb) },
 
     // Accelerator keys.
-    { "Slash", GTK_STOCK_FIND, NULL, "slash", NULL,
+    { "slash", "edit-find", NULL, "slash", NULL,
       G_CALLBACK (main_window_find_cb) },
 
-    { "KPAdd", GTK_STOCK_ZOOM_IN, NULL, "<control>KP_Add", NULL,
+    { "kp-add", "zoom-in", NULL, "<control>KP_Add", NULL,
       G_CALLBACK (main_window_zoom_in_cb) },
 
-    { "KPSubtract", GTK_STOCK_ZOOM_OUT, NULL, "<control>KP_Subtract",
+    { "kp-subtract", "zoom-out", NULL, "<control>KP_Subtract",
       NULL,
       G_CALLBACK (main_window_zoom_out_cb) }
 };
 
-static GtkToggleActionEntry g_ToggleEntries[] =
-{
-    { "FullScreen", NULL, N_("F_ull screen"), "F11",
+static const struct {
+    const gchar *name;
+    const gchar *icon_name;
+    const gchar *label;
+    const gchar *accelerator;
+    const gchar *tooltip;
+    GCallback callback;
+    gboolean default_state;
+} g_ToggleEntries[] = {
+    { "fullscreen", "view-fullscreen", N_("F_ull screen"), "F11",
       N_("Toggle full screen window"),
       G_CALLBACK (main_window_fullscreen_cb), FALSE },
     
-    { "ShowMenuBar", NULL, N_("Hide _Menubar"), "F7", //krogan custom edit
+    { "show-menubar", NULL, N_("Hide _Menubar"), "F7",
       N_("Toggle menu bar"),
       G_CALLBACK (main_window_show_menubar_cb), FALSE },
 
-    { "InvertToggle", NULL, N_("_Invert Colors"), "F8", //krogan custom edit
+    { "invert-colors", NULL, N_("_Invert Colors"), "F8",
       N_("Toggle color inversion"),
       G_CALLBACK (main_window_invert_color_cb), FALSE },
 
-    { "ShowToolBar", NULL, N_("Show _Toolbar"), "F6",
+    { "show-toolbar", NULL, N_("Show _Toolbar"), "F6",
       N_("Show or hide the toolbar"),
       G_CALLBACK (main_window_show_toolbar_cb), TRUE },
 
-    { "ShowStatusBar", NULL, N_("Show _Statusbar"), NULL,
+    { "show-statusbar", NULL, N_("Show _Statusbar"), NULL,
       N_("Show or hide the statusbar"),
       G_CALLBACK (main_window_show_statusbar_cb), TRUE },
 
-    { "ShowIndex", NULL, N_("Show I_ndex"), "F9",
+    { "show-index", NULL, N_("Show I_ndex"), "F9",
       N_("Show or hide the document's outline"),
       G_CALLBACK (main_window_show_index_cb), FALSE },
 
-    { "ZoomFit", GTK_STOCK_ZOOM_FIT, N_("Zoom to _Fit"), NULL,
+    { "zoom-fit", "zoom-fit-best", N_("Zoom to _Fit"), NULL,
       N_("Make the current document fill the window"),
       G_CALLBACK (main_window_zoom_fit_cb), FALSE },
 
-    { "ZoomWidth", EPDFVIEW_STOCK_ZOOM_WIDTH, N_("Zoom to _Width"), NULL,
+    { "zoom-width", "zoom-fit-width", N_("Zoom to _Width"), NULL,
       N_("Make the current document fill the window width"),
       G_CALLBACK (main_window_zoom_width_cb), FALSE },
 };
 
-static GtkRadioActionEntry g_PageScrollEntries[] =
-{   
-    { "PageModeScroll", GTK_STOCK_FULLSCREEN, N_("Scroll"), NULL,
+static const struct {
+    const gchar *name;
+    const gchar *icon_name;
+    const gchar *label;
+    const gchar *tooltip;
+    gint value;
+} g_PageScrollEntries[] = {   
+    { "page-mode-scroll", "view-fullscreen", N_("Scroll"),
       N_("Mouse scroll page"), (int)PagePterModeScroll },
 
-    { "PageModeText", GTK_STOCK_SELECT_ALL, N_("Select Text"), NULL,
+    { "page-mode-text", "edit-select-all", N_("Select Text"),
       N_(" Mouse select text"), (int)PagePterModeSelectText },
 };
 
@@ -235,33 +249,29 @@ MainView::MainView (MainPter *pter):
     g_signal_connect (G_OBJECT (m_MainWindow), "configure-event",
                       G_CALLBACK (main_window_moved_or_resized_cb), NULL);
     // Create the main vertical box.
-    m_MainBox = gtk_vbox_new (FALSE, 0);
-    gtk_container_add (GTK_CONTAINER (m_MainWindow), m_MainBox);
+    m_MainBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+    gtk_window_set_child (GTK_WINDOW (m_MainWindow), m_MainBox);
     gtk_widget_show (m_MainBox);
-    // Generate menu and tool bars.
-    createUIManager ();
-    // Set the accelerator to the main window.
-    GtkAccelGroup *accelGroup = gtk_ui_manager_get_accel_group (m_UIManager);
-    gtk_window_add_accel_group (GTK_WINDOW (m_MainWindow), accelGroup);
+    // Create actions, menu and tool bars.
+    createActions ();
+    createMenuBar ();
+    createToolBar ();
     // Add the menu bar and tool bar.
-    GtkWidget *menuBar = gtk_ui_manager_get_widget (m_UIManager, "/MenuBar");
-    gtk_box_pack_start (GTK_BOX (m_MainBox), menuBar, FALSE, FALSE, 0);
-    gtk_widget_show (menuBar);
-    GtkWidget *toolBar = gtk_ui_manager_get_widget (m_UIManager, "/ToolBar");
+    gtk_box_pack_start (GTK_BOX (m_MainBox), m_MenuBar, FALSE, FALSE, 0);
+    gtk_widget_show (m_MenuBar);
+    GtkWidget *toolBar = m_ToolBar;
     gtk_box_pack_start (GTK_BOX (m_MainBox), toolBar, FALSE, FALSE, 0);
     // Add the current page tool item.
     createCurrentPage ();
     gtk_toolbar_insert (GTK_TOOLBAR (toolBar), m_CurrentPageToolItem,
                         CURRENT_PAGE_POS);
-    gtk_widget_show_all (GTK_WIDGET (m_CurrentPageToolItem));
+    // In GTK4, widgets are visible by default
     GtkToolItem *separator = gtk_separator_tool_item_new ();
     gtk_toolbar_insert (GTK_TOOLBAR (toolBar), separator, CURRENT_PAGE_POS + 1);
-    gtk_widget_show_all (GTK_WIDGET (separator));
     // Add the current zoom item.
     createCurrentZoom ();
     gtk_toolbar_insert (GTK_TOOLBAR (toolBar), m_CurrentZoomToolItem,
                         CURRENT_ZOOM_POS);
-    gtk_widget_show_all (GTK_WIDGET (m_CurrentZoomToolItem));
     // Create the page view
     GtkWidget *pageViewPaned = createPageView ();
     gtk_box_pack_start (GTK_BOX (m_MainBox), pageViewPaned, TRUE, TRUE, 0);
@@ -288,49 +298,62 @@ MainView::~MainView ()
 {
     delete m_FindView;
     delete m_PageView;
-    g_object_unref (G_OBJECT (m_UIManager));
+    g_object_unref (G_OBJECT (m_ActionGroup));
 }
 
 void
 MainView::activeZoomFit (gboolean active)
 {
-    GtkAction *zoomFit =
-        gtk_ui_manager_get_action (m_UIManager, "/MenuBar/ViewMenu/ZoomFit");
-    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (zoomFit), active);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "zoom-fit");
+    if (action) {
+        g_simple_action_set_state (G_SIMPLE_ACTION (action), g_variant_new_boolean (active));
+    }
 }
 
 void
 MainView::activeZoomWidth (gboolean active)
 {
-    GtkAction *zoomWidth =
-        gtk_ui_manager_get_action (m_UIManager, "/MenuBar/ViewMenu/ZoomWidth");
-    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (zoomWidth), active);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "zoom-width");
+    if (action) {
+        g_simple_action_set_state (G_SIMPLE_ACTION (action), g_variant_new_boolean (active));
+    }
 }
 
 void
 MainView::activePageModeScroll (gboolean active)
 {
-    GtkAction *action =
-        gtk_ui_manager_get_action (m_UIManager, "/ToolBar/PageModeScroll");
-    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), active);
+    if (active) {
+        GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "page-mode");
+        if (action) {
+            g_simple_action_set_state (G_SIMPLE_ACTION (action), g_variant_new_string ("scroll"));
+        }
+    }
 }
-
 
 void
 MainView::activePageModeText (gboolean active)
 {
-    GtkAction *action =
-        gtk_ui_manager_get_action (m_UIManager, "/ToolBar/PageModeText");
-    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), active);
+    if (active) {
+        GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "page-mode");
+        if (action) {
+            g_simple_action_set_state (G_SIMPLE_ACTION (action), g_variant_new_string ("text"));
+        }
+    }
 }
 
 gboolean
 MainView::isIndexVisible () const
 {
-    GtkAction *showIndex =
-        gtk_ui_manager_get_action (m_UIManager,
-                                   "/MenuBar/ViewMenu/ShowIndex");
-    return gtk_toggle_action_get_active(GTK_TOGGLE_ACTION (showIndex));
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "show-index");
+    if (action) {
+        GVariant *state = g_action_get_state (action);
+        if (state) {
+            gboolean result = g_variant_get_boolean (state);
+            g_variant_unref (state);
+            return result;
+        }
+    }
+    return FALSE;
 }
 
 gchar *
@@ -378,10 +401,10 @@ MainView::openFileDialog (const gchar *lastFolder)
     {
         gchar *fileName = gtk_file_chooser_get_filename (
                                 GTK_FILE_CHOOSER (openDialog));
-        gtk_widget_destroy (openDialog);
+        gtk_window_destroy (GTK_WINDOW (openDialog));
         return fileName;
     }
-    gtk_widget_destroy (openDialog);
+    gtk_window_destroy (GTK_WINDOW (openDialog));
     return NULL;
 }
 
@@ -404,19 +427,19 @@ MainView::promptPasswordDialog ()
     GtkWidget *passwordEntry = gtk_entry_new ();
     gtk_entry_set_visibility (GTK_ENTRY (passwordEntry), FALSE);
     gtk_entry_set_activates_default (GTK_ENTRY (passwordEntry), TRUE);
-    GtkWidget *vbox = gtk_vbox_new (FALSE, 12);
+    GtkWidget *vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 12);
     gtk_box_pack_start (GTK_BOX (vbox), primaryLabel, FALSE, FALSE, 0);
     gtk_box_pack_start (GTK_BOX (vbox), secondaryLabel, TRUE, TRUE, 0);
     gtk_box_pack_start (GTK_BOX (vbox), passwordEntry, FALSE, FALSE, 6);
 
-    GtkWidget *image =
-        gtk_image_new_from_stock (GTK_STOCK_DIALOG_AUTHENTICATION,
-                                  GTK_ICON_SIZE_DIALOG);
-    gtk_misc_set_alignment (GTK_MISC (image), 0.5, 0.0);
-    GtkWidget *hbox = gtk_hbox_new (FALSE, 12);
+    GtkWidget *image = gtk_image_new_from_icon_name (GTK_STOCK_DIALOG_AUTHENTICATION);
+    gtk_image_set_icon_size (GTK_IMAGE (image), GTK_ICON_SIZE_LARGE);
+    gtk_widget_set_halign (image, GTK_ALIGN_CENTER);
+    gtk_widget_set_valign (image, GTK_ALIGN_START);
+    GtkWidget *hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
     gtk_box_pack_start (GTK_BOX (hbox), image, FALSE, FALSE, 0);
     gtk_box_pack_start (GTK_BOX (hbox), vbox, TRUE, TRUE, 0);
-    gtk_widget_show_all (hbox);
+    // In GTK4, widgets are visible by default
 
 
     GtkWidget *passwordDialog = gtk_dialog_new_with_buttons (
@@ -437,7 +460,7 @@ MainView::promptPasswordDialog ()
     {
         password = g_strdup(gtk_entry_get_text (GTK_ENTRY (passwordEntry)));
     }
-    gtk_widget_destroy (passwordDialog);
+    gtk_window_destroy (GTK_WINDOW (passwordDialog));
     return password;
 }
 
@@ -494,43 +517,47 @@ MainView::saveFileDialog (const gchar *lastFolder, const gchar *fileName)
     {
         gchar *fileName = gtk_file_chooser_get_filename (
                                 GTK_FILE_CHOOSER (saveDialog));
-        gtk_widget_destroy (saveDialog);
+        gtk_window_destroy (GTK_WINDOW (saveDialog));
         return fileName;
     }
-    gtk_widget_destroy (saveDialog);
+    gtk_window_destroy (GTK_WINDOW (saveDialog));
     return NULL;
 }
 
 void
 MainView::sensitiveFind (gboolean sensitive)
 {
-    GtkAction *find =
-        gtk_ui_manager_get_action (m_UIManager, "/MenuBar/EditMenu/Find");
-    gtk_action_set_sensitive (find, sensitive);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "find");
+    if (action) {
+        g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
+    }
 }
 
 void
 MainView::sensitiveGoToFirstPage (gboolean sensitive)
 {
-    GtkAction *goToFirstPage = gtk_ui_manager_get_action (m_UIManager,
-            "/MenuBar/GoMenu/GoToFirstPage");
-    gtk_action_set_sensitive (goToFirstPage, sensitive);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "go-first");
+    if (action) {
+        g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
+    }
 }
 
 void
 MainView::sensitiveGoToLastPage (gboolean sensitive)
 {
-    GtkAction *goToLastPage =
-        gtk_ui_manager_get_action (m_UIManager, "/MenuBar/GoMenu/GoToLastPage");
-    gtk_action_set_sensitive (goToLastPage, sensitive);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "go-last");
+    if (action) {
+        g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
+    }
 }
 
 void
 MainView::sensitiveGoToNextPage (gboolean sensitive)
 {
-    GtkAction *goToNextPage =
-        gtk_ui_manager_get_action (m_UIManager, "/MenuBar/GoMenu/GoToNextPage");
-    gtk_action_set_sensitive (goToNextPage, sensitive);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "go-next");
+    if (action) {
+        g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
+    }
 }
 
 void
@@ -542,59 +569,66 @@ MainView::sensitiveGoToPage (gboolean sensitive)
 void 
 MainView::sensitiveGoToPreviousPage (gboolean sensitive)
 {
-    GtkAction *goToPreviousPage = gtk_ui_manager_get_action (m_UIManager, 
-            "/MenuBar/GoMenu/GoToPreviousPage");
-    gtk_action_set_sensitive (goToPreviousPage, sensitive);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "go-previous");
+    if (action) {
+        g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
+    }
 }
 
 void
 MainView::sensitiveOpen (gboolean sensitive)
 {
-    GtkAction *open =
-        gtk_ui_manager_get_action (m_UIManager, "/MenuBar/FileMenu/OpenFile");
-    gtk_action_set_sensitive (open, sensitive);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "open-file");
+    if (action) {
+        g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
+    }
 }
 
 #if defined (HAVE_CUPS)
 void
 MainView::sensitivePrint (gboolean sensitive)
 {
-    GtkAction *print = gtk_ui_manager_get_action (m_UIManager,
-            "/MenuBar/FileMenu/PrintPlaceHolder/Print");
-    gtk_action_set_sensitive (print, sensitive);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "print");
+    if (action) {
+        g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
+    }
 }
 #endif // HAVE_CUPS
 
 void
 MainView::sensitiveReload (gboolean sensitive)
 {
-    GtkAction *reload =
-        gtk_ui_manager_get_action (m_UIManager, "/MenuBar/FileMenu/ReloadFile");
-    gtk_action_set_sensitive (reload, sensitive);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "reload-file");
+    if (action) {
+        g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
+    }
 }
 
 void
 MainView::sensitiveRotateLeft (gboolean sensitive)
 {
-    GtkAction *rotateLeft =
-        gtk_ui_manager_get_action (m_UIManager, "/MenuBar/ViewMenu/RotateLeft");
-    gtk_action_set_sensitive (rotateLeft, sensitive);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "rotate-left");
+    if (action) {
+        g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
+    }
 }
 
 void
 MainView::sensitiveRotateRight (gboolean sensitive)
 {
-    GtkAction *rotateRight = gtk_ui_manager_get_action (m_UIManager,
-            "/MenuBar/ViewMenu/RotateRight");
-    gtk_action_set_sensitive (rotateRight, sensitive);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "rotate-right");
+    if (action) {
+        g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
+    }
 }
 
 void
 MainView::sensitiveSave (gboolean sensitive)
 {
-    GtkAction *save =
-        gtk_ui_manager_get_action (m_UIManager, "/MenuBar/FileMenu/SaveFile");
-    gtk_action_set_sensitive (save, sensitive);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "save-file");
+    if (action) {
+        g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
+    }
 }
 
 void
@@ -606,41 +640,46 @@ MainView::sensitiveZoom (gboolean sensitive)
 void
 MainView::sensitiveZoomIn (gboolean sensitive)
 {
-    GtkAction *zoomIn =
-        gtk_ui_manager_get_action (m_UIManager, "/MenuBar/ViewMenu/ZoomIn");
-    gtk_action_set_sensitive (zoomIn, sensitive);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "zoom-in");
+    if (action) {
+        g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
+    }
 }
 
 void
 MainView::sensitiveZoomOut (gboolean sensitive)
 {
-    GtkAction *zoomOut =
-        gtk_ui_manager_get_action (m_UIManager, "/MenuBar/ViewMenu/ZoomOut");
-    gtk_action_set_sensitive (zoomOut, sensitive);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "zoom-out");
+    if (action) {
+        g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
+    }
 }
 
 void
 MainView::sensitiveZoomFit (gboolean sensitive)
 {
-    GtkAction *zoomFit =
-        gtk_ui_manager_get_action (m_UIManager, "/MenuBar/ViewMenu/ZoomFit");
-    gtk_action_set_sensitive (zoomFit, sensitive);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "zoom-fit");
+    if (action) {
+        g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
+    }
 }
 
 void
 MainView::sensitiveZoomWidth (gboolean sensitive)
 {
-    GtkAction *zoomWidth =
-        gtk_ui_manager_get_action (m_UIManager, "/MenuBar/ViewMenu/ZoomWidth");
-    gtk_action_set_sensitive (zoomWidth, sensitive);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "zoom-width");
+    if (action) {
+        g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
+    }
 }
 
 void
 MainView::sensitiveFullScreen (gboolean sensitive)
 {
-    GtkAction *fullScreen =
-        gtk_ui_manager_get_action (m_UIManager, "/MenuBar/ViewMenu/FullScreen");
-    gtk_action_set_sensitive (fullScreen, sensitive);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "fullscreen");
+    if (action) {
+        g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
+    }
 }
 
 void
@@ -668,7 +707,7 @@ MainView::showErrorMessage (const gchar *title, const gchar *body)
     gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG(errorDialog), "%s",
                                               body);
     gtk_dialog_run (GTK_DIALOG (errorDialog));
-    gtk_widget_destroy (errorDialog);
+    gtk_window_destroy (GTK_WINDOW (errorDialog));
 }
 
 void
@@ -676,81 +715,64 @@ MainView::showIndex (gboolean show)
 {
     if ( show )
     {
-        gtk_widget_show_all (m_Sidebar);
+        gtk_widget_show (m_Sidebar);
     }
     else
     {
         gtk_widget_hide (m_Sidebar);
     }
-    GtkAction *showIndex =
-        gtk_ui_manager_get_action (m_UIManager,
-                                   "/MenuBar/ViewMenu/ShowIndex");
-    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (showIndex), show);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "show-index");
+    if (action) {
+        g_simple_action_set_state (G_SIMPLE_ACTION (action), g_variant_new_boolean (show));
+    }
 }
 
 void
 MainView::setCursor (ViewCursor cursorType)
 {
-    GdkCursor *cursor = NULL;
+    const char *cursor_name = NULL;
     switch (cursorType)
     {
         case MAIN_VIEW_CURSOR_WAIT:
-            cursor = gdk_cursor_new (GDK_WATCH);
+            cursor_name = "wait";
             break;
         case MAIN_VIEW_CURSOR_DRAG:
-            cursor = gdk_cursor_new (GDK_FLEUR);
+            cursor_name = "move";
             break;
         default:
-            cursor = NULL;
+            cursor_name = "default";
     }
 
-    if ( NULL != m_MainWindow && GDK_IS_WINDOW (m_MainWindow->window) )
+    // In GTK4, use gtk_widget_set_cursor_from_name
+    if (cursor_name)
     {
-        gdk_window_set_cursor (m_MainWindow->window, cursor);
+        gtk_widget_set_cursor_from_name (m_MainWindow, cursor_name);
     }
-    if ( NULL != cursor )
-    {
-        gdk_cursor_unref (cursor);
-    }
-    gdk_flush ();
 }
 
 void
 MainView::setFullScreen (gboolean fullScreen)
 {
-    GtkWidget *toolBar = gtk_ui_manager_get_widget (m_UIManager, "/ToolBar");
-    GtkWidget *menuBar = gtk_ui_manager_get_widget (m_UIManager, "/MenuBar");
     if ( fullScreen )
     {
         gtk_window_fullscreen (GTK_WINDOW (m_MainWindow));
         // Hide the menu bar, tool bar, status bar and the index bar. Then
         // zoom to fit.
-        gtk_widget_hide (menuBar);
-        gtk_widget_hide (toolBar);
+        gtk_widget_hide (m_MenuBar);
+        gtk_widget_hide (m_ToolBar);
         gtk_widget_hide (m_StatusBar);
         gtk_widget_hide (m_Sidebar);
-        gtk_toggle_action_set_active (
-                GTK_TOGGLE_ACTION (gtk_ui_manager_get_action (m_UIManager,
-                                   "/MenuBar/ViewMenu/ZoomFit")), TRUE);
+        activeZoomFit (TRUE);
     }
     else
     {
         gtk_window_unfullscreen (GTK_WINDOW (m_MainWindow));
-        gtk_widget_show (menuBar);
+        gtk_widget_show (m_MenuBar);
         // Show again the toolbar, status bar and index, only if it was
         // enabled.
-        main_window_show_index_cb (
-                GTK_TOGGLE_ACTION (gtk_ui_manager_get_action (m_UIManager,
-                        "/MenuBar/ViewMenu/ShowIndex")),
-                (gpointer)m_Pter);
-        main_window_show_statusbar_cb (
-                GTK_TOGGLE_ACTION (gtk_ui_manager_get_action (m_UIManager,
-                        "/MenuBar/ViewMenu/ShowStatusBar")),
-                (gpointer)m_Pter);
-        main_window_show_toolbar_cb (
-                GTK_TOGGLE_ACTION (gtk_ui_manager_get_action (m_UIManager,
-                        "/MenuBar/ViewMenu/ShowToolBar")),
-                (gpointer)m_Pter);
+        main_window_show_index_cb (NULL, (gpointer)m_Pter);
+        main_window_show_statusbar_cb (NULL, (gpointer)m_Pter);
+        main_window_show_toolbar_cb (NULL, (gpointer)m_Pter);
     }
 }
 
@@ -840,45 +862,39 @@ MainView::setOutline (DocumentOutline *outline)
     gtk_tree_path_free (path);
 }
 
-void // paag: change hide to show
+void
 MainView::showMenubar (gboolean show)
 {
-	GtkWidget *menuBar = gtk_ui_manager_get_widget (m_UIManager, "/MenuBar");
     if ( show )
     {
-        gtk_widget_show (menuBar);
+        gtk_widget_show (m_MenuBar);
     }
     else
     {
-        gtk_widget_hide (menuBar);
+        gtk_widget_hide (m_MenuBar);
     }
-    GtkAction *toggleAction = gtk_ui_manager_get_action (m_UIManager,
-                                            "/MenuBar/ViewMenu/ShowMenuBar");
-    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (toggleAction), show);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "show-menubar");
+    if (action) {
+        g_simple_action_set_state (G_SIMPLE_ACTION (action), g_variant_new_boolean (show));
+    }
 }
 
-void //krogan edit
+void
 MainView::invertToggle (gboolean show)
 {
-    GtkAction *toggleAction = gtk_ui_manager_get_action (m_UIManager,
-                                            "/MenuBar/ViewMenu/InvertToggle");
-    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (toggleAction), show);
-    if ( show )
-    {
-        //*invertStatusPter = 1;
-    }
-    else
-    {
-        //*invertStatusPter = 0;
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "invert-colors");
+    if (action) {
+        g_simple_action_set_state (G_SIMPLE_ACTION (action), g_variant_new_boolean (show));
     }
 }
 
 void
 MainView::showStatusbar (gboolean show)
 {
-    GtkAction *toggleAction = gtk_ui_manager_get_action (m_UIManager,
-                                            "/MenuBar/ViewMenu/ShowStatusBar");
-    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (toggleAction), show);
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "show-statusbar");
+    if (action) {
+        g_simple_action_set_state (G_SIMPLE_ACTION (action), g_variant_new_boolean (show));
+    }
     if ( show )
     {
         gtk_widget_show (m_StatusBar);
@@ -892,17 +908,17 @@ MainView::showStatusbar (gboolean show)
 void
 MainView::showToolbar (gboolean show)
 {
-    GtkAction *toggleAction = gtk_ui_manager_get_action (m_UIManager,
-                                            "/MenuBar/ViewMenu/ShowToolBar");
-    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (toggleAction), show);
-    GtkWidget *toolBar = gtk_ui_manager_get_widget (m_UIManager, "/ToolBar");
+    GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "show-toolbar");
+    if (action) {
+        g_simple_action_set_state (G_SIMPLE_ACTION (action), g_variant_new_boolean (show));
+    }
     if ( show )
     {
-        gtk_widget_show (toolBar);
+        gtk_widget_show (m_ToolBar);
     }
     else
     {
-        gtk_widget_hide (toolBar);
+        gtk_widget_hide (m_ToolBar);
     }
 }
 
@@ -916,7 +932,7 @@ MainView::showToolbar (gboolean show)
 void
 MainView::createCurrentPage ()
 {
-    GtkWidget *hbox = gtk_hbox_new (FALSE, 3);
+    GtkWidget *hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 3);
 
     GtkWidget *pageLabel = gtk_label_new (_("Page"));
     gtk_box_pack_start (GTK_BOX (hbox), pageLabel, FALSE, FALSE, 0);
@@ -933,7 +949,7 @@ MainView::createCurrentPage ()
     gtk_box_pack_start (GTK_BOX (hbox), m_NumberOfPages, FALSE, FALSE, 0);
 
     m_CurrentPageToolItem = gtk_tool_item_new ();
-    gtk_container_add (GTK_CONTAINER (m_CurrentPageToolItem), hbox);
+    gtk_tool_item_set_child (GTK_TOOL_ITEM (m_CurrentPageToolItem), hbox);
 }
 
 
@@ -949,12 +965,12 @@ MainView::createCurrentZoom ()
     g_signal_connect (G_OBJECT (m_CurrentZoom), "activate",
                       G_CALLBACK (main_window_zoom_cb), m_Pter);
 
-    GtkWidget *zoomBox = gtk_hbox_new (FALSE, 3);
+    GtkWidget *zoomBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 3);
     gtk_box_pack_start_defaults (GTK_BOX (zoomBox), m_CurrentZoom);
     gtk_box_pack_start (GTK_BOX (zoomBox), gtk_label_new ("%"),
                         FALSE, FALSE, 0);
     m_CurrentZoomToolItem = gtk_tool_item_new ();
-    gtk_container_add (GTK_CONTAINER (m_CurrentZoomToolItem), zoomBox);
+    gtk_tool_item_set_child (GTK_TOOL_ITEM (m_CurrentZoomToolItem), zoomBox);
 }
 
 ///
@@ -1014,7 +1030,7 @@ MainView::createPageView ()
                                     GTK_POLICY_AUTOMATIC);
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (m_Sidebar),
                                          GTK_SHADOW_IN);
-    gtk_container_add (GTK_CONTAINER (m_Sidebar), m_TreeIndex);
+    gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (m_Sidebar), m_TreeIndex);
 
 
     GtkWidget *hPaned = gtk_hpaned_new ();
@@ -1026,55 +1042,160 @@ MainView::createPageView ()
 }
 
 ///
-/// @brief Creates and initialises the main window's UI manager.
+/// @brief Creates and initialises the action group with GSimpleAction.
 ///
 void
-MainView::createUIManager ()
+MainView::createActions ()
 {
-    GtkActionGroup *actionGroup = gtk_action_group_new ("ePDFView");
-    // Set the translation domain for labels and tool tips.
-    gtk_action_group_set_translation_domain (actionGroup, PACKAGE);
-    // The data passed to all actions is the presenter
-    gtk_action_group_add_actions (actionGroup, g_NormalEntries,
-                                  G_N_ELEMENTS (g_NormalEntries), m_Pter);
-    gtk_action_group_add_toggle_actions (actionGroup, g_ToggleEntries,
-                                         G_N_ELEMENTS (g_ToggleEntries),
-                                         m_Pter);
-    gtk_action_group_add_radio_actions (actionGroup, g_PageScrollEntries,
-                                        G_N_ELEMENTS (g_PageScrollEntries), 0,
-                                        G_CALLBACK(main_window_set_page_mode), m_Pter);
-    m_UIManager = gtk_ui_manager_new ();
-    gtk_ui_manager_insert_action_group (m_UIManager, actionGroup, 0);
-
-    GError *error = NULL;
-    if ( !gtk_ui_manager_add_ui_from_file (m_UIManager,
-                                           DATADIR"/ui/epdfview-ui.xml",
-                                           &error) )
-    {
-        g_critical (_("Error building UI manager: %s\n"), error->message);
-        g_error_free (error);
-        exit (EXIT_FAILURE);
+    m_ActionGroup = g_simple_action_group_new ();
+    
+    // Add normal actions
+    for (guint i = 0; i < G_N_ELEMENTS (g_NormalEntries); i++) {
+        GSimpleAction *action = g_simple_action_new (g_NormalEntries[i].name, NULL);
+        g_signal_connect (action, "activate", g_NormalEntries[i].callback, m_Pter);
+        g_action_map_add_action (G_ACTION_MAP (m_ActionGroup), G_ACTION (action));
+        g_object_unref (action);
     }
+    
+    // Add toggle actions
+    for (guint i = 0; i < G_N_ELEMENTS (g_ToggleEntries); i++) {
+        GSimpleAction *action = g_simple_action_new_stateful (
+            g_ToggleEntries[i].name, NULL, 
+            g_variant_new_boolean (g_ToggleEntries[i].default_state));
+        g_signal_connect (action, "activate", g_ToggleEntries[i].callback, m_Pter);
+        g_action_map_add_action (G_ACTION_MAP (m_ActionGroup), G_ACTION (action));
+        g_object_unref (action);
+    }
+    
+    // Add radio actions for page mode
+    GSimpleAction *page_mode_action = g_simple_action_new_stateful (
+        "page-mode", g_variant_type_new("s"), 
+        g_variant_new_string("scroll"));
+    g_signal_connect (page_mode_action, "activate", 
+                     G_CALLBACK(main_window_set_page_mode), m_Pter);
+    g_action_map_add_action (G_ACTION_MAP (m_ActionGroup), G_ACTION (page_mode_action));
+    g_object_unref (page_mode_action);
+    
+    // Insert action group into the main window
+    gtk_widget_insert_action_group (m_MainWindow, "win", G_ACTION_GROUP (m_ActionGroup));
+}
 
+///
+/// @brief Creates the menu bar using GtkBuilder or manual construction.
+///
+void
+MainView::createMenuBar ()
+{
+    m_MenuBar = gtk_menu_bar_new ();
+    
+    // File menu
+    GtkWidget *file_menu = gtk_menu_new ();
+    GtkWidget *file_item = gtk_menu_item_new_with_mnemonic (_("_File"));
+    gtk_menu_item_set_submenu (GTK_MENU_ITEM (file_item), file_menu);
+    gtk_menu_shell_append (GTK_MENU_SHELL (m_MenuBar), file_item);
+    
+    // Add file menu items
+    GtkWidget *open_item = gtk_menu_item_new_with_mnemonic (_("_Open"));
+    g_signal_connect (open_item, "activate", G_CALLBACK (main_window_open_file_cb), m_Pter);
+    gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), open_item);
+    
+    GtkWidget *reload_item = gtk_menu_item_new_with_mnemonic (_("_Reload"));
+    g_signal_connect (reload_item, "activate", G_CALLBACK (main_window_reload_cb), m_Pter);
+    gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), reload_item);
+    
+    GtkWidget *save_item = gtk_menu_item_new_with_mnemonic (_("_Save a Copy..."));
+    g_signal_connect (save_item, "activate", G_CALLBACK (main_window_save_file_cb), m_Pter);
+    gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), save_item);
+    
 #if defined (HAVE_CUPS)
-    if ( !gtk_ui_manager_add_ui_from_file (m_UIManager,
-                                           DATADIR"/ui/epdfview-ui-print.xml",
-                                           &error) )
-    {
-        g_critical (_("Error building UI manager: %s\n"), error->message);
-        g_error_free (error);
-        exit (EXIT_FAILURE);
-    }
-#endif // HAVE_CUPS
+    GtkWidget *print_item = gtk_menu_item_new_with_mnemonic (_("_Print..."));
+    g_signal_connect (print_item, "activate", G_CALLBACK (main_window_print_cb), m_Pter);
+    gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), print_item);
+#endif
+    
+    gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), gtk_separator_menu_item_new ());
+    
+    GtkWidget *quit_item = gtk_menu_item_new_with_mnemonic (_("_Close"));
+    g_signal_connect (quit_item, "activate", G_CALLBACK (main_window_quit_cb), m_Pter);
+    gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), quit_item);
+    
+    // Edit menu
+    GtkWidget *edit_menu = gtk_menu_new ();
+    GtkWidget *edit_item = gtk_menu_item_new_with_mnemonic (_("_Edit"));
+    gtk_menu_item_set_submenu (GTK_MENU_ITEM (edit_item), edit_menu);
+    gtk_menu_shell_append (GTK_MENU_SHELL (m_MenuBar), edit_item);
+    
+    GtkWidget *find_item = gtk_menu_item_new_with_mnemonic (_("_Find"));
+    g_signal_connect (find_item, "activate", G_CALLBACK (main_window_find_cb), m_Pter);
+    gtk_menu_shell_append (GTK_MENU_SHELL (edit_menu), find_item);
+    
+    GtkWidget *prefs_item = gtk_menu_item_new_with_mnemonic (_("_Preferences..."));
+    g_signal_connect (prefs_item, "activate", G_CALLBACK (main_window_preferences_cb), m_Pter);
+    gtk_menu_shell_append (GTK_MENU_SHELL (edit_menu), prefs_item);
+    
+    // View menu
+    GtkWidget *view_menu = gtk_menu_new ();
+    GtkWidget *view_item = gtk_menu_item_new_with_mnemonic (_("_View"));
+    gtk_menu_item_set_submenu (GTK_MENU_ITEM (view_item), view_menu);
+    gtk_menu_shell_append (GTK_MENU_SHELL (m_MenuBar), view_item);
+    
+    // Add view menu items (zoom, rotate, etc.)
+    GtkWidget *zoom_in_item = gtk_menu_item_new_with_mnemonic (_("Zoom _In"));
+    g_signal_connect (zoom_in_item, "activate", G_CALLBACK (main_window_zoom_in_cb), m_Pter);
+    gtk_menu_shell_append (GTK_MENU_SHELL (view_menu), zoom_in_item);
+    
+    GtkWidget *zoom_out_item = gtk_menu_item_new_with_mnemonic (_("Zoom _Out"));
+    g_signal_connect (zoom_out_item, "activate", G_CALLBACK (main_window_zoom_out_cb), m_Pter);
+    gtk_menu_shell_append (GTK_MENU_SHELL (view_menu), zoom_out_item);
+    
+    // Go menu
+    GtkWidget *go_menu = gtk_menu_new ();
+    GtkWidget *go_item = gtk_menu_item_new_with_mnemonic (_("_Go"));
+    gtk_menu_item_set_submenu (GTK_MENU_ITEM (go_item), go_menu);
+    gtk_menu_shell_append (GTK_MENU_SHELL (m_MenuBar), go_item);
+    
+    // Help menu
+    GtkWidget *help_menu = gtk_menu_new ();
+    GtkWidget *help_item = gtk_menu_item_new_with_mnemonic (_("_Help"));
+    gtk_menu_item_set_submenu (GTK_MENU_ITEM (help_item), help_menu);
+    gtk_menu_shell_append (GTK_MENU_SHELL (m_MenuBar), help_item);
+    
+    GtkWidget *about_item = gtk_menu_item_new_with_mnemonic (_("_About"));
+    g_signal_connect (about_item, "activate", G_CALLBACK (main_window_about_box_cb), m_Pter);
+    gtk_menu_shell_append (GTK_MENU_SHELL (help_menu), about_item);
+}
 
-    // Set the previous and next pages tool items important, so they will
-    // be shown when the toolbar's style is GTK_TOOLBAR_BOTH_HORIZ.
-    GtkWidget *prevPage = gtk_ui_manager_get_widget (m_UIManager,
-                                  "/ToolBar/GoToPreviousPage");
-    gtk_tool_item_set_is_important (GTK_TOOL_ITEM (prevPage), TRUE);
-    GtkWidget *nextPage = gtk_ui_manager_get_widget (m_UIManager, 
-                                  "/ToolBar/GoToNextPage");
-    gtk_tool_item_set_is_important (GTK_TOOL_ITEM (nextPage), TRUE);
+///
+/// @brief Creates the toolbar with modern GTK4 approach.
+///
+void
+MainView::createToolBar ()
+{
+    m_ToolBar = gtk_toolbar_new ();
+    gtk_toolbar_set_style (GTK_TOOLBAR (m_ToolBar), GTK_TOOLBAR_BOTH_HORIZ);
+    
+    // Add toolbar buttons
+    GtkToolItem *open_button = gtk_tool_button_new (NULL, _("Open"));
+    gtk_tool_button_set_icon_name (GTK_TOOL_BUTTON (open_button), "document-open");
+    g_signal_connect (open_button, "clicked", G_CALLBACK (main_window_open_file_cb), m_Pter);
+    gtk_toolbar_insert (GTK_TOOLBAR (m_ToolBar), open_button, -1);
+    
+    // Add separator
+    gtk_toolbar_insert (GTK_TOOLBAR (m_ToolBar), gtk_separator_tool_item_new (), -1);
+    
+    // Previous page button
+    GtkToolItem *prev_button = gtk_tool_button_new (NULL, _("Previous"));
+    gtk_tool_button_set_icon_name (GTK_TOOL_BUTTON (prev_button), "go-previous");
+    gtk_tool_item_set_is_important (prev_button, TRUE);
+    g_signal_connect (prev_button, "clicked", G_CALLBACK (main_window_go_to_previous_page_cb), m_Pter);
+    gtk_toolbar_insert (GTK_TOOLBAR (m_ToolBar), prev_button, -1);
+    
+    // Next page button
+    GtkToolItem *next_button = gtk_tool_button_new (NULL, _("Next"));
+    gtk_tool_button_set_icon_name (GTK_TOOL_BUTTON (next_button), "go-next");
+    gtk_tool_item_set_is_important (next_button, TRUE);
+    g_signal_connect (next_button, "clicked", G_CALLBACK (main_window_go_to_next_page_cb), m_Pter);
+    gtk_toolbar_insert (GTK_TOOLBAR (m_ToolBar), next_button, -1);
 }
 
 ///
@@ -1228,19 +1349,21 @@ main_window_find_cb (GtkWidget *widget, gpointer data)
 /// @brief The user tried to switch to full screen.
 ///
 void
-main_window_fullscreen_cb (GtkToggleAction *action, gpointer data)
+main_window_fullscreen_cb (GSimpleAction *action, GVariant *parameter, gpointer data)
 {
     g_assert ( NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
-	if (pter -> isDocumentLoaded())
-		pter->fullScreenActivated (gtk_toggle_action_get_active (action));
-	else
-	{
-		// Reset the toggle button
-		gboolean current = gtk_toggle_action_get_active(action);
-		gtk_toggle_action_set_active(action, TRUE == current);
-	}
+    GVariant *state = g_action_get_state (G_ACTION (action));
+    gboolean current_state = g_variant_get_boolean (state);
+    gboolean new_state = !current_state;
+    
+    if (pter->isDocumentLoaded()) {
+        g_simple_action_set_state (action, g_variant_new_boolean (new_state));
+        pter->fullScreenActivated (new_state);
+    }
+    
+    g_variant_unref (state);
 }
 
 ///
@@ -1387,7 +1510,7 @@ main_window_outline_cb (GtkTreeSelection *treeSelection, gpointer data)
     if ( gtk_tree_selection_get_selected (treeSelection, &indexModel, &iter) )
     {
         gpointer outlineData;
-        gtk_tree_model_get (indexModel, &iter, 
+        gtk_tree_model_get (indexModel, &iter,
                             outlineDataColumn, &outlineData, -1);
         DocumentOutline *outline = (DocumentOutline *)outlineData;
         MainPter *pter = (MainPter *)data;
@@ -1428,6 +1551,8 @@ main_window_print_cb (GtkWidget *widget, gpointer data)
 void
 main_window_quit_cb (GtkWidget *widget, gpointer data)
 {
+    // In GTK4, we should use the application quit pattern
+    // For now, keep gtk_main_quit for compatibility with current main loop
     gtk_main_quit ();
 }
 
@@ -1435,12 +1560,22 @@ main_window_quit_cb (GtkWidget *widget, gpointer data)
 /// @brief Called when the user clicks on the "Show Index" action.
 ///
 void
-main_window_show_index_cb (GtkToggleAction *action, gpointer data)
+main_window_show_index_cb (GSimpleAction *action, GVariant *parameter, gpointer data)
 {
     g_assert ( NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
-    pter->showIndexActivated (gtk_toggle_action_get_active (action));
+    if (action) {
+        GVariant *state = g_action_get_state (G_ACTION (action));
+        gboolean current_state = g_variant_get_boolean (state);
+        gboolean new_state = !current_state;
+        g_simple_action_set_state (action, g_variant_new_boolean (new_state));
+        pter->showIndexActivated (new_state);
+        g_variant_unref (state);
+    } else {
+        // Called from setFullScreen - use current state
+        pter->showIndexActivated (TRUE);
+    }
 }
 
 ///
@@ -1459,48 +1594,80 @@ main_window_save_file_cb (GtkWidget *widget, gpointer data)
 /// @brief Called when the user clicks on the "Show Menubar" action.
 ///
 void
-main_window_show_menubar_cb (GtkToggleAction *action, gpointer data)
+main_window_show_menubar_cb (GSimpleAction *action, GVariant *parameter, gpointer data)
 {
     g_assert ( NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
-    pter->showMenubarActivated (gtk_toggle_action_get_active (action));
+    if (action) {
+        GVariant *state = g_action_get_state (G_ACTION (action));
+        gboolean current_state = g_variant_get_boolean (state);
+        gboolean new_state = !current_state;
+        g_simple_action_set_state (action, g_variant_new_boolean (new_state));
+        pter->showMenubarActivated (new_state);
+        g_variant_unref (state);
+    }
 }
 
 /// KROGAN EDIT
 /// @brief Called when the user clicks on the "Invert Colors" action.
 ///
 void
-main_window_invert_color_cb (GtkToggleAction *action, gpointer data)
+main_window_invert_color_cb (GSimpleAction *action, GVariant *parameter, gpointer data)
 {
     g_assert ( NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
-    pter->invertToggleActivated (gtk_toggle_action_get_active (action));
+    GVariant *state = g_action_get_state (G_ACTION (action));
+    gboolean current_state = g_variant_get_boolean (state);
+    gboolean new_state = !current_state;
+    g_simple_action_set_state (action, g_variant_new_boolean (new_state));
+    pter->invertToggleActivated (new_state);
+    g_variant_unref (state);
 }
 
 ///
 /// @brief Called when the user clicks on the "Show Statusbar" action.
 ///
 void
-main_window_show_statusbar_cb (GtkToggleAction *action, gpointer data)
+main_window_show_statusbar_cb (GSimpleAction *action, GVariant *parameter, gpointer data)
 {
     g_assert ( NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
-    pter->showStatusbarActivated (gtk_toggle_action_get_active (action));
+    if (action) {
+        GVariant *state = g_action_get_state (G_ACTION (action));
+        gboolean current_state = g_variant_get_boolean (state);
+        gboolean new_state = !current_state;
+        g_simple_action_set_state (action, g_variant_new_boolean (new_state));
+        pter->showStatusbarActivated (new_state);
+        g_variant_unref (state);
+    } else {
+        // Called from setFullScreen - use current state
+        pter->showStatusbarActivated (TRUE);
+    }
 }
 
 ///
 /// @brief Called when the user clicks on the "Show Toolbar" action.
 ///
 void
-main_window_show_toolbar_cb (GtkToggleAction *action, gpointer data)
+main_window_show_toolbar_cb (GSimpleAction *action, GVariant *parameter, gpointer data)
 {
     g_assert ( NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
-    pter->showToolbarActivated (gtk_toggle_action_get_active (action));
+    if (action) {
+        GVariant *state = g_action_get_state (G_ACTION (action));
+        gboolean current_state = g_variant_get_boolean (state);
+        gboolean new_state = !current_state;
+        g_simple_action_set_state (action, g_variant_new_boolean (new_state));
+        pter->showToolbarActivated (new_state);
+        g_variant_unref (state);
+    } else {
+        // Called from setFullScreen - use current state
+        pter->showToolbarActivated (TRUE);
+    }
 }
 
 ///
@@ -1519,12 +1686,17 @@ main_window_zoom_cb (GtkWidget *widget, gpointer data)
 /// @brief The user tries to fit the document into the window.
 ///
 void
-main_window_zoom_fit_cb (GtkToggleAction *action, gpointer data)
+main_window_zoom_fit_cb (GSimpleAction *action, GVariant *parameter, gpointer data)
 {
     g_assert ( NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
-    pter->zoomFitActivated (gtk_toggle_action_get_active (action));
+    GVariant *state = g_action_get_state (G_ACTION (action));
+    gboolean current_state = g_variant_get_boolean (state);
+    gboolean new_state = !current_state;
+    g_simple_action_set_state (action, g_variant_new_boolean (new_state));
+    pter->zoomFitActivated (new_state);
+    g_variant_unref (state);
 }
 
 ///
@@ -1555,21 +1727,33 @@ main_window_zoom_out_cb (GtkWidget *widget, gpointer data)
 /// @brief The user tries to fit the document in the window's width.
 ///
 void
-main_window_zoom_width_cb (GtkToggleAction *action, gpointer data)
+main_window_zoom_width_cb (GSimpleAction *action, GVariant *parameter, gpointer data)
 {
     g_assert ( NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
-    pter->zoomWidthActivated (gtk_toggle_action_get_active (action));
+    GVariant *state = g_action_get_state (G_ACTION (action));
+    gboolean current_state = g_variant_get_boolean (state);
+    gboolean new_state = !current_state;
+    g_simple_action_set_state (action, g_variant_new_boolean (new_state));
+    pter->zoomWidthActivated (new_state);
+    g_variant_unref (state);
 }
 
 void
-main_window_set_page_mode (GtkRadioAction *action, GtkRadioAction *current, gpointer data)
+main_window_set_page_mode (GSimpleAction *action, GVariant *parameter, gpointer data)
 {
     g_assert ( NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
-    PagePterMode mode = (PagePterMode)gtk_radio_action_get_current_value(action);
+    const gchar *mode_str = g_variant_get_string (parameter, NULL);
+    PagePterMode mode = PagePterModeScroll;
+    
+    if (g_strcmp0 (mode_str, "text") == 0) {
+        mode = PagePterModeSelectText;
+    }
+    
+    g_simple_action_set_state (action, parameter);
     pter->setPageMode (mode);
 }
 

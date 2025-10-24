@@ -21,6 +21,8 @@
 #include <config.h>
 #include <gettext.h>
 #include <glib.h>
+#include <gtk/gtk.h>
+#include <cairo.h>
 
 #include <Config.h>
 

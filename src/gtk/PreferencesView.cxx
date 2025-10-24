@@ -19,6 +19,7 @@
 #include <gettext.h>
 #include <gtk/gtk.h>
 #include <epdfview.h>
+#include "StockIcons.h"
 #include "PreferencesView.h"
 
 using namespace ePDFView;
@@ -39,9 +40,12 @@ PreferencesView::PreferencesView (GtkWindow *parent):
     gtk_window_set_skip_taskbar_hint (GTK_WINDOW (m_PreferencesDialog), TRUE);
 
     GtkWidget *notebook = gtk_notebook_new ();
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG(m_PreferencesDialog)->vbox),
-                       notebook);
-    gtk_container_set_border_width (GTK_CONTAINER (notebook), 6);
+    GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (m_PreferencesDialog));
+    gtk_box_append (GTK_BOX (content_area), notebook);
+    gtk_widget_set_margin_start (notebook, 6);
+    gtk_widget_set_margin_end (notebook, 6);
+    gtk_widget_set_margin_top (notebook, 6);
+    gtk_widget_set_margin_bottom (notebook, 6);
 
     // Add the notebook's tabs.
     {
@@ -49,12 +53,12 @@ PreferencesView::PreferencesView (GtkWindow *parent):
         gtk_notebook_append_page (GTK_NOTEBOOK (notebook),
                                   createExternalCommandsTab (), label);
     }
-    gtk_widget_show_all (notebook);
+    // In GTK4, widgets are visible by default
 }
 
 PreferencesView::~PreferencesView ()
 {
-    gtk_widget_destroy (m_PreferencesDialog);
+    gtk_window_destroy (GTK_WINDOW (m_PreferencesDialog));
 }
 
 void

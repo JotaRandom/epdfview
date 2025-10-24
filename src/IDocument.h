@@ -21,8 +21,6 @@
 /// This is the definition of the GQuark used for Document's errors.
 #define EPDFVIEW_DOCUMENT_ERROR     ePDFView::IDocument::getErrorQuark ()
 
-typedef struct _GdkRegion GdkRegion;
-
 namespace ePDFView 
 {
     // Forward declarations.
@@ -265,7 +263,7 @@ namespace ePDFView
             virtual gboolean saveFile (const gchar *filename,
                                        GError **error) = 0;
 
-            virtual GdkRegion* getTextRegion (DocumentRectangle *rect) = 0;
+            virtual cairo_region_t* getTextRegion (DocumentRectangle *rect) = 0;
             virtual void setTextSelection (DocumentRectangle *rect) = 0;
 
             void attach (const IDocumentObserver *observer);

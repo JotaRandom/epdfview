@@ -1,52 +1,50 @@
-    TODO (So any pull request is apreciated): 
-	* Add continuous scrolling & maybe an option for toggle hide scrollbars. 
-	* Add shift+scroll for horizontal scrolling
-	* Move to CMake to make it multiplatform easily
-           (If Meson support Windows then it become also an option)
-	* Change icons for some more originals to not use GNOME icons anymore
-	* Port to GTK+ 3.0 to keep a lightweight alternative to evince alive
-    (Any pull request to add functionality is also apreciated).
+# ePDFView - A lightweight PDF Viewer
 
+ePDFView is a free lightweight PDF document viewer using the Poppler library and GTK4.
 
- ePDFView
- ========
+## Features
 
+- Continuous view mode
+- Zoom modes (fit to page width, fit to page, custom zoom)
+- Page rotation
+- Find text in documents
+- Print support (via CUPS)
+- Bookmarks and outline navigation
+- Keyboard shortcuts
 
-![Travis status](https://travis-ci.org/jristz/epdfview.svg)
+## Building from Source
 
- ePDFView is a simple and lightweight PDF viewer.
- For more general information about the original ePDFView please visit the project's website at 
- http://www.emma-soft.com/projects/epdfview/ .
- For info about this fork check the source code or ask a question on the bugtracker.
+### Dependencies
 
- This software is licensed under the GNU General Public License (GPL).
- The icons used by this software are part of the Gnome Icon Theme, 
- which is copyright The GNOME Project and released under the GNU General Public License (GPL).
+- GTK4 (>= 4.0.0)
+- Poppler (>= 0.5.0)
+- Meson build system
 
-    Enhancements by Pedro A. Aranda Gutiérrez
-    =========================================
+### Build Instructions
 
-	epdfsync
-	========
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/epdfview.git
+cd epdfview
 
-	epdfsync is a companion script that will be called by epdfview upon a
-	Ctrl-Button1Down. This script should call synctex, if you want to have a full 
-	edit cycle for LaTEX.
-	Tested on:
-	    * Lubuntu 15.10 (LXDE)
-	    * Ubuntu 14.04.3 LTS (Unity)
-	    * FreeBSD 10.2 (Xfce)
-            * ArchLinux on 2017/04/23 (Xfce)
-	SIGHUP
-	======
+# Configure with Meson
+meson setup builddir
+cd builddir
 
-	Reload on SIGHUP to integrate with 'latexmk -pvc'.
+# Build
+ninja
 
+# Install
+ninja install
+```
 
- Requirements
- ============
- 
- GTK+ version 2.6.0 or higher ( http://www.gtk.org/ ), but lower than 2.95.0
- Poppler version 0.5.0 with glib bindings ( http://poppler.freedesktop.org/ )
- CppUnit to run the test suite ( http://cppunit.sourceforge.net/ )
- Doxygen to build the documentation ( http://www.stack.nl/~dimitri/doxygen/ )
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.

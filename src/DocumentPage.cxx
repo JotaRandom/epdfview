@@ -53,7 +53,7 @@ DocumentPage::~DocumentPage ()
     g_list_free (m_LinkList);
 
     if(m_Selection)
-        gdk_region_destroy(m_Selection);
+        cairo_region_destroy(m_Selection);
 }
 
 ///
@@ -87,7 +87,7 @@ DocumentPage::clearSelection ()
 
     if(NULL != m_Selection){
         invertRegion(m_Selection);
-        gdk_region_destroy(m_Selection);
+        cairo_region_destroy(m_Selection);
         m_Selection = NULL;
     }
 }
@@ -230,16 +230,14 @@ DocumentPage::invertArea (gint x1, gint y1, gint x2, gint y2)
 }
 
 void
-DocumentPage::invertRegion (GdkRegion* region)
+DocumentPage::invertRegion (cairo_region_t* region)
 {
-    int count;
-    GdkRectangle *rectangles;
-    gdk_region_get_rectangles(region, &rectangles, &count);
-    while(count--){
-        GdkRectangle r = rectangles[count];
-        invertArea(r.x, r.y, r.x + r.width, r.y + r.height);
+    int count = cairo_region_num_rectangles(region);
+    for(int i = 0; i < count; i++){
+        cairo_rectangle_int_t rect;
+        cairo_region_get_rectangle(region, i, &rect);
+        invertArea(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height);
     }
-    g_free(rectangles);
 }
 
 
@@ -303,11 +301,11 @@ DocumentPage::setSelection (DocumentRectangle &selection, gdouble scale)
 }
 
 void
-DocumentPage::setSelection (GdkRegion *region)
+DocumentPage::setSelection (cairo_region_t *region)
 {
     clearSelection ();
     
     invertRegion (region);
     
-    m_Selection = gdk_region_copy(region);
+    m_Selection = cairo_region_copy(region);
 }

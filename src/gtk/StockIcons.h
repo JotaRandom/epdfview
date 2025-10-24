@@ -22,6 +22,29 @@
 
 G_BEGIN_DECLS
 
+// GTK4 stock icon replacements - use named icons instead of deprecated stock icons
+#define GTK_STOCK_ABOUT "help-about"
+#define GTK_STOCK_ADD "list-add"
+#define GTK_STOCK_CANCEL "process-stop"
+#define GTK_STOCK_CLOSE "window-close"
+#define GTK_STOCK_DIALOG_AUTHENTICATION "dialog-password"
+#define GTK_STOCK_FIND "edit-find"
+#define GTK_STOCK_FULLSCREEN "view-fullscreen"
+#define GTK_STOCK_GO_BACK "go-previous"
+#define GTK_STOCK_GO_FORWARD "go-next"
+#define GTK_STOCK_GO_TO_FIRST "go-first"
+#define GTK_STOCK_GO_TO_LAST "go-last"
+#define GTK_STOCK_OK "dialog-ok"
+#define GTK_STOCK_OPEN "document-open"
+#define GTK_STOCK_PREFERENCES "preferences-system"
+#define GTK_STOCK_PRINT "document-print"
+#define GTK_STOCK_SAVE "document-save"
+#define GTK_STOCK_SAVE_AS "document-save-as"
+#define GTK_STOCK_ZOOM_100 "zoom-original"
+#define GTK_STOCK_ZOOM_FIT "zoom-fit-best"
+#define GTK_STOCK_ZOOM_IN "zoom-in"
+#define GTK_STOCK_ZOOM_OUT "zoom-out"
+
 // ePDFView stock icons.
 #define EPDFVIEW_STOCK_FIND_NEXT        "epdfview_find-next"
 #define EPDFVIEW_STOCK_FIND_PREVIOUS    "epdfview_find-previous"

@@ -20,28 +20,41 @@
 
 namespace ePDFView
 {
+    // Forward declarations.
+    class FindPter;
+
     class FindView: public IFindView
     {
         public:
-            FindView (void);
+            FindView ();
             ~FindView (void);
 
             const gchar *getTextToFind (void);
-            GtkWidget *getTopWidget (void);
             void hide (void);
             void sensitiveFindNext (gboolean sensitive);
             void sensitiveFindPrevious (gboolean sensitive);
             void setInformationText (const gchar *text);
             void setPresenter (FindPter *pter);
 
+            // GTK+ Functions.
+            GtkWidget *getTopWidget (void);
+
         protected:
-            GtkToolItem *m_Close;
+            // Member variables.
             GtkWidget *m_FindBar;
-            GtkToolItem *m_FindNext;
-            GtkToolItem *m_FindPrevious;
-            GtkWidget *m_InformationText;
+            GtkWidget *m_Close;
             GtkWidget *m_TextToFind;
-            GtkAccelKey m_SlashAccelKey;
+            GtkWidget *m_FindNext;
+            GtkWidget *m_FindPrevious;
+            GtkWidget *m_InformationText;
+
+            // Callbacks
+            friend void find_view_close_cb (GtkWidget *widget, gpointer data);
+            friend void find_view_next_cb (GtkWidget *widget, gpointer data);
+            friend void find_view_previous_cb (GtkWidget *widget, gpointer data);
+            friend void find_view_text_to_find_activate_cb (GtkEntry *entry, gpointer data);
+            friend void find_view_text_to_find_changed_cb (GtkEntry *entry, gpointer data);
+            friend gboolean find_view_text_to_find_key_press_cb (GtkEventControllerKey *controller, guint keyval, guint keycode, GdkModifierType state, gpointer data);
     };
 }
 

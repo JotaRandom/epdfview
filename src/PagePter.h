@@ -73,7 +73,7 @@ namespace ePDFView
             /// The page view.
             IPageView *m_PageView;
             /// Last text selection
-            GdkRegion *m_LastSelection;
+            cairo_region_t *m_LastSelection;
             /// What page presenter must do when user move mouse with button pressed.
             PagePterMode m_ScrollMode;
 

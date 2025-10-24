@@ -343,6 +343,8 @@ PrintPter::printerSelectionChanged ()
                 }
                 view.selectColorModel (colorModelToSelect);
                 ppdClose (printerPPD);
+                if (printerPPDName != NULL)
+                    unlink(printerPPDName);
             }
         }
         cupsFreeDests (numDestinations, destinations);
@@ -405,7 +407,11 @@ PrintPter::getPrinterAttributes (const gchar *printerName)
         "printer-location"
     };
 
+#if (CUPS_VERSION_MAJOR > 1) || (CUPS_VERSION_MINOR >= 7)
+    http_t *http = httpConnect2(cupsServer(), ippPort(), NULL, AF_UNSPEC, HTTP_ENCRYPTION_IF_REQUESTED, 1, 30000, NULL);
+#else
     http_t *http = httpConnect (cupsServer (), ippPort ());
+#endif
     if ( NULL == http )
     {
         printf ("No http!\n");
