@@ -1,0 +1,47 @@
+# Build directories
+builddir/
+builddir_clean/
+builddir_new/
+build/
+.build/
+
+# Meson generated files
+config.h
+
+# Compiled binaries
+*.o
+*.lo
+*.la
+*.so
+*.so.*
+*.a
+epdfview
+
+# Generated files
+*.gmo
+*.pot
+POTFILES
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Debug files
+*.dSYM/
+core
+vgcore.*
+
+# Package files
+*.deb
+*.rpm
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+
+# Test files
+test-results/
+*.log
