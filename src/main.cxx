@@ -156,8 +156,9 @@ main (int argc, char **argv)
     IJob::init ();
     
     // Create the GTK4 application
+    // Note: G_APPLICATION_FLAGS_NONE - we handle file opening manually
     GtkApplication *app = gtk_application_new ("org.emma-soft.epdfview",
-                                               G_APPLICATION_HANDLES_OPEN);
+                                               G_APPLICATION_FLAGS_NONE);
     
     // Set application name
     g_set_application_name (_("PDF Viewer"));
