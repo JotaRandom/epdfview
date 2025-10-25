@@ -389,13 +389,13 @@ MainView::isIndexVisible () const
 gchar *
 MainView::openFileDialog (const gchar *lastFolder)
 {
+    // GTK4: Use text labels instead of stock IDs for buttons
     GtkWidget *openDialog = gtk_file_chooser_dialog_new (_("Open PDF File"),
             GTK_WINDOW (m_MainWindow),
             GTK_FILE_CHOOSER_ACTION_OPEN,
-            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-            GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+            _("_Cancel"), GTK_RESPONSE_CANCEL,
+            _("_Open"), GTK_RESPONSE_ACCEPT,
             NULL);
-    // GTK4: gtk_dialog_set_alternative_button_order removed
 
     // Select the last used folder as the initial folder, if any.
     if ( NULL != lastFolder )
@@ -429,22 +429,28 @@ MainView::openFileDialog (const gchar *lastFolder)
         gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (openDialog), anyFilter);
     }
 
-    // GTK4: gtk_dialog_run deprecated, use gtk_window_present + modal
+    // GTK4: Use modal dialog with response callback
     gtk_window_set_modal (GTK_WINDOW (openDialog), TRUE);
     gtk_window_present (GTK_WINDOW (openDialog));
     
     // Simple modal loop for GTK4
     GMainLoop *loop = g_main_loop_new (NULL, FALSE);
     gchar *result = NULL;
+    gint response_id = GTK_RESPONSE_CANCEL;
     
-    g_signal_connect_swapped (openDialog, "response",
-                             G_CALLBACK (g_main_loop_quit), loop);
+    // Store response ID in a callback
+    auto response_cb = +[](GtkDialog *dialog, gint response, gpointer user_data) {
+        gint *response_ptr = (gint *)user_data;
+        *response_ptr = response;
+    };
+    
+    g_signal_connect (openDialog, "response", G_CALLBACK (response_cb), &response_id);
+    g_signal_connect_swapped (openDialog, "response", G_CALLBACK (g_main_loop_quit), loop);
     
     g_main_loop_run (loop);
     
     // Check if file was selected
-    if (gtk_dialog_get_response_for_widget (GTK_DIALOG (openDialog), 
-                                            GTK_WIDGET (openDialog)) == GTK_RESPONSE_ACCEPT)
+    if (response_id == GTK_RESPONSE_ACCEPT)
     {
         // GTK4: gtk_file_chooser_get_filename replaced with get_file
         GFile *file = gtk_file_chooser_get_file (GTK_FILE_CHOOSER (openDialog));
@@ -498,30 +504,37 @@ MainView::promptPasswordDialog ()
     // In GTK4, widgets are visible by default
 
 
+    // GTK4: Use text labels instead of stock IDs for buttons
     GtkWidget *passwordDialog = gtk_dialog_new_with_buttons (
             _("Password"), GTK_WINDOW (m_MainWindow),
             GTK_DIALOG_DESTROY_WITH_PARENT,
-            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-            GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+            _("_Cancel"), GTK_RESPONSE_CANCEL,
+            _("_OK"), GTK_RESPONSE_ACCEPT,
             NULL);
-    // GTK4: gtk_dialog_set_alternative_button_order removed
     gtk_dialog_set_default_response (GTK_DIALOG (passwordDialog), 
                                      GTK_RESPONSE_ACCEPT);
     GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (passwordDialog));
     gtk_box_append (GTK_BOX (content_area), hbox);
 
-    // GTK4: gtk_dialog_run deprecated
+    // GTK4: Use modal dialog with response callback
     gtk_window_set_modal (GTK_WINDOW (passwordDialog), TRUE);
     gtk_window_present (GTK_WINDOW (passwordDialog));
     
     GMainLoop *loop = g_main_loop_new (NULL, FALSE);
-    g_signal_connect_swapped (passwordDialog, "response",
-                             G_CALLBACK (g_main_loop_quit), loop);
+    gint response_id = GTK_RESPONSE_CANCEL;
+    
+    // Store response ID in a callback
+    auto response_cb = +[](GtkDialog *dialog, gint response, gpointer user_data) {
+        gint *response_ptr = (gint *)user_data;
+        *response_ptr = response;
+    };
+    
+    g_signal_connect (passwordDialog, "response", G_CALLBACK (response_cb), &response_id);
+    g_signal_connect_swapped (passwordDialog, "response", G_CALLBACK (g_main_loop_quit), loop);
     g_main_loop_run (loop);
     
     gchar *password = NULL;
-    if (gtk_dialog_get_response_for_widget (GTK_DIALOG (passwordDialog),
-                                            GTK_WIDGET (passwordDialog)) == GTK_RESPONSE_ACCEPT)
+    if (response_id == GTK_RESPONSE_ACCEPT)
     {
         // GTK4: Use gtk_editable_get_text
         password = g_strdup(gtk_editable_get_text (GTK_EDITABLE (passwordEntry)));
@@ -535,14 +548,14 @@ MainView::promptPasswordDialog ()
 gchar *
 MainView::saveFileDialog (const gchar *lastFolder, const gchar *fileName)
 {
+    // GTK4: Use text labels instead of stock IDs for buttons
     GtkWidget *saveDialog = gtk_file_chooser_dialog_new (_("Save PDF File"),
             GTK_WINDOW (m_MainWindow),
             GTK_FILE_CHOOSER_ACTION_SAVE,
-            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-            GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+            _("_Cancel"), GTK_RESPONSE_CANCEL,
+            _("_Save"), GTK_RESPONSE_ACCEPT,
             NULL);
     // GTK4: gtk_file_chooser_set_do_overwrite_confirmation removed (always enabled)
-    // GTK4: gtk_dialog_set_alternative_button_order removed
 
     // Select the last used folder as the initial folder, if any.
     if ( NULL != lastFolder )
@@ -582,19 +595,25 @@ MainView::saveFileDialog (const gchar *lastFolder, const gchar *fileName)
         gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (saveDialog), anyFilter);
     }
 
-    // GTK4: gtk_dialog_run deprecated
+    // GTK4: Use modal dialog with response callback
     gtk_window_set_modal (GTK_WINDOW (saveDialog), TRUE);
     gtk_window_present (GTK_WINDOW (saveDialog));
     
     GMainLoop *loop = g_main_loop_new (NULL, FALSE);
     gchar *result = NULL;
+    gint response_id = GTK_RESPONSE_CANCEL;
     
-    g_signal_connect_swapped (saveDialog, "response",
-                             G_CALLBACK (g_main_loop_quit), loop);
+    // Store response ID in a callback
+    auto response_cb = +[](GtkDialog *dialog, gint response, gpointer user_data) {
+        gint *response_ptr = (gint *)user_data;
+        *response_ptr = response;
+    };
+    
+    g_signal_connect (saveDialog, "response", G_CALLBACK (response_cb), &response_id);
+    g_signal_connect_swapped (saveDialog, "response", G_CALLBACK (g_main_loop_quit), loop);
     g_main_loop_run (loop);
     
-    if (gtk_dialog_get_response_for_widget (GTK_DIALOG (saveDialog),
-                                            GTK_WIDGET (saveDialog)) == GTK_RESPONSE_ACCEPT)
+    if (response_id == GTK_RESPONSE_ACCEPT)
     {
         // GTK4: gtk_file_chooser_get_filename replaced
         GFile *file = gtk_file_chooser_get_file (GTK_FILE_CHOOSER (saveDialog));
@@ -1435,6 +1454,7 @@ main_window_about_box_cb (GtkWidget *widget, gpointer data)
 {
     const gchar *authors[] = {
         "Jordi Fita <jordi@emma-soft.com>",
+        "GTK4 Port Contributors",
         NULL
     };
 
@@ -1445,7 +1465,7 @@ main_window_about_box_cb (GtkWidget *widget, gpointer data)
            "it under the terms of the GNU General Public License as published "
            "by\nthe Free Software Foundation; either version 2 of the "
            "License, or\n(at your option) any later version.\n"),
-        N_("ePDFView is distributes in the hope that it will be useful,\n"
+        N_("ePDFView is distributed in the hope that it will be useful,\n"
            "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
            "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
            "GNU General Public License for more details.\n"),
@@ -1456,19 +1476,48 @@ main_window_about_box_cb (GtkWidget *widget, gpointer data)
     gchar *licenseTranslated = g_strconcat (_(license[0]), "\n",
                                             _(license[1]), "\n",
                                             _(license[2]), "\n", NULL);
+    
+    // GTK4: Load logo from SVG file
+    GdkPixbuf *logo = NULL;
+    const gchar *logo_paths[] = {
+        DATADIR "/epdfview.svg",
+        "/usr/share/pixmaps/epdfview.svg",
+        "/usr/local/share/pixmaps/epdfview.svg",
+        NULL
+    };
+    
+    for (int i = 0; logo_paths[i] != NULL; i++) {
+        GError *error = NULL;
+        if (g_file_test(logo_paths[i], G_FILE_TEST_EXISTS)) {
+            logo = gdk_pixbuf_new_from_file_at_size(logo_paths[i], 128, 128, &error);
+            if (logo) {
+                break;
+            }
+            if (error) {
+                g_error_free(error);
+            }
+        }
+    }
+    
     // GTK4: gtk_about_dialog_set_url_hook removed - links work automatically
+    // GTK4: About dialogs automatically have a close button
     gtk_show_about_dialog (NULL,
-            "name", _("ePDFView"),
+            "program-name", _("ePDFView"),
             "version", VERSION,
-            "copyright", "\xc2\xa9 2006, 2007, 2009, 2010, 2011 Emma's Software",
+            "copyright", "\xc2\xa9 2006-2025 Emma's Software and Contributors",
             "license", licenseTranslated,
-            "website", "http://www.emma-soft.com/projects/epdfview/",
+            "website", "https://github.com/JotaRandom/epdfview",
             "authors", authors,
             "comments", comments,
             "translator-credits", _("translator-credits"),
+            "logo", logo,
+            "wrap-license", TRUE,
             NULL);
 
     g_free (licenseTranslated);
+    if (logo) {
+        g_object_unref(logo);
+    }
 }
 
 
