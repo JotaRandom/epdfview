@@ -85,6 +85,9 @@ on_activate (GtkApplication *app, gpointer user_data)
     // Let the presenter know which is its view
     appData->mainPter->setView (appData->mainView);
     
+    // Show the main window (GTK4: windows are hidden by default)
+    appData->mainView->show ();
+    
     // If we have a file to open, schedule it
     if (appData->fileToOpen != NULL)
     {
