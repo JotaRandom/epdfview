@@ -75,7 +75,10 @@ namespace ePDFView
             void showStatusbar (gboolean show);
             void showToolbar (gboolean show);
             void toggleInvertColors (void);
+            
+            // GTK4: Get the main window for application registration
             GtkWidget *getMainWindow () { return m_MainWindow; }
+            
             void setCursor (ViewCursor cursorType);
             void setFullScreen (gboolean fullScreen);
             void setNumberOfPagesText (const gchar *text);
@@ -92,11 +95,7 @@ namespace ePDFView
 #endif // HAVE_CUPS
             const gchar *getZoomText (void);
             void setTitle (const gchar *title);
-            void setOutline (DocumentOutline *outline);
-            void showToolbar (gboolean show);
-            void showMenubar (gboolean hide); //krogan
-            void invertToggle (gboolean show); //krogan
-            void showStatusbar (gboolean show);
+            void invertToggle (gboolean show);
 
         protected:
             GtkWidget *m_CurrentPage;
