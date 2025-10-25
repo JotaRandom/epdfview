@@ -53,14 +53,11 @@ PrintView::PrintView (GtkWindow *parent):
 {
     m_PrintDialog = gtk_dialog_new_with_buttons (_("Print"),
             parent, GTK_DIALOG_MODAL,
-            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-            GTK_STOCK_PRINT, GTK_RESPONSE_ACCEPT,
+            _("_Cancel"), GTK_RESPONSE_CANCEL,
+            _("_Print"), GTK_RESPONSE_ACCEPT,
             NULL);
-    // In some window managers the buttons must be reversed.
-    gtk_dialog_set_alternative_button_order (GTK_DIALOG (m_PrintDialog),
-            GTK_RESPONSE_ACCEPT, GTK_RESPONSE_CANCEL, -1);
-    // Utility dialogs shouldn't show themselves in the window list.
-    gtk_window_set_skip_taskbar_hint (GTK_WINDOW (m_PrintDialog), TRUE);
+    // GTK4: gtk_dialog_set_alternative_button_order removed
+    // GTK4: gtk_window_set_skip_taskbar_hint removed (not needed on Wayland)
 
     GtkWidget *notebook = gtk_notebook_new ();
     GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (m_PrintDialog));
@@ -352,54 +349,61 @@ PrintView::getOptionFromComboBox (GtkWidget *comboBox, gpointer value)
                             -1);
     }
 }
-
-////////////////////////////////////////////////////////////////
 // Tab Creators
 ////////////////////////////////////////////////////////////////
 
 GtkWidget *
 PrintView::createJobTab ()
 {
+    // GTK4: Use margins instead of gtk_container_set_border_width
     GtkWidget *mainBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 12);
-    gtk_container_set_border_width (GTK_CONTAINER (mainBox), 3);
+    gtk_widget_set_margin_start (mainBox, 3);
+    gtk_widget_set_margin_end (mainBox, 3);
+    gtk_widget_set_margin_top (mainBox, 3);
+    gtk_widget_set_margin_bottom (mainBox, 3);
 
     // Print range frame.
     GtkWidget *printRangeLabel = gtk_label_new (_("<b>Print Range</b>"));
     GtkWidget *printRangeFrame = gtk_frame_new (NULL);
-    gtk_box_pack_start_defaults (GTK_BOX (mainBox), printRangeFrame);
-    // Set a bold label and no border.
+    gtk_box_append (GTK_BOX (mainBox), printRangeFrame); // GTK4: use append
+    // Set a bold label.
     gtk_label_set_use_markup (GTK_LABEL (printRangeLabel), TRUE);
     gtk_frame_set_label_widget (GTK_FRAME (printRangeFrame), printRangeLabel);
-    gtk_frame_set_shadow_type (GTK_FRAME (printRangeFrame), GTK_SHADOW_NONE);
-    // The alignment.
-    GtkWidget *printRangeAlign = gtk_alignment_new (0, 0, 1, 1);
-    gtk_alignment_set_padding (GTK_ALIGNMENT (printRangeAlign), 6, 0, 12, 6);
-    gtk_container_add (GTK_CONTAINER (printRangeFrame), printRangeAlign);
-    // The table to add all controls.
-    GtkWidget *printRangeTable = gtk_table_new (2, 2, FALSE);
-    gtk_container_add (GTK_CONTAINER (printRangeAlign), printRangeTable);
-    gtk_table_set_row_spacings (GTK_TABLE (printRangeTable), 3);
-    gtk_table_set_col_spacings (GTK_TABLE (printRangeTable), 12);
+    // GTK4: gtk_frame_set_shadow_type removed
+    
+    // GTK4: Replace GtkAlignment with margins on child widget
+    GtkWidget *printRangeGrid = gtk_grid_new (); // GTK4: GtkGrid instead of GtkTable
+    gtk_widget_set_margin_start (printRangeGrid, 12);
+    gtk_widget_set_margin_end (printRangeGrid, 6);
+    gtk_widget_set_margin_top (printRangeGrid, 6);
+    gtk_widget_set_margin_bottom (printRangeGrid, 0);
+    gtk_frame_set_child (GTK_FRAME (printRangeFrame), printRangeGrid); // GTK4: set_child
+    gtk_grid_set_row_spacing (GTK_GRID (printRangeGrid), 3);
+    gtk_grid_set_column_spacing (GTK_GRID (printRangeGrid), 12);
+    
     // Create the two radio buttons.
     m_AllPagesRangeOption =
-        gtk_radio_button_new_with_mnemonic (NULL, _("_All pages"));
+        gtk_check_button_new_with_mnemonic (_("_All pages"));
     m_CustomPagesRangeOption =
-        gtk_radio_button_new_with_mnemonic_from_widget (
-                GTK_RADIO_BUTTON (m_AllPagesRangeOption), _("_Range:"));
+        gtk_check_button_new_with_mnemonic (_("_Range:"));
+    // GTK4: Radio buttons now use check buttons as group
+    gtk_check_button_set_group (GTK_CHECK_BUTTON (m_CustomPagesRangeOption),
+                                GTK_CHECK_BUTTON (m_AllPagesRangeOption));
     m_PageRange = gtk_entry_new ();
-    gtk_table_attach_defaults (GTK_TABLE (printRangeTable),
-                               m_AllPagesRangeOption,
-                               0, 2, 0, 1);
-    gtk_table_attach_defaults (GTK_TABLE (printRangeTable),
-                               m_CustomPagesRangeOption,
-                               0, 1, 1, 2);
-    gtk_table_attach_defaults (GTK_TABLE (printRangeTable), m_PageRange,
-                               1, 2, 1, 2);
+    
+    // GTK4: gtk_grid_attach instead of gtk_table_attach
+    gtk_grid_attach (GTK_GRID (printRangeGrid), m_AllPagesRangeOption,
+                     0, 0, 2, 1);
+    gtk_grid_attach (GTK_GRID (printRangeGrid), m_CustomPagesRangeOption,
+                     0, 1, 1, 1);
+    gtk_grid_attach (GTK_GRID (printRangeGrid), m_PageRange,
+                     1, 1, 1, 1);
 
     // Page set frame
     GtkWidget *pageSetLabel = gtk_label_new (_("<b>Page Set</b>"));
     GtkWidget *pageSetFrame = gtk_frame_new (NULL);
-    gtk_box_pack_start_defaults (GTK_BOX (mainBox), pageSetFrame);
+    gtk_box_append (GTK_BOX (mainBox), pageSetFrame); // GTK4: use append
+    // Set a bold label.
     // Set a bold label and no border.
     gtk_label_set_use_markup (GTK_LABEL (pageSetLabel), TRUE);
     gtk_frame_set_label_widget (GTK_FRAME (pageSetFrame), pageSetLabel);

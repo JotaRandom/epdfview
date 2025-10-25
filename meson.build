@@ -1,6 +1,6 @@
 project('epdfview', 'cpp',
   version : '0.2.0',
-  default_options : ['warning_level=3', 'cpp_std=c++11'],
+  default_options : ['warning_level=1', 'cpp_std=c++11', 'werror=false'],
   meson_version : '>= 0.50.0',
   license : 'GPL-2.0-or-later',
 )
@@ -27,7 +27,10 @@ pango_dep = dependency('pango')
 # Check for CUPS
 cups_dep = dependency('cups', required : get_option('cups'))
 if cups_dep.found() and host_machine.system() != 'windows'
+  message('CUPS support: ENABLED')
   add_project_arguments('-DHAVE_CUPS=1', language : 'cpp')
+else
+  message('CUPS support: DISABLED')
 endif
 
 # Check for Poppler version
