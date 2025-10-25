@@ -58,7 +58,7 @@ conf_data.set_quoted('LOCALEDIR', join_paths(get_option('prefix'), get_option('l
 configure_file(output : 'config.h', configuration : conf_data)
 
 # Include directories
-inc = include_directories('src')
+inc = include_directories('src', '.')
 
 # Subdirectories
 subdir('src')
