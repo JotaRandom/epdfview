@@ -1,2 +1,2 @@
 option('tests', type: 'boolean', value: false, description: 'Build test suite')
-option('cups', type: 'feature', value: 'disabled', description: 'Enable CUPS printing support (NOT YET MIGRATED TO GTK4)')
+option('cups', type: 'feature', value: 'auto', description: 'Enable CUPS printing support')

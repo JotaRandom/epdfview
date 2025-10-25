@@ -113,9 +113,25 @@ PrintView::setPresenter (PrintPter *pter)
                       pter);
 
     // Run the dialog.
-    // Note: gtk_dialog_run is deprecated but still functional in GTK4
-    // For full GTK4 compliance, this should be replaced with async approach
-    if ( GTK_RESPONSE_ACCEPT == gtk_dialog_run (GTK_DIALOG (m_PrintDialog)) )
+    // GTK4: gtk_dialog_run deprecated but still works
+    // Simple approach: just use it for now as it's functional
+    gtk_window_set_modal (GTK_WINDOW (m_PrintDialog), TRUE);
+    gtk_window_present (GTK_WINDOW (m_PrintDialog));
+    
+    GMainLoop *loop = g_main_loop_new (NULL, FALSE);
+    int response = GTK_RESPONSE_CANCEL;
+    
+    g_signal_connect_swapped (m_PrintDialog, "response",
+                              G_CALLBACK (g_main_loop_quit), loop);
+    g_signal_connect (m_PrintDialog, "response",
+                     G_CALLBACK(+[](GtkDialog*, int resp, int *response_ptr) {
+                         *response_ptr = resp;
+                     }), &response);
+    
+    g_main_loop_run (loop);
+    g_main_loop_unref (loop);
+    
+    if ( GTK_RESPONSE_ACCEPT == response )
     {
         pter->printActivated ();
     }
@@ -402,68 +418,70 @@ PrintView::createJobTab ()
     // Page set frame
     GtkWidget *pageSetLabel = gtk_label_new (_("<b>Page Set</b>"));
     GtkWidget *pageSetFrame = gtk_frame_new (NULL);
-    gtk_box_append (GTK_BOX (mainBox), pageSetFrame); // GTK4: use append
-    // Set a bold label.
-    // Set a bold label and no border.
+    gtk_box_append (GTK_BOX (mainBox), pageSetFrame);
     gtk_label_set_use_markup (GTK_LABEL (pageSetLabel), TRUE);
     gtk_frame_set_label_widget (GTK_FRAME (pageSetFrame), pageSetLabel);
-    gtk_frame_set_shadow_type (GTK_FRAME (pageSetFrame), GTK_SHADOW_NONE);
-    // The alignment.
-    GtkWidget *pageSetAlign = gtk_alignment_new (0, 0, 1, 1);
-    gtk_alignment_set_padding (GTK_ALIGNMENT (pageSetAlign), 6, 0, 12, 6);
-    gtk_container_add (GTK_CONTAINER (pageSetFrame), pageSetAlign);
-    // The vbox to add all controls.
+    // GTK4: gtk_frame_set_shadow_type removed
+    
+    // GTK4: Replace GtkAlignment with margins on child
     GtkWidget *pageSetBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 3);
+    gtk_widget_set_margin_start (pageSetBox, 12);
+    gtk_widget_set_margin_end (pageSetBox, 6);
+    gtk_widget_set_margin_top (pageSetBox, 6);
+    gtk_widget_set_margin_bottom (pageSetBox, 0);
     gtk_box_set_homogeneous (GTK_BOX (pageSetBox), TRUE);
-    gtk_container_add (GTK_CONTAINER (pageSetAlign), pageSetBox);
-    // Add the three radio buttons
+    gtk_frame_set_child (GTK_FRAME (pageSetFrame), pageSetBox);
+    
+    // GTK4: Radio buttons now use check buttons as group
     GtkWidget *allPageSetRadio =
-        gtk_radio_button_new_with_mnemonic (NULL, _("A_ll pages"));
-    gtk_box_pack_start_defaults (GTK_BOX (pageSetBox), allPageSetRadio);
+        gtk_check_button_new_with_mnemonic (_("A_ll pages"));
+    gtk_box_append (GTK_BOX (pageSetBox), allPageSetRadio);
     m_OddPageSet =
-        gtk_radio_button_new_with_mnemonic_from_widget (
-                GTK_RADIO_BUTTON (allPageSetRadio), _("O_dd pages"));
-    gtk_box_pack_start_defaults (GTK_BOX (pageSetBox), m_OddPageSet);
+        gtk_check_button_new_with_mnemonic (_("O_dd pages"));
+    gtk_check_button_set_group (GTK_CHECK_BUTTON (m_OddPageSet),
+                                GTK_CHECK_BUTTON (allPageSetRadio));
+    gtk_box_append (GTK_BOX (pageSetBox), m_OddPageSet);
     m_EvenPageSet =
-        gtk_radio_button_new_with_mnemonic_from_widget (
-                GTK_RADIO_BUTTON (allPageSetRadio), _("_Even pages"));
-    gtk_box_pack_start_defaults (GTK_BOX (pageSetBox), m_EvenPageSet);
+        gtk_check_button_new_with_mnemonic (_("_Even pages"));
+    gtk_check_button_set_group (GTK_CHECK_BUTTON (m_EvenPageSet),
+                                GTK_CHECK_BUTTON (allPageSetRadio));
+    gtk_box_append (GTK_BOX (pageSetBox), m_EvenPageSet);
 
     // Copies frame
     GtkWidget *copiesLabel = gtk_label_new (_("<b>Copies</b>"));
     GtkWidget *copiesFrame = gtk_frame_new (NULL);
-    gtk_box_pack_start_defaults (GTK_BOX (mainBox), copiesFrame);
-    // Set a bold label and no border.
+    gtk_box_append (GTK_BOX (mainBox), copiesFrame);
     gtk_label_set_use_markup (GTK_LABEL (copiesLabel), TRUE);
     gtk_frame_set_label_widget (GTK_FRAME (copiesFrame), copiesLabel);
-    gtk_frame_set_shadow_type (GTK_FRAME (copiesFrame), GTK_SHADOW_NONE);
-    // The alignment.
-    GtkWidget *copiesAlign = gtk_alignment_new (0, 0, 1, 1);
-    gtk_alignment_set_padding (GTK_ALIGNMENT (copiesAlign), 6, 0, 12, 6);
-    gtk_container_add (GTK_CONTAINER (copiesFrame), copiesAlign);
-    // The table to add all controls.
-    GtkWidget *copiesTable = gtk_table_new (2, 2, FALSE);
-    gtk_container_add (GTK_CONTAINER (copiesAlign), copiesTable);
-    gtk_table_set_row_spacings (GTK_TABLE (copiesTable), 3);
-    gtk_table_set_col_spacings (GTK_TABLE (copiesTable), 12);
+    // GTK4: gtk_frame_set_shadow_type removed
+    
+    // GTK4: Replace GtkTable with GtkGrid
+    GtkWidget *copiesGrid = gtk_grid_new ();
+    gtk_widget_set_margin_start (copiesGrid, 12);
+    gtk_widget_set_margin_end (copiesGrid, 6);
+    gtk_widget_set_margin_top (copiesGrid, 6);
+    gtk_widget_set_margin_bottom (copiesGrid, 0);
+    gtk_frame_set_child (GTK_FRAME (copiesFrame), copiesGrid);
+    gtk_grid_set_row_spacing (GTK_GRID (copiesGrid), 3);
+    gtk_grid_set_column_spacing (GTK_GRID (copiesGrid), 12);
+    
     // Create the Num. of Copies label and spin.
     GtkWidget *numCopiesLabel = gtk_label_new (_("N_umber of copies:"));
-    gtk_misc_set_alignment (GTK_MISC (numCopiesLabel), 1.0, 0.5);
+    // GTK4: gtk_misc_set_alignment removed
+    gtk_label_set_xalign (GTK_LABEL (numCopiesLabel), 1.0);
+    gtk_label_set_yalign (GTK_LABEL (numCopiesLabel), 0.5);
     gtk_label_set_use_underline (GTK_LABEL (numCopiesLabel), TRUE);
     m_NumberOfCopies = gtk_spin_button_new_with_range (1, 999, 1);
     gtk_label_set_mnemonic_widget (GTK_LABEL (numCopiesLabel),
                                    m_NumberOfCopies);
     // Create the collate check box.
     m_Collate = gtk_check_button_new_with_mnemonic (_("C_ollate"));
-    gtk_table_attach (GTK_TABLE (copiesTable), numCopiesLabel,
-                      0, 1, 0, 1,
-                      (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-                      (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-                      0, 0);
-    gtk_table_attach_defaults (GTK_TABLE (copiesTable), m_NumberOfCopies,
-                               1, 2, 0, 1);
-    gtk_table_attach_defaults (GTK_TABLE (copiesTable), m_Collate,
-                               1, 2, 1, 2);
+    
+    gtk_widget_set_hexpand (m_NumberOfCopies, TRUE);
+    gtk_widget_set_hexpand (m_Collate, TRUE);
+    gtk_grid_attach (GTK_GRID (copiesGrid), numCopiesLabel, 0, 0, 1, 1);
+    gtk_grid_attach (GTK_GRID (copiesGrid), m_NumberOfCopies, 1, 0, 1, 1);
+    gtk_grid_attach (GTK_GRID (copiesGrid), m_Collate, 1, 1, 1, 1);
 
     return mainBox;
 }
@@ -471,29 +489,36 @@ PrintView::createJobTab ()
 GtkWidget *
 PrintView::createPaperTab ()
 {
+    // GTK4: Use margins instead of gtk_container_set_border_width
     GtkWidget *mainBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 12);
-    gtk_container_set_border_width (GTK_CONTAINER (mainBox), 3);
+    gtk_widget_set_margin_start (mainBox, 3);
+    gtk_widget_set_margin_end (mainBox, 3);
+    gtk_widget_set_margin_top (mainBox, 3);
+    gtk_widget_set_margin_bottom (mainBox, 3);
 
     // Paper frame
     GtkWidget *paperLabel = gtk_label_new (_("<b>Paper and Layout</b>"));
     GtkWidget *paperFrame = gtk_frame_new (NULL);
-    gtk_box_pack_start_defaults (GTK_BOX (mainBox), paperFrame);
-    // Set a bold label and no border.
+    gtk_box_append (GTK_BOX (mainBox), paperFrame);
     gtk_label_set_use_markup (GTK_LABEL (paperLabel), TRUE);
     gtk_frame_set_label_widget (GTK_FRAME (paperFrame), paperLabel);
-    gtk_frame_set_shadow_type (GTK_FRAME (paperFrame), GTK_SHADOW_NONE);
-    // The alignment.
-    GtkWidget *paperAlign = gtk_alignment_new (0, 0, 1, 1);
-    gtk_alignment_set_padding (GTK_ALIGNMENT (paperAlign), 6, 0, 12, 6);
-    gtk_container_add (GTK_CONTAINER (paperFrame), paperAlign);
-    // The table to add all controls.
-    GtkWidget *paperTable = gtk_table_new (3, 2, FALSE);
-    gtk_container_add (GTK_CONTAINER (paperAlign), paperTable);
-    gtk_table_set_row_spacings (GTK_TABLE (paperTable), 3);
-    gtk_table_set_col_spacings (GTK_TABLE (paperTable), 12);
+    // GTK4: gtk_frame_set_shadow_type removed
+    
+    // GTK4: Replace GtkTable with GtkGrid
+    GtkWidget *paperGrid = gtk_grid_new ();
+    gtk_widget_set_margin_start (paperGrid, 12);
+    gtk_widget_set_margin_end (paperGrid, 6);
+    gtk_widget_set_margin_top (paperGrid, 6);
+    gtk_widget_set_margin_bottom (paperGrid, 0);
+    gtk_frame_set_child (GTK_FRAME (paperFrame), paperGrid);
+    gtk_grid_set_row_spacing (GTK_GRID (paperGrid), 3);
+    gtk_grid_set_column_spacing (GTK_GRID (paperGrid), 12);
+    
     // Paper size and combobox
     GtkWidget *paperSizeLabel = gtk_label_new (_("Paper _Size:"));
-    gtk_misc_set_alignment (GTK_MISC (paperSizeLabel), 1.0, 0.5);
+    // GTK4: gtk_misc_set_alignment removed
+    gtk_label_set_xalign (GTK_LABEL (paperSizeLabel), 1.0);
+    gtk_label_set_yalign (GTK_LABEL (paperSizeLabel), 0.5);
     gtk_label_set_use_underline (GTK_LABEL (paperSizeLabel), TRUE);
     createPageSizeListModel ();
     m_PageSizeView = gtk_combo_box_new_with_model (GTK_TREE_MODEL (m_PageSize));
@@ -507,19 +532,13 @@ PrintView::createPaperTab ()
                                         "text",
                                         printOptionLabelColumn, NULL);
     }
-    gtk_table_attach (GTK_TABLE (paperTable), paperSizeLabel,
-                      0, 1, 0, 1,
-                      (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-                      (GtkAttachOptions)(GTK_SHRINK),
-                      0, 0);
-    gtk_table_attach (GTK_TABLE (paperTable), m_PageSizeView,
-                      1, 2, 0, 1,
-                      (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-                      (GtkAttachOptions)(GTK_SHRINK),
-                      0, 0);
+    gtk_widget_set_hexpand (m_PageSizeView, TRUE);
+    gtk_grid_attach (GTK_GRID (paperGrid), paperSizeLabel, 0, 0, 1, 1);
+    gtk_grid_attach (GTK_GRID (paperGrid), m_PageSizeView, 1, 0, 1, 1);
     // Page orientation label and combobox
     GtkWidget *pageOrientationLabel = gtk_label_new (_("Page _orientation:"));
-    gtk_misc_set_alignment (GTK_MISC (pageOrientationLabel), 1.0, 0.5);
+    gtk_label_set_xalign (GTK_LABEL (pageOrientationLabel), 1.0);
+    gtk_label_set_yalign (GTK_LABEL (pageOrientationLabel), 0.5);
     gtk_label_set_use_underline (GTK_LABEL (pageOrientationLabel), TRUE);
 
     createOrientationListModel ();
@@ -538,19 +557,13 @@ PrintView::createPaperTab ()
     }
     gtk_combo_box_set_active (GTK_COMBO_BOX (m_OrientationView), 0);
 
-    gtk_table_attach (GTK_TABLE (paperTable), pageOrientationLabel,
-                      0, 1, 1, 2,
-                      (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-                      (GtkAttachOptions)(GTK_SHRINK),
-                      0, 0);
-    gtk_table_attach (GTK_TABLE (paperTable), m_OrientationView,
-                      1, 2, 1, 2,
-                      (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-                      (GtkAttachOptions)(GTK_SHRINK),
-                      0, 0);
+    gtk_widget_set_hexpand (m_OrientationView, TRUE);
+    gtk_grid_attach (GTK_GRID (paperGrid), pageOrientationLabel, 0, 1, 1, 1);
+    gtk_grid_attach (GTK_GRID (paperGrid), m_OrientationView, 1, 1, 1, 1);
     // Layout label and combobox
     GtkWidget *layoutLabel = gtk_label_new (_("_Layout:"));
-    gtk_misc_set_alignment (GTK_MISC (layoutLabel), 1.0, 0.5);
+    gtk_label_set_xalign (GTK_LABEL (layoutLabel), 1.0);
+    gtk_label_set_yalign (GTK_LABEL (layoutLabel), 0.5);
     gtk_label_set_use_underline (GTK_LABEL (layoutLabel), TRUE);
 
     createLayoutListModel ();
@@ -566,37 +579,32 @@ PrintView::createPaperTab ()
     }
     gtk_combo_box_set_active (GTK_COMBO_BOX (m_LayoutView), 0);
 
-    gtk_table_attach (GTK_TABLE (paperTable), layoutLabel,
-                      0, 1, 2, 3,
-                      (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-                      (GtkAttachOptions)(GTK_SHRINK),
-                      0, 0);
-    gtk_table_attach (GTK_TABLE (paperTable), m_LayoutView,
-                      1, 2, 2, 3,
-                      (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-                      (GtkAttachOptions)(GTK_SHRINK),
-                      0, 0);
+    gtk_widget_set_hexpand (m_LayoutView, TRUE);
+    gtk_grid_attach (GTK_GRID (paperGrid), layoutLabel, 0, 2, 1, 1);
+    gtk_grid_attach (GTK_GRID (paperGrid), m_LayoutView, 1, 2, 1, 1);
 
     // Output frame
     GtkWidget *outputLabel = gtk_label_new (_("<b>Output</b>"));
     GtkWidget *outputFrame = gtk_frame_new (NULL);
-    gtk_box_pack_start_defaults (GTK_BOX (mainBox), outputFrame);
-    // Set a bold label and no border.
+    gtk_box_append (GTK_BOX (mainBox), outputFrame);
     gtk_label_set_use_markup (GTK_LABEL (outputLabel), TRUE);
     gtk_frame_set_label_widget (GTK_FRAME (outputFrame), outputLabel);
-    gtk_frame_set_shadow_type (GTK_FRAME (outputFrame), GTK_SHADOW_NONE);
-    // The alignment.
-    GtkWidget *outputAlign = gtk_alignment_new (0, 0, 1, 1);
-    gtk_alignment_set_padding (GTK_ALIGNMENT (outputAlign), 6, 0, 12, 6);
-    gtk_container_add (GTK_CONTAINER (outputFrame), outputAlign);
-    // The table to add all controls.
-    GtkWidget *outputTable = gtk_table_new (2, 2, FALSE);
-    gtk_container_add (GTK_CONTAINER (outputAlign), outputTable);
-    gtk_table_set_row_spacings (GTK_TABLE (outputTable), 3);
-    gtk_table_set_col_spacings (GTK_TABLE (outputTable), 12);
+    // GTK4: gtk_frame_set_shadow_type removed
+    
+    // GTK4: Replace GtkTable with GtkGrid
+    GtkWidget *outputGrid = gtk_grid_new ();
+    gtk_widget_set_margin_start (outputGrid, 12);
+    gtk_widget_set_margin_end (outputGrid, 6);
+    gtk_widget_set_margin_top (outputGrid, 6);
+    gtk_widget_set_margin_bottom (outputGrid, 0);
+    gtk_frame_set_child (GTK_FRAME (outputFrame), outputGrid);
+    gtk_grid_set_row_spacing (GTK_GRID (outputGrid), 3);
+    gtk_grid_set_column_spacing (GTK_GRID (outputGrid), 12);
+    
     // Color mode
     GtkWidget *colorModeLabel = gtk_label_new (_("_Mode:"));
-    gtk_misc_set_alignment (GTK_MISC (colorModeLabel), 1.0, 0.5);
+    gtk_label_set_xalign (GTK_LABEL (colorModeLabel), 1.0);
+    gtk_label_set_yalign (GTK_LABEL (colorModeLabel), 0.5);
     gtk_label_set_use_underline (GTK_LABEL (colorModeLabel), TRUE);
     createColorModelListModel ();
     m_ColorModelView =
@@ -612,19 +620,13 @@ PrintView::createPaperTab ()
                                         "text",
                                         printOptionLabelColumn, NULL);
     }
-    gtk_table_attach (GTK_TABLE (outputTable), colorModeLabel,
-                      0, 1, 0, 1,
-                      (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-                      (GtkAttachOptions)(GTK_SHRINK),
-                      0, 0);
-    gtk_table_attach (GTK_TABLE (outputTable), m_ColorModelView,
-                      1, 2, 0, 1,
-                      (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-                      (GtkAttachOptions)(GTK_SHRINK),
-                      0, 0);
+    gtk_widget_set_hexpand (m_ColorModelView, TRUE);
+    gtk_grid_attach (GTK_GRID (outputGrid), colorModeLabel, 0, 0, 1, 1);
+    gtk_grid_attach (GTK_GRID (outputGrid), m_ColorModelView, 1, 0, 1, 1);
     // Resolution
     GtkWidget *resolutionLabel = gtk_label_new (_("_Resolution:"));
-    gtk_misc_set_alignment (GTK_MISC (resolutionLabel), 1.0, 0.5);
+    gtk_label_set_xalign (GTK_LABEL (resolutionLabel), 1.0);
+    gtk_label_set_yalign (GTK_LABEL (resolutionLabel), 0.5);
     gtk_label_set_use_underline (GTK_LABEL (resolutionLabel), TRUE);
 
     createResolutionListModel ();
@@ -641,16 +643,9 @@ PrintView::createPaperTab ()
                                         "text",
                                         printOptionLabelColumn, NULL);
     }
-    gtk_table_attach (GTK_TABLE (outputTable), resolutionLabel,
-                      0, 1, 1, 2,
-                      (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-                      (GtkAttachOptions)(GTK_SHRINK),
-                      0, 0);
-    gtk_table_attach (GTK_TABLE (outputTable), m_ResolutionView,
-                      1, 2, 1, 2,
-                      (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-                      (GtkAttachOptions)(GTK_SHRINK),
-                      0, 0);
+    gtk_widget_set_hexpand (m_ResolutionView, TRUE);
+    gtk_grid_attach (GTK_GRID (outputGrid), resolutionLabel, 0, 1, 1, 1);
+    gtk_grid_attach (GTK_GRID (outputGrid), m_ResolutionView, 1, 1, 1, 1);
 
     return mainBox;
 }
@@ -658,21 +653,27 @@ PrintView::createPaperTab ()
 GtkWidget *
 PrintView::createPrinterTab ()
 {
+    // GTK4: Use margins instead of gtk_container_set_border_width
     GtkWidget *mainBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 12);
-    gtk_container_set_border_width (GTK_CONTAINER (mainBox), 3);
+    gtk_widget_set_margin_start (mainBox, 3);
+    gtk_widget_set_margin_end (mainBox, 3);
+    gtk_widget_set_margin_top (mainBox, 3);
+    gtk_widget_set_margin_bottom (mainBox, 3);
 
     createPrinterListModel ();
     m_PrinterListView =
         gtk_tree_view_new_with_model (GTK_TREE_MODEL (m_PrinterList));
 
     // Add scrollbars to treeview.
-    scrollBox = gtk_scrolled_window_new (NULL, NULL);
+    // GTK4: gtk_scrolled_window_new takes no parameters
+    scrollBox = gtk_scrolled_window_new ();
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrollBox),
       GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-    gtk_container_add (GTK_CONTAINER (scrollBox), m_PrinterListView);
-    gtk_container_add (GTK_CONTAINER (mainBox), scrollBox);
-
-    gtk_box_pack_start_defaults (GTK_BOX (mainBox), m_PrinterListView);
+    // GTK4: gtk_container_add → gtk_scrolled_window_set_child
+    gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (scrollBox), m_PrinterListView);
+    // GTK4: gtk_box_pack_start_defaults → gtk_box_append with expand
+    gtk_widget_set_vexpand (scrollBox, TRUE);
+    gtk_box_append (GTK_BOX (mainBox), scrollBox);
 
     {
         GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
