@@ -1478,10 +1478,15 @@ main_window_about_box_cb (GtkWidget *widget, gpointer data)
     
     // GTK4: Load logo from SVG file
     GdkPixbuf *logo = NULL;
+    
+    // Try multiple paths: source dir (for development), then installed locations
+    gchar *source_logo = g_build_filename(g_get_current_dir(), "data", "epdfview.svg", NULL);
     const gchar *logo_paths[] = {
-        DATADIR "/epdfview.svg",
-        "/usr/share/pixmaps/epdfview.svg",
-        "/usr/local/share/pixmaps/epdfview.svg",
+        source_logo,                              // Development/source directory
+        "../data/epdfview.svg",                  // Relative to build directory
+        DATADIR "/epdfview.svg",                 // Installed location
+        "/usr/share/pixmaps/epdfview.svg",      // Standard system location
+        "/usr/local/share/pixmaps/epdfview.svg", // Local installation
         NULL
     };
     
@@ -1497,6 +1502,7 @@ main_window_about_box_cb (GtkWidget *widget, gpointer data)
             }
         }
     }
+    g_free(source_logo);
     
     // GTK4: gtk_about_dialog_set_url_hook removed - links work automatically
     // GTK4: About dialogs automatically have a close button
