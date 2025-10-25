@@ -27,6 +27,11 @@
 
 using namespace ePDFView;
 
+namespace
+{
+    const gchar *g_SlashAccelPath = "<Actions>/ePDFView/Slash";
+}
+
 // Forwards declarations.
 static void find_view_close_cb (GtkWidget *, gpointer);
 static void find_view_next_cb (GtkWidget *, gpointer);
@@ -38,43 +43,50 @@ static gboolean find_view_text_to_find_key_press_cb (GtkEventControllerKey *, gu
 FindView::FindView ():
     IFindView ()
 {
-    // GTK4: Replace GtkToolbar with GtkBox (toolbars deprecated)
-    m_FindBar = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 6);
-    gtk_widget_set_margin_start (m_FindBar, 6);
-    gtk_widget_set_margin_end (m_FindBar, 6);
-    gtk_widget_set_margin_top (m_FindBar, 6);
-    gtk_widget_set_margin_bottom (m_FindBar, 6);
+    gtk_accel_map_lookup_entry(g_SlashAccelPath, &m_SlashAccelKey);
+
+    m_FindBar = gtk_toolbar_new ();
+    // Set the toolbar style to horizontal, so most toolbuttons' labels won't be
+    // shown.
+    gtk_toolbar_set_style (GTK_TOOLBAR (m_FindBar), GTK_TOOLBAR_BOTH_HORIZ);
 
     // The "Close" button.
-    m_Close = gtk_button_new_from_icon_name (GTK_STOCK_CLOSE);
-    gtk_box_append (GTK_BOX (m_FindBar), m_Close);
+    m_Close = gtk_tool_button_new (NULL, NULL);
+    gtk_tool_button_set_icon_name (GTK_TOOL_BUTTON (m_Close), GTK_STOCK_CLOSE);
+    gtk_toolbar_insert (GTK_TOOLBAR (m_FindBar), m_Close, -1);
 
     // The text to find entry.
-    GtkWidget *findLabel = gtk_label_new (_("Find:"));
-    gtk_box_append (GTK_BOX (m_FindBar), findLabel);
-    
+    GtkWidget *textToFindBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 6);
+    gtk_box_pack_start (GTK_BOX (textToFindBox), gtk_label_new (_("Find:")),
+                        FALSE, FALSE, 0);
     m_TextToFind = gtk_entry_new ();
-    gtk_widget_set_hexpand (m_TextToFind, TRUE);
-    gtk_box_append (GTK_BOX (m_FindBar), m_TextToFind);
+    gtk_box_pack_start (GTK_BOX (textToFindBox), m_TextToFind, TRUE, TRUE, 0);
+
+    GtkToolItem *textToFindItem = gtk_tool_item_new ();
+    gtk_tool_item_set_child (GTK_TOOL_ITEM (textToFindItem), textToFindBox);
+    gtk_toolbar_insert (GTK_TOOLBAR (m_FindBar), textToFindItem, -1);
 
     // The "Find Next" button.
-    m_FindNext = gtk_button_new_from_icon_name (EPDFVIEW_STOCK_FIND_NEXT);
-    gtk_button_set_label (GTK_BUTTON (m_FindNext), _("Next"));
-    gtk_box_append (GTK_BOX (m_FindBar), m_FindNext);
+    m_FindNext = gtk_tool_button_new (NULL, NULL);
+    gtk_tool_button_set_icon_name (GTK_TOOL_BUTTON (m_FindNext), EPDFVIEW_STOCK_FIND_NEXT);
+    gtk_tool_item_set_is_important (m_FindNext, TRUE);
+    gtk_toolbar_insert (GTK_TOOLBAR (m_FindBar), m_FindNext, -1);
 
     // The "Find Previous" button.
-    m_FindPrevious = gtk_button_new_from_icon_name (EPDFVIEW_STOCK_FIND_PREVIOUS);
-    gtk_button_set_label (GTK_BUTTON (m_FindPrevious), _("Previous"));
-    gtk_box_append (GTK_BOX (m_FindBar), m_FindPrevious);
+    m_FindPrevious = gtk_tool_button_new (NULL, NULL);
+    gtk_tool_button_set_icon_name (GTK_TOOL_BUTTON (m_FindPrevious), EPDFVIEW_STOCK_FIND_PREVIOUS);
+    gtk_tool_item_set_is_important (m_FindPrevious, TRUE);
+    gtk_toolbar_insert (GTK_TOOLBAR (m_FindBar), m_FindPrevious, -1);
 
     // A separator.
-    GtkWidget *separator = gtk_separator_new (GTK_ORIENTATION_VERTICAL);
-    gtk_box_append (GTK_BOX (m_FindBar), separator);
+    gtk_toolbar_insert (GTK_TOOLBAR (m_FindBar), gtk_separator_tool_item_new (),
+                        -1);
 
     // The information text.
     m_InformationText = gtk_label_new ("");
-    gtk_widget_set_hexpand (m_InformationText, TRUE);
-    gtk_box_append (GTK_BOX (m_FindBar), m_InformationText);
+    GtkToolItem *informationTextItem = gtk_tool_item_new ();
+    gtk_tool_item_set_child (GTK_TOOL_ITEM (informationTextItem), m_InformationText);
+    gtk_toolbar_insert (GTK_TOOLBAR (m_FindBar), informationTextItem, -1);
 }
 
 FindView::~FindView ()
@@ -84,16 +96,17 @@ FindView::~FindView ()
 const gchar *
 FindView::getTextToFind ()
 {
-    // GTK4: Use gtk_editable_get_text instead of gtk_entry_get_text
-    return gtk_editable_get_text (GTK_EDITABLE (m_TextToFind));
+    return gtk_entry_get_text (GTK_ENTRY (m_TextToFind));
 }
 
 void
 FindView::hide ()
 {
-    // GTK4: Accel map removed, accelerators handled differently
-    gtk_editable_set_text (GTK_EDITABLE (m_TextToFind), "");
-    gtk_widget_set_visible (m_FindBar, FALSE);
+    // Restore the slash accelerator's value when no longer searching.
+    gtk_accel_map_change_entry(g_SlashAccelPath, m_SlashAccelKey.accel_key,
+            m_SlashAccelKey.accel_mods, false);
+    gtk_entry_set_text (GTK_ENTRY (m_TextToFind), "");
+    gtk_widget_hide (m_FindBar);
 }
 
 void
@@ -136,9 +149,12 @@ FindView::setPresenter (FindPter *pter)
 
     IFindView::setPresenter (pter);
 
-    // GTK4: Accel map removed
-    // Widgets are visible by default
-    gtk_widget_set_visible (m_FindBar, TRUE);
+    // Map the slash ("/") accelerator to nothing, in order to be able
+    // to add an actual slash to the search text.
+    gtk_accel_map_change_entry(g_SlashAccelPath, 0,
+            m_SlashAccelKey.accel_mods, false);
+
+    // In GTK4, widgets are visible by default - no need for gtk_widget_show_all
     gtk_widget_grab_focus (m_TextToFind);
 
     g_signal_connect (G_OBJECT (m_TextToFind), "changed",
@@ -226,8 +242,7 @@ find_view_text_to_find_key_press_cb (GtkEventControllerKey *controller, guint ke
     if (GDK_KEY_Escape == keyval)
     {
         FindPter *pter = (FindPter *)data;
-        // GTK4: Use closeActivated() instead of protected cancelJob()
-        pter->closeActivated ();
+        pter->cancelJob ();
         return TRUE;
     }
     return FALSE;

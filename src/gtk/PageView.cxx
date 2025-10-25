@@ -74,15 +74,9 @@ PageView::PageView ():
 {
     // The initial cursor is normal.
     m_CurrentCursor = PAGE_VIEW_CURSOR_NORMAL;
-    
-    // GTK4: Store current pixbuf separately since gtk_image_get_pixbuf is removed
-    m_CurrentPixbuf = NULL;
 
     // Create the scrolled window where the page image will be.
     m_PageScroll = gtk_scrolled_window_new ();
-    
-    // GTK4: Create event box for page image (not needed in GTK4, add controllers directly)
-    m_EventBox = m_PageScroll;
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (m_PageScroll),
                                     GTK_POLICY_AUTOMATIC,
                                     GTK_POLICY_AUTOMATIC);
@@ -93,12 +87,6 @@ PageView::PageView ():
     gtk_widget_set_margin_end (m_PageImage, PAGE_VIEW_PADDING);
     gtk_widget_set_margin_top (m_PageImage, PAGE_VIEW_PADDING);
     gtk_widget_set_margin_bottom (m_PageImage, PAGE_VIEW_PADDING);
-    
-    // GTK4: Ensure the image can expand to fill available space
-    gtk_widget_set_hexpand (m_PageImage, TRUE);
-    gtk_widget_set_vexpand (m_PageImage, TRUE);
-    gtk_widget_set_halign (m_PageImage, GTK_ALIGN_CENTER);
-    gtk_widget_set_valign (m_PageImage, GTK_ALIGN_CENTER);
 
     // I want to be able to drag the page with the left mouse
     // button, because that will make possible to move the page
@@ -117,11 +105,6 @@ PageView::PageView ():
 
 PageView::~PageView ()
 {
-    if (m_CurrentPixbuf != NULL)
-    {
-        g_object_unref (m_CurrentPixbuf);
-        m_CurrentPixbuf = NULL;
-    }
 }
 
 void //krogan edit
@@ -144,19 +127,11 @@ PageView::getSize (gint *width, gint *height)
     g_assert (NULL != width && "Tried to save the width to a NULL pointer.");
     g_assert (NULL != height && "Tried to save the height to a NULL pointer.");
 
-    // GTK4: Check if widget is valid and realized before getting dimensions
-    if (!GTK_IS_WIDGET(m_PageScroll) || !gtk_widget_get_realized(m_PageScroll)) {
-        *width = 0;
-        *height = 0;
-        return;
-    }
-
     gint vScrollSize = 0;
     gint hScrollSize = 0;
     page_view_get_scrollbars_size (m_PageScroll, &vScrollSize, &hScrollSize);
-    // GTK4: Use gtk_widget_get_width/height
-    *width = gtk_widget_get_width (m_PageScroll) - vScrollSize;
-    *height = gtk_widget_get_height (m_PageScroll) - hScrollSize;
+    *width = gtk_widget_get_allocated_width (m_PageScroll) - vScrollSize;
+    *height = gtk_widget_get_allocated_height (m_PageScroll) - hScrollSize;
 }
 
 gdouble
@@ -203,7 +178,7 @@ PageView::makeRectangleVisible (DocumentRectangle &rect, gdouble scale)
     gdouble realY1 = rect.getY1 () * scale;
     gdouble realY2 = rect.getY2 () * scale;
     gdouble docY1 = getVerticalScroll () - PAGE_VIEW_PADDING;
-    gdouble docY2 = docY1 + gtk_adjustment_get_page_size(vAdjustment);
+    gdouble docY2 = docY1 + vAdjustment->page_size;
 
     gdouble dy = 0;
     if ( realY1 < docY1 )
@@ -216,25 +191,23 @@ PageView::makeRectangleVisible (DocumentRectangle &rect, gdouble scale)
     }
 
     gtk_adjustment_set_value (GTK_ADJUSTMENT (vAdjustment),
-            CLAMP (gtk_adjustment_get_value(vAdjustment) + dy,
-                   gtk_adjustment_get_lower(vAdjustment),
-                   gtk_adjustment_get_upper(vAdjustment) - gtk_adjustment_get_page_size(vAdjustment)));
+            CLAMP (vAdjustment->value + dy,
+                   vAdjustment->lower,
+                   vAdjustment->upper - vAdjustment->page_size));
 }
 
 void
 PageView::resizePage (gint width, gint height)
 {
-    // GTK4: Use stored pixbuf since gtk_image_get_pixbuf is removed
-    if ( NULL != m_CurrentPixbuf )
+    GdkPixbuf *originalPage = gtk_image_get_pixbuf (GTK_IMAGE (m_PageImage));
+    if ( NULL != originalPage )
     {
-        GdkPixbuf *scaledPage = gdk_pixbuf_scale_simple (m_CurrentPixbuf,
+        GdkPixbuf *scaledPage = gdk_pixbuf_scale_simple (originalPage,
                                                          width, height,
                                                          GDK_INTERP_NEAREST);
         if ( NULL != scaledPage )
         {
-            GdkTexture *texture = gdk_texture_new_for_pixbuf (scaledPage);
-            gtk_image_set_from_paintable (GTK_IMAGE (m_PageImage), GDK_PAINTABLE (texture));
-            g_object_unref (texture);
+            gtk_image_set_from_pixbuf (GTK_IMAGE (m_PageImage), scaledPage);
             g_object_unref (scaledPage);
         }
     }
@@ -264,7 +237,7 @@ PageView::setCursor (PageCursor cursorType)
         // In GTK4, use gtk_widget_set_cursor_from_name
         if (cursor_name)
         {
-            gtk_widget_set_cursor_from_name (m_PageImage, cursor_name);
+            gtk_widget_set_cursor_from_name (m_EventBox, cursor_name);
         }
         
         m_CurrentCursor = cursorType;
@@ -276,35 +249,32 @@ PageView::setPresenter (PagePter *pter)
 {
     IPageView::setPresenter (pter);
 
-    // GTK4: size-allocate signal removed, widget resizing handled automatically
-    // The resize callback is not critical for functionality in GTK4
-    // as the layout system handles size changes automatically
+    // When resizing.
+    g_signal_connect (G_OBJECT (m_PageScroll), "size-allocate",
+                      G_CALLBACK (page_view_resized_cb), pter);
+    // When scrolling.
+    g_signal_connect (G_OBJECT (m_PageScroll), "scroll-event",
+                      G_CALLBACK (page_view_scrolled_cb), pter);
     
-    // GTK4 uses event controllers for key events - add to scrolled window
+    // GTK4 uses event controllers for key events
     GtkEventController *key_controller = gtk_event_controller_key_new();
     gtk_widget_add_controller(m_PageScroll, key_controller);
     g_signal_connect(key_controller, "key-pressed",
                     G_CALLBACK(page_view_keypress_cb), pter);
 
-    // GTK4 uses gesture controllers for mouse events - add to the image widget
+    // GTK4 uses gesture controllers for mouse events
     GtkGesture *press_gesture = gtk_gesture_click_new();
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(press_gesture), 0); // Any button
-    gtk_widget_add_controller(m_PageImage, GTK_EVENT_CONTROLLER(press_gesture));
+    gtk_widget_add_controller(m_EventBox, GTK_EVENT_CONTROLLER(press_gesture));
     g_signal_connect(press_gesture, "pressed", 
                     G_CALLBACK(page_view_button_press_cb), this);
     g_signal_connect(press_gesture, "released", 
                     G_CALLBACK(page_view_button_release_cb), this);
                     
     GtkEventController *motion_controller = gtk_event_controller_motion_new();
-    gtk_widget_add_controller(m_PageImage, motion_controller);
+    gtk_widget_add_controller(m_EventBox, motion_controller);
     g_signal_connect(motion_controller, "motion", 
                     G_CALLBACK(page_view_mouse_motion_cb), this);
-    
-    // GTK4 uses scroll event controllers - add to scrolled window
-    GtkEventController *scroll_controller = gtk_event_controller_scroll_new(GTK_EVENT_CONTROLLER_SCROLL_VERTICAL);
-    gtk_widget_add_controller(m_PageScroll, scroll_controller);
-    g_signal_connect(scroll_controller, "scroll",
-                    G_CALLBACK(page_view_scrolled_cb), pter);
 }
 
 void
@@ -314,41 +284,34 @@ PageView::scrollPage (gdouble scrollX, gdouble scrollY, gint dx, gint dy)
      i will go to the next page. viceversa previous page */
     GtkAdjustment *hAdjustment = gtk_scrolled_window_get_hadjustment (
             GTK_SCROLLED_WINDOW (m_PageScroll));
-            
-    // GTK4 uses getter functions instead of direct struct access
-    gdouble hPageSize = gtk_adjustment_get_page_size(hAdjustment);
-    gdouble hLower = gtk_adjustment_get_lower(hAdjustment);
-    gdouble hUpper = gtk_adjustment_get_upper(hAdjustment);
-    
-    // GTK4: Use gtk_widget_get_width/height instead of get_allocated_*
-    int width = GTK_IS_WIDGET(m_PageImage) ? gtk_widget_get_width(m_PageImage) : 1;
-    int height = GTK_IS_WIDGET(m_PageImage) ? gtk_widget_get_height(m_PageImage) : 1;
-    gdouble hAdjValue = hPageSize * (gdouble)dx / MAX(width, 1);
-    
-    gtk_adjustment_set_value(hAdjustment,
-            CLAMP(scrollX - hAdjValue, hLower, hUpper - hPageSize));
+    gdouble hAdjValue = hAdjustment->page_size *
+        (gdouble)dx / m_PageImage->allocation.width;
+    gtk_adjustment_set_value (hAdjustment,
+            CLAMP (scrollX - hAdjValue,
+                   hAdjustment->lower,
+                   hAdjustment->upper - hAdjustment->page_size));
 
-    GtkAdjustment *vAdjustment = gtk_scrolled_window_get_vadjustment(
-            GTK_SCROLLED_WINDOW(m_PageScroll));
-    gdouble vPageSize = gtk_adjustment_get_page_size(vAdjustment);
-    gdouble vLower = gtk_adjustment_get_lower(vAdjustment);
-    gdouble vUpper = gtk_adjustment_get_upper(vAdjustment);
-    
-    gdouble vAdjValue = vPageSize * (gdouble)dy / MAX(height, 1);
-    
-    gtk_adjustment_set_value(vAdjustment,
-            CLAMP(scrollY - vAdjValue, vLower, vUpper - vPageSize));
+    GtkAdjustment *vAdjustment = gtk_scrolled_window_get_vadjustment (
+            GTK_SCROLLED_WINDOW (m_PageScroll));
+    gdouble vAdjValue = vAdjustment->page_size *
+        (gdouble)dy / m_PageImage->allocation.height;
+    gtk_adjustment_set_value (vAdjustment,
+            CLAMP (scrollY - vAdjValue,
+                   vAdjustment->lower,
+                   vAdjustment->upper - vAdjustment->page_size));
     
     /* if the page cannot scroll and i'm dragging bottom to up, or left to right, 
        I will go to the next page. viceversa previous page */
-    if ((scrollY == (vUpper - vPageSize) && dy < (-SCROLL_PAGE_DRAG_LENGTH)) ||
-        (scrollX == (hUpper - hPageSize) && dx < (-SCROLL_PAGE_DRAG_LENGTH)))
+    if ( (scrollY == (vAdjustment->upper - vAdjustment->page_size) &&
+                dy < (-SCROLL_PAGE_DRAG_LENGTH) ) ||
+        (scrollX == (hAdjustment->upper - hAdjustment->page_size) &&
+         dx < (-SCROLL_PAGE_DRAG_LENGTH)) )
     {
         m_Pter->scrollToNextPage();
         m_Pter->mouseButtonReleased(1);
     }
-    else if((scrollY == vLower && dy > SCROLL_PAGE_DRAG_LENGTH) ||
-            (scrollX == hLower && dx > SCROLL_PAGE_DRAG_LENGTH))
+    else if( (scrollY == vAdjustment->lower && dy > SCROLL_PAGE_DRAG_LENGTH) ||
+        (scrollX == hAdjustment->lower && dx > SCROLL_PAGE_DRAG_LENGTH) )
     {
         m_Pter->scrollToPreviousPage();
         m_Pter->mouseButtonReleased(1);
@@ -362,61 +325,13 @@ PageView::showPage (DocumentPage *page, PageScroll scroll)
 	lastPageShown = page;
 	lastScroll = scroll;
 	
-    // Clear current image
-    gtk_image_clear (GTK_IMAGE (m_PageImage));
+    gtk_image_set_from_pixbuf (GTK_IMAGE (m_PageImage), NULL);
+    GdkPixbuf *pixbuf = getPixbufFromPage (page);
     
-    // Release old pixbuf if any
-    if (m_CurrentPixbuf != NULL)
-    {
-        g_object_unref (m_CurrentPixbuf);
-    }
+    if(invertColorToggle) { gdkpixbuf_invert(pixbuf); }
     
-    // Get new pixbuf and store it
-    m_CurrentPixbuf = getPixbufFromPage (page);
-    
-    if (m_CurrentPixbuf == NULL) {
-        g_warning("PageView::showPage: Failed to create pixbuf from page!");
-        return;
-    }
-    
-    g_message("PageView::showPage: Created pixbuf %dx%d", 
-              gdk_pixbuf_get_width(m_CurrentPixbuf),
-              gdk_pixbuf_get_height(m_CurrentPixbuf));
-    
-    if(invertColorToggle) { gdkpixbuf_invert(m_CurrentPixbuf); }
-    
-    // GTK4: Convert pixbuf to texture for display
-    GdkTexture *texture = gdk_texture_new_for_pixbuf (m_CurrentPixbuf);
-    if (texture == NULL) {
-        g_warning("PageView::showPage: Failed to create texture from pixbuf!");
-        return;
-    }
-    
-    gtk_image_set_from_paintable (GTK_IMAGE (m_PageImage), GDK_PAINTABLE (texture));
-    g_message("PageView::showPage: Successfully set image from texture");
-    g_object_unref (texture);
-    
-    // GTK4: Force widget visibility and request proper size
-    gtk_widget_set_visible(m_PageImage, TRUE);
-    
-    // GTK4: Request size based on pixbuf dimensions
-    gint pixbuf_width = gdk_pixbuf_get_width(m_CurrentPixbuf);
-    gint pixbuf_height = gdk_pixbuf_get_height(m_CurrentPixbuf);
-    gtk_widget_set_size_request(m_PageImage, pixbuf_width, pixbuf_height);
-    
-    gtk_widget_queue_resize(m_PageImage);
-    gtk_widget_queue_draw(m_PageImage);
-    
-    // Also ensure parent scrolled window is visible
-    gtk_widget_set_visible(m_PageScroll, TRUE);
-    
-    // Debug: Check widget state
-    g_message("PageView::showPage: Image widget visible=%d, width=%d, height=%d, mapped=%d, size_req=%dx%d",
-              gtk_widget_get_visible(m_PageImage),
-              gtk_widget_get_width(m_PageImage),
-              gtk_widget_get_height(m_PageImage),
-              gtk_widget_get_mapped(m_PageImage),
-              pixbuf_width, pixbuf_height);
+    gtk_image_set_from_pixbuf (GTK_IMAGE (m_PageImage), pixbuf);
+    g_object_unref (pixbuf);
     // Set the vertical scroll to the specified.
     if ( PAGE_SCROLL_NONE != scroll )
     {
@@ -424,11 +339,11 @@ PageView::showPage (DocumentPage *page, PageScroll scroll)
                                     GTK_SCROLLED_WINDOW (m_PageScroll));
         if ( PAGE_SCROLL_START == scroll )
         {
-            gtk_adjustment_set_value (adjustment, gtk_adjustment_get_lower(adjustment));
+            gtk_adjustment_set_value (adjustment, adjustment->lower);
         }
         else if ( PAGE_SCROLL_END == scroll )
         {
-            gtk_adjustment_set_value (adjustment, gtk_adjustment_get_upper(adjustment));
+            gtk_adjustment_set_value (adjustment, adjustment->upper);
         }
     }
 }
@@ -444,13 +359,74 @@ PageView::tryReShowPage()
 void
 PageView::showText (const gchar *text)
 {
-    // GTK4: GdkPixmap and GdkBitmap are removed
-    // This function was used to draw a text overlay (like "Loading...") on the page
-    // In GTK4, the page rendering is fast enough that we don't need this
-    // The actual PDF rendering happens in showPage() and works correctly
-    
-    // Silently ignore - the text overlay is not critical for functionality
-    // The PDF content will display properly via showPage()
+    // I need to make the changes to the original Pixbuf that the GtkImage
+    // controls shows.
+    // Since a Pixbuf is a client-side buffer, it's not drawable and the
+    // gdk functions to draw using pango won't accept it.
+    // The solution I found is to render the pixbuf to a pixmap, which is
+    // server-side and therefore drawable, make the modifications
+    // and set the modified pixbuf again to the GtkImage control.
+    // 
+    GdkPixbuf *originalPage = gtk_image_get_pixbuf (GTK_IMAGE (m_PageImage));
+    if ( NULL != originalPage )
+    {
+        gint width = gdk_pixbuf_get_width (originalPage);
+        gint height = gdk_pixbuf_get_height (originalPage);
+
+        PangoLayout *layout =
+            gtk_widget_create_pango_layout (m_PageImage, text);
+
+        // I want the text to be half the page's width.
+        // Since I don't know the font's size I just set the font
+        // size to 1pt.
+        PangoFontDescription *fontDescription = pango_font_description_new ();
+        pango_font_description_set_size (fontDescription, PANGO_SCALE);
+        pango_layout_set_font_description (layout, fontDescription);
+        // The I get the logical rectangle that this text would
+        // extent to if it was rendered using 1pt and calculate the
+        // size in points it would take to make the width fill the
+        // page's half width.
+        PangoRectangle logicalRectangle;
+        pango_layout_get_pixel_extents (layout, NULL, &logicalRectangle);
+        gint targetWidth = MAX (width / 2, 1);
+        gdouble realSize = 
+            (gdouble)targetWidth / (gdouble)logicalRectangle.width;
+        pango_font_description_set_size (fontDescription,
+                                         (gint)realSize * PANGO_SCALE);        
+        pango_layout_set_font_description (layout, fontDescription);
+        pango_layout_get_pixel_extents (layout, NULL, &logicalRectangle);
+
+        // Once the font are set up, I just need to render 
+        // the pixbuf to the pixmap (copying from client-side to 
+        // server size) and draw the layout.
+        GdkPixmap *pixmap;
+        GdkBitmap *mask;
+        gdk_pixbuf_render_pixmap_and_mask (originalPage,
+                                           &pixmap, &mask, 0);
+        gdk_draw_layout (pixmap, 
+                         m_PageImage->style->black_gc, 
+                         (width - logicalRectangle.width) / 2, 
+                         height / 4 - logicalRectangle.height / 2,
+                         layout);
+        pango_font_description_free (fontDescription);
+        g_object_unref (layout);
+        // Then I just copy back the image to a client-size pixbuf.
+        GdkPixbuf *modifiedPage = 
+            gdk_pixbuf_get_from_drawable (NULL,
+                                          pixmap,
+                                          NULL,
+                                          0, 0,
+                                          0, 0,
+                                          width, height);
+        g_object_unref (pixmap);
+        if ( NULL != mask )
+        {
+            g_object_unref (mask);
+        }
+
+        gtk_image_set_from_pixbuf (GTK_IMAGE (m_PageImage), modifiedPage);
+        g_object_unref (modifiedPage);
+    } 
 }
 
 ////////////////////////////////////////////////////////////////
@@ -474,13 +450,13 @@ PageView::getPagePosition (gint widgetX, gint widgetY, gint *pageX, gint *pageY)
     // how many widget space is being used for padding.
     gint horizontalPadding = PAGE_VIEW_PADDING;
     gint verticalPadding = PAGE_VIEW_PADDING;
-    // GTK4: Use stored pixbuf
-    if ( NULL != m_CurrentPixbuf && GTK_IS_WIDGET(m_PageImage) )
+    GdkPixbuf *page = gtk_image_get_pixbuf (GTK_IMAGE (m_PageImage));
+    if ( NULL != page )
     {
-        int imageWidth = gtk_widget_get_width(m_PageImage);
-        int imageHeight = gtk_widget_get_height(m_PageImage);
-        horizontalPadding = (imageWidth - gdk_pixbuf_get_width (m_CurrentPixbuf)) / 2;
-        verticalPadding = (imageHeight - gdk_pixbuf_get_height (m_CurrentPixbuf)) / 2;
+        horizontalPadding =
+            (m_PageImage->allocation.width - gdk_pixbuf_get_width (page)) / 2;
+        verticalPadding =
+            (m_PageImage->allocation.height - gdk_pixbuf_get_height (page)) / 2;
     }
 
     *pageX = widgetX - horizontalPadding + (gint)getHorizontalScroll ();
@@ -565,13 +541,25 @@ page_view_get_scrollbars_size (GtkWidget *widget, gint *width, gint *height)
     g_assert (NULL != width && "Tried to save the width to a NULL pointer.");
     g_assert (NULL != height && "Tried to save the height to a NULL pointer.");
 
-    // GTK4: GtkScrolledWindow doesn't expose scrollbars directly
-    // Use a simple approximation - typically scrollbars are about 15-20px
-    gint scrollbarWidth = 20;
-    gint scrollbarHeight = 20;
-    
-    *width = scrollbarWidth + PAGE_VIEW_PADDING * 2;
-    *height = scrollbarHeight + PAGE_VIEW_PADDING * 2;
+    gint borderWidth = widget->style->xthickness;
+    gint borderHeight = widget->style->ythickness;
+    if ( GTK_SHADOW_NONE !=
+            gtk_scrolled_window_get_shadow_type (GTK_SCROLLED_WINDOW (widget)) )
+    {
+        borderWidth += widget->style->xthickness;
+        borderHeight += widget->style->ythickness;
+    }
+
+    gint scrollBarSpacing = 0;
+    gtk_widget_style_get (widget, "scrollbar-spacing", &scrollBarSpacing, NULL);
+
+    GtkWidget *vScrollBar = GTK_SCROLLED_WINDOW (widget)->vscrollbar;
+    *width = vScrollBar->allocation.width +
+             (PAGE_VIEW_PADDING + borderWidth) * 2 + scrollBarSpacing;
+
+    GtkWidget *hScrollBar = GTK_SCROLLED_WINDOW (widget)->hscrollbar;
+    *height = hScrollBar->allocation.height +
+              (PAGE_VIEW_PADDING + borderHeight) * 2 + scrollBarSpacing;
 }
 
 ///
@@ -600,25 +588,21 @@ page_view_resized_cb (GtkWidget *widget, GtkAllocation *allocation,
 /// This only happens when the user uses the mouse wheel.
 ///
 static gboolean
-page_view_scrolled_cb (GtkEventControllerScroll *controller, gdouble dx, gdouble dy, gpointer data)
+page_view_scrolled_cb (GtkWidget *widget, GdkEventScroll *event, gpointer data)
 {
     g_assert ( NULL != data && "The data parameter is NULL.");
 
     PagePter *pter = (PagePter *)data;
-    GtkWidget *widget = gtk_event_controller_get_widget (GTK_EVENT_CONTROLLER (controller));
     GtkAdjustment *adjustment = 
         gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (widget));
     gdouble position = gtk_adjustment_get_value (adjustment);
-    gdouble lower = gtk_adjustment_get_lower (adjustment);
-    gdouble upper = gtk_adjustment_get_upper (adjustment);
-    gdouble page_size = gtk_adjustment_get_page_size (adjustment);
-    
-    if ( dy < 0 && position == lower )
+    if ( GDK_SCROLL_UP == event->direction && position == adjustment->lower )
     {
         pter->scrollToPreviousPage ();
         return TRUE;
     }
-    else if ( dy > 0 && position == (upper - page_size) )
+    else if ( GDK_SCROLL_DOWN == event->direction &&
+              position == ( adjustment->upper - adjustment->page_size) )
     {
         pter->scrollToNextPage ();
         return TRUE;
@@ -645,15 +629,9 @@ page_view_keypress_cb(GtkEventControllerKey *controller, guint keyval, guint key
     GtkAdjustment *hadjustment = 
         gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (widget));
     gdouble hposition = gtk_adjustment_get_value (hadjustment);
-    gdouble hlower = gtk_adjustment_get_lower (hadjustment);
-    gdouble hupper = gtk_adjustment_get_upper (hadjustment);
-    gdouble hpage_size = gtk_adjustment_get_page_size (hadjustment);
     GtkAdjustment *vadjustment = 
         gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (widget));
     gdouble vposition = gtk_adjustment_get_value (vadjustment);
-    gdouble vlower = gtk_adjustment_get_lower (vadjustment);
-    gdouble vupper = gtk_adjustment_get_upper (vadjustment);
-    gdouble vpage_size = gtk_adjustment_get_page_size (vadjustment);
 
     if ( state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK) )
     {
@@ -662,10 +640,10 @@ page_view_keypress_cb(GtkEventControllerKey *controller, guint keyval, guint key
 
     switch ( keyval )
     {
-        case GDK_KEY_Left:
-        case GDK_KEY_KP_Left:
-        case GDK_KEY_h:
-            if ( hposition == hlower )
+        case GDK_Left:
+        case GDK_KP_Left:
+        case GDK_h:
+            if ( hposition == hadjustment->lower )
             {
                 pter->scrollToPreviousPage ();
                 return TRUE;
@@ -674,10 +652,10 @@ page_view_keypress_cb(GtkEventControllerKey *controller, guint keyval, guint key
             horizontal = TRUE;
             break;
 
-        case GDK_KEY_Right:
-        case GDK_KEY_KP_Right:
-        case GDK_KEY_l:
-            if ( hposition == (hupper - hpage_size) )
+        case GDK_Right:
+        case GDK_KP_Right:
+        case GDK_l:
+            if ( hposition == ( hadjustment->upper - hadjustment->page_size) )
             {
                 pter->scrollToNextPage ();
                 return TRUE;
@@ -686,10 +664,10 @@ page_view_keypress_cb(GtkEventControllerKey *controller, guint keyval, guint key
             direction = GTK_SCROLL_STEP_RIGHT;
             break;
 
-        case GDK_KEY_Up:
-        case GDK_KEY_KP_Up:
-        case GDK_KEY_k:
-            if ( vposition == vlower )
+        case GDK_Up:
+        case GDK_KP_Up:
+        case GDK_k:
+            if ( vposition == vadjustment->lower )
             {
                 pter->scrollToPreviousPage ();
                 return TRUE;
@@ -697,10 +675,10 @@ page_view_keypress_cb(GtkEventControllerKey *controller, guint keyval, guint key
             direction = GTK_SCROLL_STEP_UP;
             break;
 
-        case GDK_KEY_Down:
-        case GDK_KEY_KP_Down:
-        case GDK_KEY_j:
-            if ( vposition == (vupper - vpage_size) )
+        case GDK_Down:
+        case GDK_KP_Down:
+        case GDK_j:
+            if ( vposition == ( vadjustment->upper - vadjustment->page_size) )
             {
                 pter->scrollToNextPage ();
                 return TRUE;
@@ -708,9 +686,9 @@ page_view_keypress_cb(GtkEventControllerKey *controller, guint keyval, guint key
             direction = GTK_SCROLL_STEP_DOWN;
             break;
 
-        case GDK_KEY_Page_Up:
-        case GDK_KEY_KP_Page_Up:
-            if ( vposition == vlower )
+        case GDK_Page_Up:
+        case GDK_KP_Page_Up:
+            if ( vposition == vadjustment->lower )
             {
                 pter->scrollToPreviousPage ();
                 return TRUE;
@@ -718,11 +696,11 @@ page_view_keypress_cb(GtkEventControllerKey *controller, guint keyval, guint key
             direction = GTK_SCROLL_PAGE_UP;
             break;
 
-        case GDK_KEY_space:
-        case GDK_KEY_KP_Space:
-        case GDK_KEY_Page_Down:
-        case GDK_KEY_KP_Page_Down:
-            if ( vposition == (vupper - vpage_size) )
+        case GDK_space:
+        case GDK_KP_Space:
+        case GDK_Page_Down:
+        case GDK_KP_Page_Down:
+            if ( vposition == ( vadjustment->upper - vadjustment->page_size) )
             {
                 pter->scrollToNextPage ();
                 return TRUE;
@@ -730,23 +708,23 @@ page_view_keypress_cb(GtkEventControllerKey *controller, guint keyval, guint key
             direction = GTK_SCROLL_PAGE_DOWN;
             break;
 
-       case GDK_KEY_Home:
-       case GDK_KEY_KP_Home:
+       case GDK_Home:
+       case GDK_KP_Home:
             direction = GTK_SCROLL_START;
             break;
 
-       case GDK_KEY_End:
-       case GDK_KEY_KP_End:
+       case GDK_End:
+       case GDK_KP_End:
             direction = GTK_SCROLL_END;
             break;
 
-       case GDK_KEY_Return:
-       case GDK_KEY_KP_Enter:
+       case GDK_Return:
+       case GDK_KP_Enter:
             pter->scrollToNextPage ();
             direction = GTK_SCROLL_START;
             break;
 
-       case GDK_KEY_BackSpace:
+       case GDK_BackSpace:
             pter->scrollToPreviousPage ();
             direction = GTK_SCROLL_START;
             break;

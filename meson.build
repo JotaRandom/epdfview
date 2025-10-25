@@ -1,36 +1,19 @@
 project('epdfview', 'cpp',
-  version : '0.3.0',
-  default_options : ['warning_level=1', 'cpp_std=c++11', 'werror=false'],
+  version : '0.1.8',
+  default_options : ['warning_level=3', 'cpp_std=c++11'],
   meson_version : '>= 0.50.0',
-  license : 'GPL-2.0-or-later',
 )
 
-i18n = import('i18n')
-
-# Build options
-debug_build = get_option('buildtype') == 'debug'
-if debug_build
-  add_project_arguments('-DDEBUG', language : 'cpp')
-else
-  add_project_arguments('-DNDEBUG', '-DG_DISABLE_ASSERT', language : 'cpp')
-endif
-
-# Additional compiler flags
-add_project_arguments('-Wno-long-long', language : 'cpp')
-
-# Dependencies with version requirements
-gtk_dep = dependency('gtk4', version : '>= 4.0.0')
-poppler_dep = dependency('poppler-glib', version : '>= 0.5.0')
-glib_dep = dependency('gthread-2.0', version : '>= 2.8.0')
+# Dependencies
+gtk_dep = dependency('gtk4')
+poppler_dep = dependency('poppler-glib')
+glib_dep = dependency('gthread-2.0')
 pango_dep = dependency('pango')
 
 # Check for CUPS
-cups_dep = dependency('cups', required : get_option('cups'))
+cups_dep = dependency('cups', required : false)
 if cups_dep.found() and host_machine.system() != 'windows'
-  message('CUPS support: ENABLED')
   add_project_arguments('-DHAVE_CUPS=1', language : 'cpp')
-else
-  message('CUPS support: DISABLED')
 endif
 
 # Check for Poppler version
@@ -58,18 +41,12 @@ conf_data = configuration_data()
 conf_data.set_quoted('PACKAGE', 'epdfview')
 conf_data.set_quoted('VERSION', meson.project_version())
 conf_data.set_quoted('LOCALEDIR', join_paths(get_option('prefix'), get_option('localedir')))
-conf_data.set_quoted('DATADIR', join_paths(get_option('prefix'), get_option('datadir')))
 configure_file(output : 'config.h', configuration : conf_data)
 
 # Include directories
-inc = include_directories('src', '.')
+inc = include_directories('src')
 
 # Subdirectories
 subdir('src')
 subdir('data')
 subdir('po')
-
-# Tests (optional)
-if get_option('tests')
-  subdir('tests')
-endif
