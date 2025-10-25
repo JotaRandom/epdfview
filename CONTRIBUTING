@@ -1,0 +1,288 @@
+Contributing to ePDFView
+=========================
+
+Thank you for your interest in contributing to ePDFView! This document provides
+guidelines for contributing to the project.
+
+WAYS TO CONTRIBUTE
+==================
+
+* Report bugs and request features
+* Submit bug fixes
+* Add new features
+* Improve documentation
+* Translate to new languages or update translations
+* Test on different platforms
+
+GETTING STARTED
+===============
+
+1. Fork the repository on GitHub
+
+2. Clone your fork:
+   $ git clone https://github.com/YOUR-USERNAME/epdfview.git
+   $ cd epdfview
+
+3. Add upstream remote:
+   $ git remote add upstream https://github.com/JotaRandom/epdfview.git
+
+4. Create a feature branch:
+   $ git checkout -b feature/my-new-feature
+
+DEVELOPMENT SETUP
+=================
+
+Install dependencies (see INSTALL file for your distribution).
+
+Build in debug mode:
+  $ meson setup builddir --buildtype=debug
+  $ meson compile -C builddir
+
+Run from build directory:
+  $ ./builddir/src/epdfview
+
+Run with debug output:
+  $ G_MESSAGES_DEBUG=all ./builddir/src/epdfview
+
+CODING STYLE
+============
+
+ePDFView follows these conventions:
+
+Indentation:
+  * Use 4 spaces (no tabs)
+  * Indent function bodies and control structures
+
+Naming:
+  * Classes: PascalCase (e.g., DocumentPage, MainView)
+  * Functions: camelCase (e.g., loadDocument, setZoomMode)
+  * Private members: m_MemberName (e.g., m_CurrentPage)
+  * Constants: ALL_CAPS (e.g., MAX_ZOOM_LEVEL)
+
+Braces:
+  * Opening brace on same line for functions
+  * Closing brace on its own line
+  * Always use braces, even for single-line if/for/while
+
+Comments:
+  * Use // for single-line comments
+  * Use /** */ for documentation comments
+  * Comment why, not what (code should be self-explanatory)
+
+Example:
+  void
+  DocumentView::setPage (int pageNumber)
+  {
+      if ( pageNumber < 0 || pageNumber >= getTotalPages () )
+      {
+          return;
+      }
+      m_CurrentPage = pageNumber;
+      updateView ();
+  }
+
+GTK4 CONVENTIONS
+================
+
+When working with GTK4:
+
+* Use modern GTK4 APIs, not deprecated ones
+* Event handling: Use GtkEventController, not signals
+* Layout: Use GtkBox, GtkGrid, not GtkTable/GtkAlignment  
+* Drawing: Use GdkTexture/GtkPicture, not GdkPixbuf directly
+* Menus: Use GMenuModel, not GtkMenuBar/GtkMenu
+* Dialogs: Avoid gtk_dialog_run(), use async patterns
+
+See docs/GTK4_MIGRATION_SUMMARY.md for details.
+
+COMMIT GUIDELINES
+=================
+
+Commit messages should follow this format:
+
+  Short summary (50 chars or less)
+  
+  More detailed explanation if needed. Wrap at 72 characters.
+  Explain what changed and why, not how (code shows how).
+  
+  - Use bullet points for multiple changes
+  - Reference issues: Fixes #123
+  - Reference related commits if relevant
+
+Examples:
+
+Good:
+  Fix crash when opening password-protected PDFs
+  
+  The PDF loading code didn't handle encrypted documents properly.
+  Added proper error checking and user prompt for password.
+  
+  Fixes #456
+
+Bad:
+  Fixed bug
+  Updated code
+  Changes
+
+PULL REQUESTS
+=============
+
+Before submitting:
+
+1. Update your branch with upstream:
+   $ git fetch upstream
+   $ git rebase upstream/main
+
+2. Ensure code compiles without warnings:
+   $ meson compile -C builddir
+
+3. Test your changes:
+   * Run the application
+   * Test the specific feature you changed
+   * Test on different PDF files
+   * Check for memory leaks if possible
+
+4. Update documentation if needed:
+   * README for user-visible changes
+   * Code comments for API changes
+   * docs/ for technical changes
+
+5. Create pull request on GitHub:
+   * Clear title describing the change
+   * Description explaining what and why
+   * Reference related issues
+   * Include screenshots for UI changes
+
+Pull Request Checklist:
+  [ ] Code compiles without errors or warnings
+  [ ] Code follows project style guidelines
+  [ ] Changes are tested and working
+  [ ] Documentation updated if needed
+  [ ] Commit messages are clear and descriptive
+  [ ] Branch is up to date with main
+
+REPORTING BUGS
+==============
+
+When reporting bugs, please include:
+
+* ePDFView version (epdfview --version)
+* Operating system and version
+* GTK4 version (pkg-config --modversion gtk4)
+* Poppler version (pkg-config --modversion poppler-glib)
+* Steps to reproduce the bug
+* Expected behavior
+* Actual behavior
+* Error messages or screenshots
+* Sample PDF file if relevant (if not confidential)
+
+FEATURE REQUESTS
+================
+
+When requesting features:
+
+* Check if it already exists or was requested
+* Explain the use case (why is it useful?)
+* Describe the expected behavior
+* Consider if it fits ePDFView's lightweight philosophy
+* Be open to discussion and alternative approaches
+
+TRANSLATIONS
+============
+
+See the TRANSLATION file for detailed translation guidelines.
+
+Quick start:
+  * Edit po/LANG.po for your language
+  * Test: msgfmt -c po/LANG.po
+  * Submit pull request with updated translation
+
+CODE REVIEW PROCESS
+===================
+
+After submitting a pull request:
+
+1. Maintainers will review the code
+2. Feedback may be provided for changes
+3. Update your PR based on feedback
+4. Once approved, it will be merged
+
+Please be patient and respectful during review.
+
+TESTING
+=======
+
+Manual testing:
+  * Test basic features (open, navigate, zoom)
+  * Test your specific changes
+  * Test on different PDF files
+  * Try edge cases (encrypted, corrupted, huge files)
+
+Automated testing (if added in future):
+  $ meson test -C builddir
+
+DOCUMENTATION
+=============
+
+When adding features:
+
+* Update README if user-visible
+* Update man page (data/epdfview.1) if needed
+* Add technical docs to docs/ if complex
+* Update CHANGELOG or NEWS file
+* Comment your code appropriately
+
+PROJECT STRUCTURE
+=================
+
+  src/           Source code
+    gtk/         GTK4 UI implementation
+    *.cxx/.h     Core classes
+  data/          Data files (icons, desktop file)
+  po/            Translations
+  tests/         Test suite (if exists)
+  docs/          Additional documentation
+  meson.build    Build configuration
+
+Key files to know:
+  * src/gtk/MainView.cxx - Main window
+  * src/gtk/PageView.cxx - PDF page rendering
+  * src/gtk/MainPter.cxx - Main presenter/controller
+  * src/PDFDocument.cxx - PDF document handling
+
+COMMUNICATION
+=============
+
+* GitHub Issues - Bug reports and feature requests
+* GitHub Pull Requests - Code contributions
+* GitHub Discussions - General questions
+
+Please be respectful and follow the code of conduct (treat others as you'd like to be treated).
+
+LEGAL
+=====
+
+By contributing, you agree that your contributions will be licensed under the
+GNU General Public License v2 or later (GPL-2.0-or-later), the same license
+as the ePDFView project.
+
+RESOURCES
+=========
+
+* Project homepage: https://github.com/JotaRandom/epdfview
+* Issue tracker: https://github.com/JotaRandom/epdfview/issues  
+* GTK4 documentation: https://docs.gtk.org/gtk4/
+* Poppler documentation: https://poppler.freedesktop.org/
+* Meson documentation: https://mesonbuild.com/
+
+QUESTIONS?
+==========
+
+If you have questions:
+
+* Check existing documentation (README, INSTALL, docs/)
+* Search existing issues on GitHub
+* Open a new issue for questions
+* Be specific and provide context
+
+Thank you for contributing to ePDFView!

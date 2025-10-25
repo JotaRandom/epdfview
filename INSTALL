@@ -1,160 +1,180 @@
+ePDFView Installation Instructions
+===================================
 
-    ePDFView Installation Instructions (GTK4)
-    ==========================================
+PREREQUISITES
+=============
 
-    NOTE: This is the GTK4 version of ePDFView. The build system has been
-    migrated from Autotools to Meson/Ninja.
+Required:
+  * GTK4 >= 4.0.0
+  * Poppler with GLib bindings >= 0.5.0
+  * GLib >= 2.8.0
+  * Meson >= 0.50.0
+  * Ninja build tool
+  * pkg-config
 
-    PREREQUISITES
-    =============
+Optional:
+  * CUPS (for printing support)
+  * CppUnit (for running tests)
 
-    Required packages:
-    - GTK4 (>= 4.0.0)
-    - Poppler with GLib bindings (>= 0.5.0)
-    - GLib2 (>= 2.0)
-    - Pango
-    - Meson build system (>= 0.50)
-    - Ninja build tool
-    - pkg-config
+INSTALLING DEPENDENCIES
+=======================
 
-    Optional:
-    - CUPS (for printing - currently disabled during GTK4 migration)
-    - CppUnit (for running tests)
+Arch Linux:
+  $ sudo pacman -S gtk4 poppler-glib meson ninja cups base-devel
 
-    INSTALLATION ON LINUX
-    =====================
+Ubuntu/Debian:
+  $ sudo apt install libgtk-4-dev libpoppler-glib-dev meson \
+                     ninja-build libcups2-dev build-essential gettext
 
-    1) Install build dependencies:
+Fedora/RHEL:
+  $ sudo dnf install gtk4-devel poppler-glib-devel meson \
+                     ninja-build cups-devel gcc-c++ gettext
 
-       Ubuntu/Debian:
-           sudo apt install meson ninja-build pkg-config \
-                            libgtk-4-dev libpoppler-glib-dev \
-                            libglib2.0-dev libpango1.0-dev
+openSUSE:
+  $ sudo zypper install gtk4-devel poppler-glib-devel meson \
+                        ninja cups-devel gcc-c++ gettext-tools
 
-       Fedora/RHEL:
-           sudo dnf install meson ninja-build pkgconfig \
-                            gtk4-devel poppler-glib-devel \
-                            glib2-devel pango-devel
+BASIC INSTALLATION
+==================
 
-       Arch Linux:
-           sudo pacman -S meson ninja pkgconf gtk4 poppler-glib pango
+1. Get the source code:
+   
+   From Git:
+     $ git clone https://github.com/JotaRandom/epdfview.git
+     $ cd epdfview
+   
+   From release tarball:
+     $ tar xzf epdfview-0.3.0.tar.gz
+     $ cd epdfview-0.3.0
 
-    2) Get the source code:
+2. Configure the build:
+   
+   $ meson setup builddir
 
-       From Git:
-           git clone https://github.com/JotaRandom/epdfview.git
-           cd epdfview
+3. Compile:
+   
+   $ meson compile -C builddir
 
-       From tarball:
-           tar xvzf epdfview-<version>.tar.gz
-           cd epdfview-<version>
+4. Install (system-wide):
+   
+   $ sudo meson install -C builddir
 
-    3) Configure the build:
+5. Run:
+   
+   $ epdfview
 
-       Standard configuration (CUPS disabled):
-           meson setup builddir -Dcups=disabled
+INSTALLATION OPTIONS
+====================
 
-       Custom prefix:
-           meson setup builddir --prefix=/usr -Dcups=disabled
+Install to /usr instead of /usr/local:
 
-       Other options:
-           meson setup builddir -Dcups=disabled -Dtests=false
+  $ meson setup builddir --prefix=/usr
+  $ meson compile -C builddir
+  $ sudo meson install -C builddir
 
-    4) Build the application:
+Install to custom location:
 
-           meson compile -C builddir
+  $ meson setup builddir --prefix=/opt/epdfview
+  $ meson compile -C builddir
+  $ sudo meson install -C builddir
 
-       Or using Ninja directly:
-           cd builddir
-           ninja
+Install to home directory (no sudo needed):
 
-    5) (Optional) Run tests:
+  $ meson setup builddir --prefix=$HOME/.local
+  $ meson compile -C builddir
+  $ meson install -C builddir
+  $ export PATH="$HOME/.local/bin:$PATH"
 
-           meson test -C builddir
+BUILD OPTIONS
+=============
 
-    6) Install the application:
+Disable CUPS printing support:
 
-           sudo meson install -C builddir
+  $ meson setup builddir -Dcups=disabled
 
-       Or using Ninja:
-           cd builddir
-           sudo ninja install
+Debug build:
 
-    7) Run the application:
+  $ meson setup builddir --buildtype=debug
 
-           epdfview [file.pdf]
+Release build (optimized):
 
-       Or without installing:
-           ./builddir/epdfview [file.pdf]
+  $ meson setup builddir --buildtype=release
 
-    MESON BUILD OPTIONS
-    ===================
+View all options:
 
-    View all options:
-        meson configure builddir
+  $ meson configure builddir
 
-    Common options:
-        -Dprefix=/usr/local          Install prefix
-        -Dcups=enabled|disabled       Enable/disable CUPS printing
-        -Dtests=true|false           Build tests
-        -Dbuildtype=debug|release    Build type
+RUNNING WITHOUT INSTALLING
+===========================
 
-    Reconfigure existing build:
-        meson --reconfigure builddir -Dcups=disabled
+After building, you can run directly from the build directory:
 
-    Clean build:
-        rm -rf builddir
-        meson setup builddir
+  $ ./builddir/src/epdfview
 
-    TROUBLESHOOTING
-    ===============
+UNINSTALLING
+============
 
-    Build fails with "GTK4 not found":
-        - Ensure GTK4 development packages are installed
-        - Check: pkg-config --modversion gtk4
+From the build directory:
 
-    Build fails with "Poppler not found":
-        - Ensure Poppler GLib bindings are installed
-        - Check: pkg-config --modversion poppler-glib
+  $ sudo ninja -C builddir uninstall
 
-    Icons missing when running:
-        - Install icon theme: sudo apt install adwaita-icon-theme
+Or manually remove files listed in:
 
-    Application won't start:
-        - Run with debug output: G_MESSAGES_DEBUG=all ./epdfview
-        - Check GTK4 version: pkg-config --modversion gtk4
+  builddir/meson-logs/install-log.txt
 
-    MIGRATION FROM GTK3/GTK2
-    ========================
+TROUBLESHOOTING
+===============
 
-    This GTK4 version is a major update from previous GTK2/GTK3 versions.
-    Main changes:
+GTK4 not found:
+  * Install GTK4 development packages
+  * Verify: pkg-config --modversion gtk4
 
-    - Build system changed from Autotools to Meson/Ninja
-    - Printing temporarily disabled (under GTK4 migration)
-    - Traditional menu bar replaced with toolbar and shortcuts
-    - Event handling uses modern GTK4 controllers
-    - Some window management features removed (GTK4/Wayland)
+Poppler not found:
+  * Install Poppler GLib development packages  
+  * Verify: pkg-config --modversion poppler-glib
 
-    See README.md and GTK4_MIGRATION_SUMMARY.md for more details.
+CUPS not found (optional):
+  * Install CUPS development packages
+  * Or disable with: -Dcups=disabled
 
-    FOR DEVELOPERS
-    ==============
+Icons missing at runtime:
+  * Icons installed to: PREFIX/share/pixmaps/
+  * Application searches: /usr/share/pixmaps and /usr/local/share/pixmaps
+  * Reinstall or copy icons manually
 
-    Development build with debug symbols:
-        meson setup builddir --buildtype=debug -Dcups=disabled
-        meson compile -C builddir
+Build fails:
+  * Clean build: rm -rf builddir && meson setup builddir
+  * Check dependencies are installed
+  * Read error messages carefully
 
-    Run from build directory:
-        ./builddir/epdfview
+ADDITIONAL DOCUMENTATION
+========================
 
-    View build log:
-        meson compile -C builddir -v
+For more detailed installation instructions and troubleshooting:
 
-    UNINSTALLATION
-    ==============
+  See docs/INSTALLATION.md for comprehensive guide
+  See docs/GTK4_MIGRATION_SUMMARY.md for technical details
+  See CONTRIBUTING for development setup
 
-    If installed via Meson:
-        sudo ninja uninstall -C builddir
+PACKAGING
+=========
 
-    Note: Meson records installation in builddir/meson-logs/install-log.txt
+For distribution packagers:
+
+  Recommended install prefix: /usr
+  Desktop file: data/epdfview.desktop
+  Icons: data/*.png, data/epdfview.svg
+  Translations: po/*.po (22 languages)
+  Man page: data/epdfview.1
+
+Example for package:
+
+  $ meson setup builddir --prefix=/usr
+  $ meson compile -C builddir  
+  $ DESTDIR=$pkgdir meson install -C builddir
+
+LICENSE
+=======
+
+ePDFView is free software licensed under GPL-2.0-or-later.
+See COPYING for full license text.

@@ -1,0 +1,105 @@
+ePDFView - A Lightweight PDF Viewer
+====================================
+
+ePDFView is a free and lightweight PDF document viewer using the Poppler
+rendering library and GTK4. It aims to be simple to use and provide just the
+essential features for viewing and navigating PDF documents.
+
+Features
+--------
+  * Page navigation (next, previous, first, last, jump to page)
+  * Zoom controls (in, out, fit page, fit width, custom)
+  * Page rotation (left, right)
+  * Find text in document with highlighting
+  * Document outline/index sidebar
+  * Full screen presentation mode
+  * Invert colors for night reading
+  * Print support (requires CUPS)
+  * 22 language translations
+  * Keyboard shortcuts for all operations
+
+Requirements
+------------
+  * GTK4 >= 4.0.0
+  * Poppler-glib >= 0.5.0
+  * GLib >= 2.8.0
+  * Meson >= 0.50.0 (for building)
+  * CUPS (optional, for printing)
+
+Installation
+------------
+See the INSTALL file for detailed build and installation instructions.
+
+Quick start:
+  $ meson setup builddir
+  $ meson compile -C builddir
+  $ sudo meson install -C builddir
+
+Usage
+-----
+  $ epdfview [file.pdf]
+
+Open a file from the command line or use File → Open from the menu.
+
+Keyboard Shortcuts
+------------------
+  Navigation:
+    Page Down / Space     Next page
+    Page Up / Backspace   Previous page
+    Home                  First page
+    End                   Last page
+    
+  Zoom:
+    +                     Zoom in
+    -                     Zoom out
+    1                     Fit page
+    2                     Fit width
+    
+  View:
+    F11                   Full screen
+    I                     Invert colors
+    R                     Rotate right
+    Ctrl+R                Rotate left
+    
+  Other:
+    Ctrl+F                Find
+    Ctrl+P                Print
+    Ctrl+Q                Quit
+
+Configuration
+-------------
+Settings are stored in: ~/.config/epdfview/main.conf
+
+This file is automatically created with defaults on first run.
+
+Translations
+------------
+See the TRANSLATION file for information about contributing translations.
+
+Contributing
+------------
+See the CONTRIBUTING file for guidelines on contributing to ePDFView.
+
+Support
+-------
+  Home page:    https://github.com/JotaRandom/epdfview
+  Bug reports:  https://github.com/JotaRandom/epdfview/issues
+  
+Documentation
+-------------
+Additional documentation can be found in the docs/ directory:
+  * docs/GTK4_MIGRATION_SUMMARY.md - GTK4 migration details
+  * docs/INSTALLATION.md - Comprehensive installation guide
+
+License
+-------
+ePDFView is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+See the COPYING file for the full license text.
+
+Authors
+-------
+See the AUTHORS and THANKS files for a complete list of contributors.

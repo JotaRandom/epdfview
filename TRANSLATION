@@ -1,0 +1,238 @@
+ePDFView Translation Guide
+==========================
+
+ePDFView supports 22 languages. Translations are managed using gettext
+and are located in the po/ directory.
+
+CURRENT TRANSLATIONS
+====================
+
+ePDFView is translated into:
+  ca     Catalan
+  cs     Czech
+  de     German
+  el     Greek
+  es     Spanish
+  eu     Basque
+  fr     French
+  gl     Galician
+  he     Hebrew
+  hu     Hungarian
+  it     Italian
+  ja     Japanese
+  nl     Dutch
+  pl     Polish
+  pt     Portuguese
+  pt_BR  Brazilian Portuguese
+  ru     Russian
+  sv     Swedish
+  uk     Ukrainian
+  vi     Vietnamese
+  zh_CN  Simplified Chinese
+  zh_TW  Traditional Chinese
+
+UPDATING AN EXISTING TRANSLATION
+=================================
+
+1. Update your local translation file:
+
+   $ cd po
+   $ msgmerge -U LANG.po epdfview.pot
+   
+   Replace LANG with your language code (e.g., es, fr, de)
+
+2. Edit the .po file:
+
+   Use any text editor or a PO editor like:
+   - Poedit (https://poedit.net/)
+   - Lokalize (KDE)
+   - Gtranslator (GNOME)
+   
+   Or edit manually:
+   $ vi po/LANG.po
+
+3. Find untranslated or fuzzy strings:
+
+   Look for:
+   - Empty msgstr ""
+   - Lines marked #, fuzzy
+
+4. Test your translation without building:
+
+   $ msgfmt -c -v -o /dev/null po/LANG.po
+   
+   This checks for errors without compiling.
+
+5. Test with the application:
+
+   $ meson setup builddir
+   $ meson compile -C builddir
+   $ LANG=LANG.UTF-8 ./builddir/src/epdfview
+   
+   Example:
+   $ LANG=es_ES.UTF-8 ./builddir/src/epdfview
+
+6. Submit your changes:
+
+   $ git add po/LANG.po
+   $ git commit -m "Update LANG translation"
+   $ git push
+   
+   Or create a pull request on GitHub.
+
+CREATING A NEW TRANSLATION
+===========================
+
+1. Create a new .po file from the template:
+
+   $ cd po
+   $ msginit --input=epdfview.pot --locale=LANG --output=LANG.po
+   
+   Example for Italian:
+   $ msginit --input=epdfview.pot --locale=it --output=it.po
+
+2. Add the new language to po/LINGUAS:
+
+   $ echo "it" >> po/LINGUAS
+   
+   (Keep the file sorted alphabetically)
+
+3. Translate all strings in the .po file:
+
+   $ poedit po/LANG.po
+   
+   Or use any PO editor.
+
+4. Update the build system (already done):
+
+   The meson.build in po/ automatically picks up files in LINGUAS.
+
+5. Test and submit (see steps 5-6 above).
+
+EXTRACTING NEW TRANSLATABLE STRINGS
+====================================
+
+After code changes, update the POT template:
+
+1. Update epdfview.pot:
+
+   $ cd po
+   $ meson compile -C ../builddir epdfview-pot
+
+2. Merge into all translations:
+
+   $ for po in *.po; do msgmerge -U $po epdfview.pot; done
+
+3. Commit the updated POT and PO files:
+
+   $ git add epdfview.pot *.po
+   $ git commit -m "Update translation template"
+
+TRANSLATION GUIDELINES
+======================
+
+Context:
+  * Keep technical terms consistent
+  * Match existing GNOME/KDE translations when possible
+  * Keyboard accelerators: Use & in English, appropriate letter in translation
+
+Accelerators (underscores in menus):
+  * _File → _Archivo (Spanish)
+  * _Edit → _Editar (Spanish)
+  * Avoid duplicates within same menu
+
+Terminology:
+  * PDF - Keep as "PDF" (don't translate)
+  * Zoom - "Acercar/Alejar" or locale equivalent
+  * Page - "Página", "Seite", "Page" (translate)
+  * Print - "Imprimir", "Drucken", "Imprimer" (translate)
+
+Format strings:
+  * %d - Integer number
+  * %s - String
+  * %f - Floating point number
+  * Keep format specifiers in same order!
+  
+  Example:
+  "Page %d of %d" → "Página %d de %d"
+
+Special characters:
+  * \n - Newline (keep)
+  * \t - Tab (keep)
+  * \" - Quote (keep)
+
+TESTING TRANSLATIONS
+====================
+
+Quick check:
+  $ msgfmt -c --statistics po/LANG.po
+
+Run with specific language:
+  $ LANG=de_DE.UTF-8 LC_ALL=de_DE.UTF-8 ./builddir/src/epdfview
+
+Check all strings appear translated:
+  * Open menus
+  * Open dialogs (Preferences, Find, Print)
+  * Check tooltips
+  * Check error messages (trigger intentionally)
+
+TRANSLATION STATISTICS
+======================
+
+Check completion status:
+
+  $ msgfmt --statistics po/LANG.po
+
+Example output:
+  123 translated messages, 5 fuzzy translations, 2 untranslated messages.
+
+Goal: 0 fuzzy, 0 untranslated
+
+COMMON ISSUES
+=============
+
+Encoding errors:
+  * Ensure .po file is UTF-8 encoded
+  * Check your editor's encoding settings
+
+Format string mismatch:
+  * Error: "number of format specifications ... doesn't match"
+  * Fix: Keep same number and order of %d, %s, etc.
+
+Fuzzy translations:
+  * Marked when msgmerge detects changes
+  * Review the translation, update if needed
+  * Remove the #, fuzzy marker
+
+Missing translations:
+  * Empty msgstr ""
+  * Fill in the translation
+
+RESOURCES
+=========
+
+Gettext manual:
+  https://www.gnu.org/software/gettext/manual/
+
+GNOME Translation Project:
+  https://l10n.gnome.org/
+
+Translation Memory:
+  Use tools like OmegaT or Lokalize with translation memories
+
+PO editors:
+  * Poedit - https://poedit.net/
+  * Lokalize - https://apps.kde.org/lokalize/
+  * Gtranslator - https://wiki.gnome.org/Apps/Gtranslator
+  * Virtaal - http://virtaal.translatehouse.org/
+
+CONTACT
+=======
+
+For translation questions or to contribute translations:
+
+  * Open an issue: https://github.com/JotaRandom/epdfview/issues
+  * Submit pull request: https://github.com/JotaRandom/epdfview/pulls
+  * Or contact the maintainers (see AUTHORS file)
+
+Thank you for helping make ePDFView accessible to users worldwide!
