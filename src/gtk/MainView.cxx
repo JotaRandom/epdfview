@@ -63,6 +63,7 @@ static void main_window_go_to_previous_page_cb (GtkWidget *, gpointer);
 static void main_window_reload_cb (GtkWidget *, gpointer);
 static void main_window_rotate_left_cb (GtkWidget *, gpointer);
 static void main_window_rotate_right_cb (GtkWidget *, gpointer);
+static void main_window_open_file_action_cb (GSimpleAction *, GVariant *, gpointer);
 static void main_window_open_file_cb (GtkWidget *, gpointer);
 static void main_window_outline_cb (GtkTreeSelection *, gpointer);
 static void main_window_preferences_cb (GtkWidget *, gpointer);
@@ -96,7 +97,7 @@ static const struct {
 } g_NormalEntries[] = {
     { "open-file", "document-open", N_("_Open"), "<Control>o",
       N_("Open a PDF document"),
-      G_CALLBACK (main_window_open_file_cb) },
+      G_CALLBACK (main_window_open_file_action_cb) },
 
     { "reload-file", "view-refresh", N_("_Reload"), "<control>R",
       N_("Reload the current document"),
@@ -1580,7 +1581,19 @@ main_window_rotate_right_cb (GtkWidget *widget, gpointer data)
 }
 
 ///
-/// @brief The user tries to open a file.
+/// @brief The user tries to open a file (GAction callback).
+///
+static void
+main_window_open_file_action_cb (GSimpleAction *action, GVariant *parameter, gpointer data)
+{
+    g_assert ( NULL != data && "The data parameter is NULL.");
+
+    MainPter *pter = (MainPter *)data;
+    pter->openFileActivated ();
+}
+
+///
+/// @brief The user tries to open a file (widget callback for toolbar).
 ///
 void
 main_window_open_file_cb (GtkWidget *widget, gpointer data)
