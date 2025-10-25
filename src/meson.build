@@ -1,21 +1,35 @@
 sources = [
   'Config.cxx',
+  'DocumentLinkGoto.cxx',
+  'DocumentLinkUri.cxx',
+  'DocumentOutline.cxx',
+  'DocumentPage.cxx',
+  'DocumentRectangle.cxx',
   'FindPter.cxx',
   'IDocument.cxx',
+  'IDocumentLink.cxx',
   'IJob.cxx',
   'JobFind.cxx',
   'JobLoad.cxx',
-  'JobPrint.cxx',
   'JobRender.cxx',
   'JobSave.cxx',
+  'main.cxx',
   'MainPter.cxx',
   'PagePter.cxx',
-  'PrintPter.cxx',
-  'main.cxx',
+  'PDFDocument.cxx',
+  'PreferencesPter.cxx',
 ]
 
 # GTK4 UI sources
-subdir('gtk')
+gtk_sources = [
+  'gtk/FindView.cxx',
+  'gtk/MainView.cxx',
+  'gtk/PageView.cxx',
+  'gtk/PreferencesView.cxx',
+  'gtk/StockIcons.cxx',
+]
+
+sources += gtk_sources
 
 epdfview_deps = [
   gtk_dep,
@@ -24,13 +38,16 @@ epdfview_deps = [
   pango_dep,
 ]
 
+# Only compile print-related files when CUPS is available
 if cups_dep.found() and host_machine.system() != 'windows'
   epdfview_deps += cups_dep
+  sources += ['JobPrint.cxx', 'PrintPter.cxx', 'gtk/PrintView.cxx']
 endif
 
+# Create executable
 executable('epdfview',
-  sources + gtk_sources,
-  include_directories : inc,
-  dependencies : epdfview_deps,
-  install : true,
+  sources,
+  dependencies: epdfview_deps,
+  include_directories: inc,
+  install: true,
 )
