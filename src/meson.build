@@ -11,7 +11,6 @@ sources = [
   'IJob.cxx',
   'JobFind.cxx',
   'JobLoad.cxx',
-  'JobPrint.cxx',
   'JobRender.cxx',
   'JobSave.cxx',
   'main.cxx',
@@ -42,7 +41,7 @@ epdfview_deps = [
 # Only compile print-related files when CUPS is available
 if cups_dep.found() and host_machine.system() != 'windows'
   epdfview_deps += cups_dep
-  sources += ['PrintPter.cxx', 'gtk/PrintView.cxx']
+  sources += ['JobPrint.cxx', 'PrintPter.cxx', 'gtk/PrintView.cxx']
 endif
 
 # Create executable

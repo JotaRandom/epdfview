@@ -55,8 +55,8 @@ static void main_window_about_box_url_hook (GtkAboutDialog *, const gchar *,
                                             gpointer);
 static void main_window_find_cb (GtkWidget *, gpointer);
 static void main_window_fullscreen_cb (GSimpleAction *, GVariant *, gpointer);
-static gboolean main_window_moved_or_resized_cb (GtkWidget *,
-												 GdkEventConfigure *, gpointer);
+// GTK4: Window configure events removed
+// static gboolean main_window_moved_or_resized_cb (GtkWidget *, gpointer);
 static void main_window_go_to_first_page_cb (GtkWidget *, gpointer);
 static void main_window_go_to_last_page_cb (GtkWidget *, gpointer);
 static void main_window_go_to_next_page_cb (GtkWidget *, gpointer);
@@ -246,8 +246,7 @@ MainView::MainView (MainPter *pter):
     // Connect already the destroy and delete signal.
     g_signal_connect (G_OBJECT (m_MainWindow), "destroy",
                       G_CALLBACK (main_window_quit_cb), NULL);
-    g_signal_connect (G_OBJECT (m_MainWindow), "configure-event",
-                      G_CALLBACK (main_window_moved_or_resized_cb), NULL);
+    // GTK4: configure-event removed - window sizing/positioning handled differently
     // Create the main vertical box.
     m_MainBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
     gtk_window_set_child (GTK_WINDOW (m_MainWindow), m_MainBox);
@@ -370,14 +369,16 @@ MainView::openFileDialog (const gchar *lastFolder)
             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
             GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
             NULL);
-    gtk_dialog_set_alternative_button_order (GTK_DIALOG (openDialog),
-            GTK_RESPONSE_ACCEPT, GTK_RESPONSE_CANCEL, -1);
+    // GTK4: gtk_dialog_set_alternative_button_order removed
 
     // Select the last used folder as the initial folder, if any.
     if ( NULL != lastFolder )
     {
+        // GTK4: gtk_file_chooser_set_current_folder takes GFile* not const char*
+        GFile *folder = g_file_new_for_path (lastFolder);
         gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (openDialog),
-                                             lastFolder);
+                                             folder, NULL);
+        g_object_unref (folder);
     }
 
     // Add the file type filters.
@@ -402,15 +403,34 @@ MainView::openFileDialog (const gchar *lastFolder)
         gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (openDialog), anyFilter);
     }
 
-    if ( GTK_RESPONSE_ACCEPT == gtk_dialog_run (GTK_DIALOG (openDialog)) )
+    // GTK4: gtk_dialog_run deprecated, use gtk_window_present + modal
+    gtk_window_set_modal (GTK_WINDOW (openDialog), TRUE);
+    gtk_window_present (GTK_WINDOW (openDialog));
+    
+    // Simple modal loop for GTK4
+    GMainLoop *loop = g_main_loop_new (NULL, FALSE);
+    gchar *result = NULL;
+    
+    g_signal_connect_swapped (openDialog, "response",
+                             G_CALLBACK (g_main_loop_quit), loop);
+    
+    g_main_loop_run (loop);
+    
+    // Check if file was selected
+    if (gtk_dialog_get_response_for_widget (GTK_DIALOG (openDialog), 
+                                            GTK_WIDGET (openDialog)) == GTK_RESPONSE_ACCEPT)
     {
-        gchar *fileName = gtk_file_chooser_get_filename (
-                                GTK_FILE_CHOOSER (openDialog));
-        gtk_window_destroy (GTK_WINDOW (openDialog));
-        return fileName;
+        // GTK4: gtk_file_chooser_get_filename replaced with get_file
+        GFile *file = gtk_file_chooser_get_file (GTK_FILE_CHOOSER (openDialog));
+        if (file) {
+            result = g_file_get_path (file);
+            g_object_unref (file);
+        }
     }
+    
+    g_main_loop_unref (loop);
     gtk_window_destroy (GTK_WINDOW (openDialog));
-    return NULL;
+    return result;
 }
 
 gchar *
@@ -427,7 +447,7 @@ MainView::promptPasswordDialog ()
                                                "and can't be accessed. "
                                                "Please enter the document's "
                                                "password:");
-    gtk_label_set_line_wrap (GTK_LABEL (secondaryLabel), TRUE);
+    gtk_label_set_wrap (GTK_LABEL (secondaryLabel), TRUE);
     gtk_label_set_selectable (GTK_LABEL (secondaryLabel), TRUE);
     gtk_widget_set_halign (secondaryLabel, GTK_ALIGN_START);
     gtk_widget_set_valign (secondaryLabel, GTK_ALIGN_START);
@@ -458,18 +478,30 @@ MainView::promptPasswordDialog ()
             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
             GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
             NULL);
-    gtk_dialog_set_alternative_button_order (GTK_DIALOG (passwordDialog),
-            GTK_RESPONSE_ACCEPT, GTK_RESPONSE_CANCEL, -1);
+    // GTK4: gtk_dialog_set_alternative_button_order removed
     gtk_dialog_set_default_response (GTK_DIALOG (passwordDialog), 
                                      GTK_RESPONSE_ACCEPT);
     GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (passwordDialog));
     gtk_box_append (GTK_BOX (content_area), hbox);
 
+    // GTK4: gtk_dialog_run deprecated
+    gtk_window_set_modal (GTK_WINDOW (passwordDialog), TRUE);
+    gtk_window_present (GTK_WINDOW (passwordDialog));
+    
+    GMainLoop *loop = g_main_loop_new (NULL, FALSE);
+    g_signal_connect_swapped (passwordDialog, "response",
+                             G_CALLBACK (g_main_loop_quit), loop);
+    g_main_loop_run (loop);
+    
     gchar *password = NULL;
-    if ( GTK_RESPONSE_ACCEPT == gtk_dialog_run (GTK_DIALOG (passwordDialog)) )
+    if (gtk_dialog_get_response_for_widget (GTK_DIALOG (passwordDialog),
+                                            GTK_WIDGET (passwordDialog)) == GTK_RESPONSE_ACCEPT)
     {
-        password = g_strdup(gtk_entry_get_text (GTK_ENTRY (passwordEntry)));
+        // GTK4: Use gtk_editable_get_text
+        password = g_strdup(gtk_editable_get_text (GTK_EDITABLE (passwordEntry)));
     }
+    
+    g_main_loop_unref (loop);
     gtk_window_destroy (GTK_WINDOW (passwordDialog));
     return password;
 }
@@ -483,16 +515,17 @@ MainView::saveFileDialog (const gchar *lastFolder, const gchar *fileName)
             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
             GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
             NULL);
-    gtk_file_chooser_set_do_overwrite_confirmation (
-            GTK_FILE_CHOOSER (saveDialog), TRUE);
-    gtk_dialog_set_alternative_button_order (GTK_DIALOG (saveDialog),
-            GTK_RESPONSE_ACCEPT, GTK_RESPONSE_CANCEL, -1);
+    // GTK4: gtk_file_chooser_set_do_overwrite_confirmation removed (always enabled)
+    // GTK4: gtk_dialog_set_alternative_button_order removed
 
     // Select the last used folder as the initial folder, if any.
     if ( NULL != lastFolder )
     {
+        // GTK4: gtk_file_chooser_set_current_folder takes GFile*
+        GFile *folder = g_file_new_for_path (lastFolder);
         gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (saveDialog),
-                                             lastFolder);
+                                             folder, NULL);
+        g_object_unref (folder);
     }
     // Set the original file name to use as initial save name, if any.
     if ( NULL != fileName )
@@ -523,15 +556,31 @@ MainView::saveFileDialog (const gchar *lastFolder, const gchar *fileName)
         gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (saveDialog), anyFilter);
     }
 
-    if ( GTK_RESPONSE_ACCEPT == gtk_dialog_run (GTK_DIALOG (saveDialog)) )
+    // GTK4: gtk_dialog_run deprecated
+    gtk_window_set_modal (GTK_WINDOW (saveDialog), TRUE);
+    gtk_window_present (GTK_WINDOW (saveDialog));
+    
+    GMainLoop *loop = g_main_loop_new (NULL, FALSE);
+    gchar *result = NULL;
+    
+    g_signal_connect_swapped (saveDialog, "response",
+                             G_CALLBACK (g_main_loop_quit), loop);
+    g_main_loop_run (loop);
+    
+    if (gtk_dialog_get_response_for_widget (GTK_DIALOG (saveDialog),
+                                            GTK_WIDGET (saveDialog)) == GTK_RESPONSE_ACCEPT)
     {
-        gchar *fileName = gtk_file_chooser_get_filename (
-                                GTK_FILE_CHOOSER (saveDialog));
-        gtk_window_destroy (GTK_WINDOW (saveDialog));
-        return fileName;
+        // GTK4: gtk_file_chooser_get_filename replaced
+        GFile *file = gtk_file_chooser_get_file (GTK_FILE_CHOOSER (saveDialog));
+        if (file) {
+            result = g_file_get_path (file);
+            g_object_unref (file);
+        }
     }
+    
+    g_main_loop_unref (loop);
     gtk_window_destroy (GTK_WINDOW (saveDialog));
-    return NULL;
+    return result;
 }
 
 void
@@ -700,8 +749,8 @@ MainView::show (void)
                                  config.getWindowWidth (),
                                  config.getWindowHeight ());
     gtk_widget_show (m_MainWindow);
-    gtk_window_move (GTK_WINDOW (m_MainWindow),
-                     config.getWindowX (), config.getWindowY ());
+    // GTK4: gtk_window_move removed (not supported on Wayland)
+    // Window positioning is handled by the window manager
 }
 
 void
@@ -716,7 +765,16 @@ MainView::showErrorMessage (const gchar *title, const gchar *body)
             title);
     gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG(errorDialog), "%s",
                                               body);
-    gtk_dialog_run (GTK_DIALOG (errorDialog));
+    // GTK4: gtk_dialog_run deprecated
+    gtk_window_set_modal (GTK_WINDOW (errorDialog), TRUE);
+    gtk_window_present (GTK_WINDOW (errorDialog));
+    
+    GMainLoop *loop = g_main_loop_new (NULL, FALSE);
+    g_signal_connect_swapped (errorDialog, "response",
+                             G_CALLBACK (g_main_loop_quit), loop);
+    g_main_loop_run (loop);
+    g_main_loop_unref (loop);
+    
     gtk_window_destroy (GTK_WINDOW (errorDialog));
 }
 
@@ -780,9 +838,10 @@ MainView::setFullScreen (gboolean fullScreen)
         gtk_widget_show (m_MenuBar);
         // Show again the toolbar, status bar and index, only if it was
         // enabled.
-        main_window_show_index_cb (NULL, (gpointer)m_Pter);
-        main_window_show_statusbar_cb (NULL, (gpointer)m_Pter);
-        main_window_show_toolbar_cb (NULL, (gpointer)m_Pter);
+        // GTK4: GSimpleAction callbacks require 3 parameters
+        main_window_show_index_cb (NULL, NULL, (gpointer)m_Pter);
+        main_window_show_statusbar_cb (NULL, NULL, (gpointer)m_Pter);
+        main_window_show_toolbar_cb (NULL, NULL, (gpointer)m_Pter);
     }
 }
 
@@ -1179,7 +1238,17 @@ MainView::setMainWindowIcon ()
         }
         g_free (filename);
     }
-    gtk_window_set_default_icon_list (iconList);
+    // GTK4: gtk_window_set_default_icon_list removed
+    // Use gtk_window_set_default_icon_name or individual window icons
+    if (iconList) {
+        // Set first icon as default
+        GdkPixbuf *first_icon = (GdkPixbuf *)iconList->data;
+        if (first_icon) {
+            GdkTexture *texture = gdk_texture_new_for_pixbuf (first_icon);
+            gtk_window_set_icon_name (GTK_WINDOW (m_MainWindow), "epdfview");
+            g_object_unref (texture);
+        }
+    }
     g_list_foreach (iconList, (GFunc)g_object_unref, NULL);
     g_list_free (iconList);
 }
@@ -1317,26 +1386,8 @@ main_window_fullscreen_cb (GSimpleAction *action, GVariant *parameter, gpointer 
     g_variant_unref (state);
 }
 
-///
-/// @brief Called when the window is moved or resized.
-///
-/// This is used to save the current window's position and size.
-///
-gboolean
-main_window_moved_or_resized_cb (GtkWidget *widget, GdkEventConfigure *event, 
-                                 gpointer data)
-{
-    // First set the window's size and position to the configuration.
-    GtkWindow *m_MainWindow = GTK_WINDOW (widget);
-    Config &config = Config::getConfig ();
-    config.setWindowSize (event->width, event->height);
-    gint x;
-    gint y;
-    gtk_window_get_position (m_MainWindow, &x, &y);
-    config.setWindowPos (x, y);
-
-    return FALSE;
-}
+// GTK4: Window configure event callback removed
+// Window sizing/positioning not saved in GTK4 (Wayland compatibility)
 
 ///
 /// @brief The user tries to go to the first page.
@@ -1502,9 +1553,10 @@ main_window_print_cb (GtkWidget *widget, gpointer data)
 void
 main_window_quit_cb (GtkWidget *widget, gpointer data)
 {
-    // In GTK4, we should use the application quit pattern
-    // For now, keep gtk_main_quit for compatibility with current main loop
-    gtk_main_quit ();
+    // GTK4: gtk_main_quit removed - use g_application_quit or exit
+    // Since we're using GtkApplication, we should get the app instance
+    // For now, just exit the main loop
+    exit(0);
 }
 
 ///

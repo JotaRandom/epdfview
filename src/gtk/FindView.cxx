@@ -84,7 +84,8 @@ FindView::~FindView ()
 const gchar *
 FindView::getTextToFind ()
 {
-    return gtk_entry_get_text (GTK_ENTRY (m_TextToFind));
+    // GTK4: Use gtk_editable_get_text instead of gtk_entry_get_text
+    return gtk_editable_get_text (GTK_EDITABLE (m_TextToFind));
 }
 
 void
@@ -225,7 +226,8 @@ find_view_text_to_find_key_press_cb (GtkEventControllerKey *controller, guint ke
     if (GDK_KEY_Escape == keyval)
     {
         FindPter *pter = (FindPter *)data;
-        pter->cancelJob ();
+        // GTK4: Use closeActivated() instead of protected cancelJob()
+        pter->closeActivated ();
         return TRUE;
     }
     return FALSE;
