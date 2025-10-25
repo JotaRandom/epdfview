@@ -8,6 +8,7 @@ src/PagePter.cxx
 src/PrintPter.cxx
 src/PDFDocument.cxx
 # GTK+ Shell
+src/gtk/Config.cxx
 src/gtk/FindView.cxx
 src/gtk/MainView.cxx
 src/gtk/PreferencesView.cxx

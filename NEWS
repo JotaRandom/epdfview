@@ -1,6 +1,12 @@
     epdfview GIT
     ============
     
+
+
+
+    epdfview 0.2.0
+    ==============
+
     New Features
     
     	* SIGHUP handler
