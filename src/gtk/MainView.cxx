@@ -1495,6 +1495,8 @@ main_window_about_box_cb (GtkWidget *widget, gpointer data)
         DATADIR "/epdfview.svg",                 // Installed location
         "/usr/share/pixmaps/epdfview.svg",      // Standard system location
         "/usr/local/share/pixmaps/epdfview.svg", // Local installation
+        "/usr/share/icons/hicolor/scalable/apps/epdfview.svg", // Hicolor icon location
+        "/usr/local/share/icons/hicolor/scalable/apps/epdfview.svg", // Hicolor local icon location
         NULL
     };
     
