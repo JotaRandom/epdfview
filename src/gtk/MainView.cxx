@@ -113,6 +113,7 @@ ACTION_CALLBACK(main_window_go_to_first_page_action_cb, main_window_go_to_first_
 ACTION_CALLBACK(main_window_go_to_last_page_action_cb, main_window_go_to_last_page_cb)
 ACTION_CALLBACK(main_window_go_to_next_page_action_cb, main_window_go_to_next_page_cb)
 ACTION_CALLBACK(main_window_go_to_previous_page_action_cb, main_window_go_to_previous_page_cb)
+ACTION_CALLBACK(main_window_about_box_action_cb, main_window_about_box_cb)
 
 static const struct {
     const gchar *name;
@@ -186,7 +187,7 @@ static const struct {
 
     { "about", "help-about", N_("_About"), NULL,
       N_("Display application's credits"),
-      G_CALLBACK (main_window_about_box_cb) },
+      G_CALLBACK (main_window_about_box_action_cb) },
 
     // Accelerator keys.
     { "slash", "edit-find", NULL, "slash", NULL,
@@ -1452,6 +1453,11 @@ MainView::copyTextToClibboard(const gchar* text)
 void
 main_window_about_box_cb (GtkWidget *widget, gpointer data)
 {
+    g_assert ( NULL != data && "The data parameter is NULL.");
+    
+    MainPter *pter = (MainPter *)data;
+    MainView *view = (MainView *)&(pter->getView());
+    GtkWidget *parent_window = view->getMainWindow();
     const gchar *authors[] = {
         "Jordi Fita <jordi@emma-soft.com>",
         "Pablo Lezaeta <prflr88@gmail.com>",
@@ -1511,7 +1517,8 @@ main_window_about_box_cb (GtkWidget *widget, gpointer data)
     
     // GTK4: gtk_about_dialog_set_url_hook removed - links work automatically
     // GTK4: About dialogs automatically have a close button
-    gtk_show_about_dialog (NULL,
+    // GTK4: Use parent window instead of NULL to avoid errors
+    gtk_show_about_dialog (GTK_WINDOW (parent_window),
             "program-name", _("ePDFView"),
             "version", VERSION,
             "copyright", "\xc2\xa9 2006-2011 Emma's Software\n"

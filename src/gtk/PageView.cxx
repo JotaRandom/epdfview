@@ -374,11 +374,26 @@ PageView::showPage (DocumentPage *page, PageScroll scroll)
     // Get new pixbuf and store it
     m_CurrentPixbuf = getPixbufFromPage (page);
     
+    if (m_CurrentPixbuf == NULL) {
+        g_warning("PageView::showPage: Failed to create pixbuf from page!");
+        return;
+    }
+    
+    g_message("PageView::showPage: Created pixbuf %dx%d", 
+              gdk_pixbuf_get_width(m_CurrentPixbuf),
+              gdk_pixbuf_get_height(m_CurrentPixbuf));
+    
     if(invertColorToggle) { gdkpixbuf_invert(m_CurrentPixbuf); }
     
     // GTK4: Convert pixbuf to texture for display
     GdkTexture *texture = gdk_texture_new_for_pixbuf (m_CurrentPixbuf);
+    if (texture == NULL) {
+        g_warning("PageView::showPage: Failed to create texture from pixbuf!");
+        return;
+    }
+    
     gtk_image_set_from_paintable (GTK_IMAGE (m_PageImage), GDK_PAINTABLE (texture));
+    g_message("PageView::showPage: Successfully set image from texture");
     g_object_unref (texture);
     // Set the vertical scroll to the specified.
     if ( PAGE_SCROLL_NONE != scroll )
