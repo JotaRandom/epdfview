@@ -395,6 +395,28 @@ PageView::showPage (DocumentPage *page, PageScroll scroll)
     gtk_image_set_from_paintable (GTK_IMAGE (m_PageImage), GDK_PAINTABLE (texture));
     g_message("PageView::showPage: Successfully set image from texture");
     g_object_unref (texture);
+    
+    // GTK4: Force widget visibility and request proper size
+    gtk_widget_set_visible(m_PageImage, TRUE);
+    
+    // GTK4: Request size based on pixbuf dimensions
+    gint pixbuf_width = gdk_pixbuf_get_width(m_CurrentPixbuf);
+    gint pixbuf_height = gdk_pixbuf_get_height(m_CurrentPixbuf);
+    gtk_widget_set_size_request(m_PageImage, pixbuf_width, pixbuf_height);
+    
+    gtk_widget_queue_resize(m_PageImage);
+    gtk_widget_queue_draw(m_PageImage);
+    
+    // Also ensure parent scrolled window is visible
+    gtk_widget_set_visible(m_PageScroll, TRUE);
+    
+    // Debug: Check widget state
+    g_message("PageView::showPage: Image widget visible=%d, width=%d, height=%d, mapped=%d, size_req=%dx%d",
+              gtk_widget_get_visible(m_PageImage),
+              gtk_widget_get_width(m_PageImage),
+              gtk_widget_get_height(m_PageImage),
+              gtk_widget_get_mapped(m_PageImage),
+              pixbuf_width, pixbuf_height);
     // Set the vertical scroll to the specified.
     if ( PAGE_SCROLL_NONE != scroll )
     {
