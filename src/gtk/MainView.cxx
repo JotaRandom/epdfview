@@ -35,9 +35,8 @@ using namespace ePDFView;
 // GTK4 direct API usage - no compatibility layer needed
 
 // Constants.
-static gint CURRENT_PAGE_POS = 5;
+// GTK4: Position constants removed (not using GtkToolbar positioning)
 static gint CURRENT_PAGE_WIDTH = 5;
-static gint CURRENT_ZOOM_POS = 8;
 static gint CURRENT_ZOOM_WIDTH = 6;
 
 // Enumerations.
@@ -51,8 +50,7 @@ enum indexColumns
 
 // Forward declarations.
 static void main_window_about_box_cb (GtkWidget *, gpointer);
-static void main_window_about_box_url_hook (GtkAboutDialog *, const gchar *,
-                                            gpointer);
+// GTK4: main_window_about_box_url_hook removed (not needed)
 static void main_window_find_cb (GtkWidget *, gpointer);
 static void main_window_fullscreen_cb (GSimpleAction *, GVariant *, gpointer);
 // GTK4: Window configure events removed
@@ -1152,22 +1150,102 @@ MainView::createActions ()
 }
 
 ///
-/// @brief Creates a simple menu placeholder for GTK4.
+/// @brief Creates the menu bar using GTK4's GMenuModel and GtkPopoverMenuBar.
 ///
 /// GTK4 removed GtkMenu, GtkMenuItem, GtkMenuBar completely.
-/// For now, we create an empty box as placeholder.
-/// TODO: Implement GMenuModel with GtkPopoverMenuBar for full GTK4 menus
+/// This implementation uses GMenuModel which is the modern GTK4 approach.
 ///
 void
 MainView::createMenuBar ()
 {
-    // GTK4: Traditional menu widgets removed
-    // Create empty box as placeholder to avoid breaking code that references m_MenuBar
-    m_MenuBar = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-    gtk_widget_set_visible (m_MenuBar, FALSE); // Hide for now since it's empty
+    // Create the menu model
+    GMenu *menubar = g_menu_new ();
     
-    // Note: All menu actions are available via toolbar and keyboard shortcuts
-    // A full GTK4 implementation would use GMenuModel here
+    // File Menu
+    GMenu *file_menu = g_menu_new ();
+    g_menu_append (file_menu, _("_Open"), "win.open-file");
+    g_menu_append (file_menu, _("_Reload"), "win.reload-file");
+    g_menu_append (file_menu, _("_Save a Copy..."), "win.save-file");
+#if defined (HAVE_CUPS)
+    g_menu_append (file_menu, _("_Print..."), "win.print");
+#endif
+    g_menu_append (file_menu, _("_Close"), "win.quit");
+    
+    GMenuItem *file_item = g_menu_item_new_submenu (_("_File"), G_MENU_MODEL (file_menu));
+    g_menu_append_item (menubar, file_item);
+    g_object_unref (file_item);
+    g_object_unref (file_menu);
+    
+    // Edit Menu
+    GMenu *edit_menu = g_menu_new ();
+    g_menu_append (edit_menu, _("_Find"), "win.find");
+    g_menu_append (edit_menu, _("_Preferences..."), "win.preferences");
+    
+    GMenuItem *edit_item = g_menu_item_new_submenu (_("_Edit"), G_MENU_MODEL (edit_menu));
+    g_menu_append_item (menubar, edit_item);
+    g_object_unref (edit_item);
+    g_object_unref (edit_menu);
+    
+    // View Menu
+    GMenu *view_menu = g_menu_new ();
+    g_menu_append (view_menu, _("Zoom _In"), "win.zoom-in");
+    g_menu_append (view_menu, _("Zoom _Out"), "win.zoom-out");
+    g_menu_append (view_menu, _("Zoom to _Fit"), "win.zoom-fit");
+    g_menu_append (view_menu, _("Zoom to _Width"), "win.zoom-width");
+    
+    GMenu *view_submenu = g_menu_new ();
+    g_menu_append (view_submenu, _("Show _Toolbar"), "win.show-toolbar");
+    g_menu_append (view_submenu, _("Show _Statusbar"), "win.show-statusbar");
+    g_menu_append (view_submenu, _("Show I_ndex"), "win.show-index");
+    g_menu_append (view_submenu, _("Hide _Menubar"), "win.show-menubar");
+    g_menu_append_section (view_menu, NULL, G_MENU_MODEL (view_submenu));
+    g_object_unref (view_submenu);
+    
+    g_menu_append (view_menu, _("_Invert Colors"), "win.invert-colors");
+    g_menu_append (view_menu, _("F_ull screen"), "win.fullscreen");
+    
+    GMenuItem *view_item = g_menu_item_new_submenu (_("_View"), G_MENU_MODEL (view_menu));
+    g_menu_append_item (menubar, view_item);
+    g_object_unref (view_item);
+    g_object_unref (view_menu);
+    
+    // Go Menu
+    GMenu *go_menu = g_menu_new ();
+    g_menu_append (go_menu, _("_Previous Page"), "win.go-previous");
+    g_menu_append (go_menu, _("_Next Page"), "win.go-next");
+    g_menu_append (go_menu, _("_First Page"), "win.go-first");
+    g_menu_append (go_menu, _("_Last Page"), "win.go-last");
+    
+    GMenuItem *go_item = g_menu_item_new_submenu (_("_Go"), G_MENU_MODEL (go_menu));
+    g_menu_append_item (menubar, go_item);
+    g_object_unref (go_item);
+    g_object_unref (go_menu);
+    
+    // Document Menu
+    GMenu *doc_menu = g_menu_new ();
+    g_menu_append (doc_menu, _("Rotate _Right"), "win.rotate-right");
+    g_menu_append (doc_menu, _("Rotate _Left"), "win.rotate-left");
+    
+    GMenuItem *doc_item = g_menu_item_new_submenu (_("_Document"), G_MENU_MODEL (doc_menu));
+    g_menu_append_item (menubar, doc_item);
+    g_object_unref (doc_item);
+    g_object_unref (doc_menu);
+    
+    // Help Menu
+    GMenu *help_menu = g_menu_new ();
+    g_menu_append (help_menu, _("_About"), "win.about");
+    
+    GMenuItem *help_item = g_menu_item_new_submenu (_("_Help"), G_MENU_MODEL (help_menu));
+    g_menu_append_item (menubar, help_item);
+    g_object_unref (help_item);
+    g_object_unref (help_menu);
+    
+    // Create GTK4 popover menu bar from the model
+    m_MenuBar = gtk_popover_menu_bar_new_from_model (G_MENU_MODEL (menubar));
+    g_object_unref (menubar);
+    
+    // Show the menu bar by default
+    gtk_widget_set_visible (m_MenuBar, TRUE);
 }
 
 ///
@@ -1343,15 +1421,8 @@ main_window_about_box_cb (GtkWidget *widget, gpointer data)
 }
 
 
-void
-main_window_about_box_url_hook (GtkAboutDialog *about, const gchar *link,
-                                gpointer data)
-{
-    g_assert ( NULL != data && "The data parameter is NULL.");
-
-    MainPter *pter = (MainPter *)data;
-    pter->aboutBoxLinkActivated (link);
-}
+// GTK4: gtk_about_dialog_set_url_hook removed - links work automatically
+// This callback is no longer needed
 
 ///
 /// @brief The user tried to find a word in the document.
