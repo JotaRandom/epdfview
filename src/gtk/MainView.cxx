@@ -1453,8 +1453,7 @@ void
 main_window_about_box_cb (GtkWidget *widget, gpointer data)
 {
     const gchar *authors[] = {
-        "Jordi Fita <jordi@emma-soft.com>",
-        "GTK4 Port Contributors",
+        "Jordi Fita <jordi@emma-soft.com>\nPablo Lezaeta <prflr88@gmail.com>",
         NULL
     };
 
@@ -1504,9 +1503,9 @@ main_window_about_box_cb (GtkWidget *widget, gpointer data)
     gtk_show_about_dialog (NULL,
             "program-name", _("ePDFView"),
             "version", VERSION,
-            "copyright", "\xc2\xa9 2006-2025 Emma's Software and Contributors",
+            "copyright", "\xc2\xa9 2006-2011 Emma's Software\n\xc2\xa9 2025 Jota Random",
             "license", licenseTranslated,
-            "website", "https://github.com/JotaRandom/epdfview",
+            "website", "http://www.emma-soft.com/projects/epdfview/\nhttps://github.com/JotaRandom/epdfview",
             "authors", authors,
             "comments", comments,
             "translator-credits", _("translator-credits"),
