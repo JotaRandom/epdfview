@@ -225,7 +225,8 @@ PrintView::getPageOrientation ()
 const gchar *
 PrintView::getPageRange ()
 {
-    return gtk_entry_get_text (GTK_ENTRY (m_PageRange));
+    // GTK4: gtk_entry_get_text → gtk_editable_get_text
+    return gtk_editable_get_text (GTK_EDITABLE (m_PageRange));
 }
 
 gchar *
