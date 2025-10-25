@@ -46,6 +46,7 @@ enum printOptionsColumn
 static void print_view_number_of_copies_changed (GtkSpinButton *, gpointer);
 static void print_view_page_range_option_changed (GtkToggleButton *, gpointer);
 static void print_view_printer_selection_changed (GtkTreeSelection *, gpointer);
+static void print_view_dialog_response (GtkDialog *, int, gpointer);
 #endif // HAVE_CUPS
 
 PrintView::PrintView (GtkWindow *parent):
@@ -113,20 +114,20 @@ PrintView::setPresenter (PrintPter *pter)
                       pter);
 
     // Run the dialog.
-    // GTK4: gtk_dialog_run deprecated but still works
-    // Simple approach: just use it for now as it's functional
+    // GTK4: Use modal presentation with GMainLoop
     gtk_window_set_modal (GTK_WINDOW (m_PrintDialog), TRUE);
     gtk_window_present (GTK_WINDOW (m_PrintDialog));
     
     GMainLoop *loop = g_main_loop_new (NULL, FALSE);
     int response = GTK_RESPONSE_CANCEL;
+    int *response_ptr = &response;
     
-    g_signal_connect_swapped (m_PrintDialog, "response",
-                              G_CALLBACK (g_main_loop_quit), loop);
+    // Store loop pointer for response callback
+    g_object_set_data (G_OBJECT (m_PrintDialog), "loop", loop);
+    g_object_set_data (G_OBJECT (m_PrintDialog), "response", response_ptr);
+    
     g_signal_connect (m_PrintDialog, "response",
-                     G_CALLBACK(+[](GtkDialog*, int resp, int *response_ptr) {
-                         *response_ptr = resp;
-                     }), &response);
+                     G_CALLBACK (print_view_dialog_response), NULL);
     
     g_main_loop_run (loop);
     g_main_loop_unref (loop);
@@ -837,5 +838,19 @@ print_view_printer_selection_changed (GtkTreeSelection *sel, gpointer data)
 
     PrintPter *pter = (PrintPter *)data;
     pter->printerSelectionChanged ();
+}
+
+void
+print_view_dialog_response (GtkDialog *dialog, int resp, gpointer data)
+{
+    // Get stored pointers
+    GMainLoop *loop = (GMainLoop *)g_object_get_data (G_OBJECT (dialog), "loop");
+    int *response_ptr = (int *)g_object_get_data (G_OBJECT (dialog), "response");
+    
+    if (response_ptr)
+        *response_ptr = resp;
+    
+    if (loop && g_main_loop_is_running (loop))
+        g_main_loop_quit (loop);
 }
 #endif // HAVE_CUPS
