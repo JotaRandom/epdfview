@@ -1,5 +1,5 @@
 project('epdfview', 'cpp',
-  version : '0.2.0',
+  version : '0.3.0',
   default_options : ['warning_level=1', 'cpp_std=c++11', 'werror=false'],
   meson_version : '>= 0.50.0',
   license : 'GPL-2.0-or-later',

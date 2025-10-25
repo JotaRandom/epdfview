@@ -1299,22 +1299,39 @@ MainView::setMainWindowIcon ()
 
     GList *iconList = NULL;
     int iconFilesNum = G_N_ELEMENTS (iconFiles);
+    
+    // Search paths for icons (system and local)
+    const gchar *icon_dirs[] = {
+        DATADIR "/pixmaps",           // Configured installation
+        "/usr/local/share/pixmaps",   // Local installation
+        "/usr/share/pixmaps",         // System location
+        NULL
+    };
+    
     for ( int iconIndex = 0 ; iconIndex < iconFilesNum ; iconIndex++ )
     {
-        gchar *filename = g_strconcat (DATADIR, "/pixmaps/", 
-                                       iconFiles[iconIndex], NULL);
-        GError *error = NULL;
-        GdkPixbuf *iconPixbuf = gdk_pixbuf_new_from_file (filename, &error);
+        GdkPixbuf *iconPixbuf = NULL;
+        
+        // Try each search path
+        for (int dirIndex = 0; icon_dirs[dirIndex] != NULL && iconPixbuf == NULL; dirIndex++) {
+            gchar *filename = g_build_filename (icon_dirs[dirIndex], 
+                                               iconFiles[iconIndex], NULL);
+            if (g_file_test(filename, G_FILE_TEST_EXISTS)) {
+                GError *error = NULL;
+                iconPixbuf = gdk_pixbuf_new_from_file (filename, &error);
+                if ( NULL == iconPixbuf )
+                {
+                    g_warning ("Error loading icon %s: %s\n", filename, error->message);
+                    g_error_free (error);
+                }
+            }
+            g_free (filename);
+        }
+        
         if ( NULL != iconPixbuf )
         {
             iconList = g_list_prepend (iconList, iconPixbuf);
         }
-        else
-        {
-            g_warning ("Error loading icon: %s\n", error->message);
-            g_error_free (error);
-        }
-        g_free (filename);
     }
     // GTK4: gtk_window_set_default_icon_list removed
     // Use gtk_window_set_default_icon_name or individual window icons

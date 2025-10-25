@@ -44,13 +44,21 @@ epdfview_stock_icons_init (void)
     // This allows the icon theme to find our custom icons
     GtkIconTheme *icon_theme = gtk_icon_theme_get_for_display (gdk_display_get_default ());
     
-    // Add the pixmaps directory where our icons are installed
-    gchar *pixmaps_dir = g_build_filename (DATADIR, "pixmaps", NULL);
-    gtk_icon_theme_add_search_path (icon_theme, pixmaps_dir);
-    g_free (pixmaps_dir);
+    // Add both system and local pixmaps directories
+    // This handles both /usr/share and /usr/local/share installations
+    const gchar *search_paths[] = {
+        "/usr/share/pixmaps",           // System location
+        "/usr/local/share/pixmaps",     // Local installation
+        DATADIR "/pixmaps",             // Configured prefix
+        DATADIR,                        // Fallback to data dir
+        NULL
+    };
     
-    // Also add the data dir directly (for backward compatibility)
-    gtk_icon_theme_add_search_path (icon_theme, DATADIR);
+    for (int i = 0; search_paths[i] != NULL; i++) {
+        if (g_file_test(search_paths[i], G_FILE_TEST_IS_DIR)) {
+            gtk_icon_theme_add_search_path (icon_theme, search_paths[i]);
+        }
+    }
     
     // The custom icons will be automatically found by their names when requested
     // No need to manually load them - GTK4 icon theme handles this
