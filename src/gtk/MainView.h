@@ -65,7 +65,6 @@ namespace ePDFView
             void setCurrentPageGoto (gint number);
             void setNumberOfPages (gint number);
             void setOutline (DocumentOutline *outline);
-            void setPageMode (PageModeType mode);
             void setWindow (GtkWindow *window);
             void setZoomFactor (gfloat zoomFactor);
             void show (void);
