@@ -31,10 +31,10 @@ static void preferences_view_backsearch_command_changed (GtkEntry *, gpointer);
 PreferencesView::PreferencesView (GtkWindow *parent):
     IPreferencesView ()
 {
+    // GTK4: Stock items removed, use text labels
     m_PreferencesDialog = gtk_dialog_new_with_buttons (_("Preferences"),
 													   parent, GTK_DIALOG_MODAL,
-													   // GTK_STOCK_OK,    GTK_RESPONSE_ACCEPT,
-													   GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
+													   _("_Close"), GTK_RESPONSE_CLOSE,
             NULL);
     // GTK4: gtk_window_set_skip_taskbar_hint removed
     // Utility dialogs are automatically excluded from taskbar in GTK4
@@ -58,7 +58,11 @@ PreferencesView::PreferencesView (GtkWindow *parent):
 
 PreferencesView::~PreferencesView ()
 {
-    gtk_window_destroy (GTK_WINDOW (m_PreferencesDialog));
+    // GTK4: Check if window is still valid before destroying
+    if (m_PreferencesDialog && GTK_IS_WINDOW (m_PreferencesDialog))
+    {
+        gtk_window_destroy (GTK_WINDOW (m_PreferencesDialog));
+    }
 }
 
 void
@@ -74,15 +78,18 @@ PreferencesView::setPresenter (PreferencesPter *pter)
                       G_CALLBACK (preferences_view_backsearch_command_changed),
                       pter);
     // Run the dialog.
-    // Note: gtk_dialog_run is deprecated in GTK4 but still functional
-    // TODO: Replace with async gtk_window_present + response callback
+    // GTK4: Use modal presentation with response signal
     gtk_window_present (GTK_WINDOW (m_PreferencesDialog));
     
     // Wait for dialog response using event loop
     GMainLoop *loop = g_main_loop_new (NULL, FALSE);
-    g_object_set_data (G_OBJECT (m_PreferencesDialog), "loop", loop);
+    
+    // Connect both response signal (for buttons) and close-request (for X button)
+    g_signal_connect_swapped (m_PreferencesDialog, "response",
+                             G_CALLBACK (g_main_loop_quit), loop);
     g_signal_connect_swapped (m_PreferencesDialog, "close-request",
                              G_CALLBACK (g_main_loop_quit), loop);
+    
     g_main_loop_run (loop);
     g_main_loop_unref (loop);
     
