@@ -58,6 +58,7 @@ conf_data = configuration_data()
 conf_data.set_quoted('PACKAGE', 'epdfview')
 conf_data.set_quoted('VERSION', meson.project_version())
 conf_data.set_quoted('LOCALEDIR', join_paths(get_option('prefix'), get_option('localedir')))
+conf_data.set_quoted('DATADIR', join_paths(get_option('prefix'), get_option('datadir')))
 configure_file(output : 'config.h', configuration : conf_data)
 
 # Include directories
