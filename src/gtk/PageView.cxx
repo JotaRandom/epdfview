@@ -264,7 +264,7 @@ PageView::setCursor (PageCursor cursorType)
         // In GTK4, use gtk_widget_set_cursor_from_name
         if (cursor_name)
         {
-            gtk_widget_set_cursor_from_name (m_EventBox, cursor_name);
+            gtk_widget_set_cursor_from_name (m_PageImage, cursor_name);
         }
         
         m_CurrentCursor = cursorType;
@@ -280,27 +280,27 @@ PageView::setPresenter (PagePter *pter)
     // The resize callback is not critical for functionality in GTK4
     // as the layout system handles size changes automatically
     
-    // GTK4 uses event controllers for key events
+    // GTK4 uses event controllers for key events - add to scrolled window
     GtkEventController *key_controller = gtk_event_controller_key_new();
     gtk_widget_add_controller(m_PageScroll, key_controller);
     g_signal_connect(key_controller, "key-pressed",
                     G_CALLBACK(page_view_keypress_cb), pter);
 
-    // GTK4 uses gesture controllers for mouse events
+    // GTK4 uses gesture controllers for mouse events - add to the image widget
     GtkGesture *press_gesture = gtk_gesture_click_new();
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(press_gesture), 0); // Any button
-    gtk_widget_add_controller(m_EventBox, GTK_EVENT_CONTROLLER(press_gesture));
+    gtk_widget_add_controller(m_PageImage, GTK_EVENT_CONTROLLER(press_gesture));
     g_signal_connect(press_gesture, "pressed", 
                     G_CALLBACK(page_view_button_press_cb), this);
     g_signal_connect(press_gesture, "released", 
                     G_CALLBACK(page_view_button_release_cb), this);
                     
     GtkEventController *motion_controller = gtk_event_controller_motion_new();
-    gtk_widget_add_controller(m_EventBox, motion_controller);
+    gtk_widget_add_controller(m_PageImage, motion_controller);
     g_signal_connect(motion_controller, "motion", 
                     G_CALLBACK(page_view_mouse_motion_cb), this);
     
-    // GTK4 uses scroll event controllers
+    // GTK4 uses scroll event controllers - add to scrolled window
     GtkEventController *scroll_controller = gtk_event_controller_scroll_new(GTK_EVENT_CONTROLLER_SCROLL_VERTICAL);
     gtk_widget_add_controller(m_PageScroll, scroll_controller);
     g_signal_connect(scroll_controller, "scroll",
