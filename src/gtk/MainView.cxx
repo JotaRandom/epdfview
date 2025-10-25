@@ -60,10 +60,18 @@ static void main_window_go_to_last_page_cb (GtkWidget *, gpointer);
 static void main_window_go_to_next_page_cb (GtkWidget *, gpointer);
 static void main_window_go_to_page_cb (GtkWidget *, gpointer);
 static void main_window_go_to_previous_page_cb (GtkWidget *, gpointer);
+// GTK4: Macro to create GAction callback wrapper for widget callbacks
+// GAction signature: void callback(GSimpleAction*, GVariant*, gpointer)
+// Widget signature: void callback(GtkWidget*, gpointer)
+#define ACTION_CALLBACK(name, widget_callback) \
+static void name(GSimpleAction *action, GVariant *parameter, gpointer data) { \
+    widget_callback(NULL, data); \
+}
+
+// Widget callbacks (for toolbar buttons)
 static void main_window_reload_cb (GtkWidget *, gpointer);
 static void main_window_rotate_left_cb (GtkWidget *, gpointer);
 static void main_window_rotate_right_cb (GtkWidget *, gpointer);
-static void main_window_open_file_action_cb (GSimpleAction *, GVariant *, gpointer);
 static void main_window_open_file_cb (GtkWidget *, gpointer);
 static void main_window_outline_cb (GtkTreeSelection *, gpointer);
 static void main_window_preferences_cb (GtkWidget *, gpointer);
@@ -87,6 +95,25 @@ static void main_window_print_cb (GtkWidget *, gpointer);
 #endif // HAVE_CUPS
 
 // GTK4 action entries for GSimpleAction
+// GTK4: Create GAction wrappers for all widget callbacks
+ACTION_CALLBACK(main_window_open_file_action_cb, main_window_open_file_cb)
+ACTION_CALLBACK(main_window_reload_action_cb, main_window_reload_cb)
+ACTION_CALLBACK(main_window_save_file_action_cb, main_window_save_file_cb)
+#if defined (HAVE_CUPS)
+ACTION_CALLBACK(main_window_print_action_cb, main_window_print_cb)
+#endif
+ACTION_CALLBACK(main_window_quit_action_cb, main_window_quit_cb)
+ACTION_CALLBACK(main_window_find_action_cb, main_window_find_cb)
+ACTION_CALLBACK(main_window_preferences_action_cb, main_window_preferences_cb)
+ACTION_CALLBACK(main_window_zoom_in_action_cb, main_window_zoom_in_cb)
+ACTION_CALLBACK(main_window_zoom_out_action_cb, main_window_zoom_out_cb)
+ACTION_CALLBACK(main_window_rotate_right_action_cb, main_window_rotate_right_cb)
+ACTION_CALLBACK(main_window_rotate_left_action_cb, main_window_rotate_left_cb)
+ACTION_CALLBACK(main_window_go_to_first_page_action_cb, main_window_go_to_first_page_cb)
+ACTION_CALLBACK(main_window_go_to_last_page_action_cb, main_window_go_to_last_page_cb)
+ACTION_CALLBACK(main_window_go_to_next_page_action_cb, main_window_go_to_next_page_cb)
+ACTION_CALLBACK(main_window_go_to_previous_page_action_cb, main_window_go_to_previous_page_cb)
+
 static const struct {
     const gchar *name;
     const gchar *icon_name;
@@ -101,61 +128,61 @@ static const struct {
 
     { "reload-file", "view-refresh", N_("_Reload"), "<control>R",
       N_("Reload the current document"),
-      G_CALLBACK (main_window_reload_cb) },
+      G_CALLBACK (main_window_reload_action_cb) },
 
     { "save-file", "document-save", N_("_Save a Copy..."), "<control>S",
       N_("Save a copy of the current document"),
-      G_CALLBACK (main_window_save_file_cb) },
+      G_CALLBACK (main_window_save_file_action_cb) },
 
 #if defined (HAVE_CUPS)
     { "print", "document-print", N_("_Print..."), "<control>P",
       N_("Print the current document"),
-      G_CALLBACK (main_window_print_cb) },
+      G_CALLBACK (main_window_print_action_cb) },
 #endif // HAVE_CUPS
 
     { "quit", "window-close", N_("_Close"), "<control>W",
       N_("Close this window"),
-      G_CALLBACK (main_window_quit_cb) },
+      G_CALLBACK (main_window_quit_action_cb) },
 
     { "find", "edit-find", N_("_Find"), "<control>F",
       N_("Find a word in the document"),
-      G_CALLBACK (main_window_find_cb) },
+      G_CALLBACK (main_window_find_action_cb) },
 
     { "preferences", "preferences-system", N_("_Preferences..."), NULL,
       N_("Change the application's preferences"),
-      G_CALLBACK (main_window_preferences_cb) },
+      G_CALLBACK (main_window_preferences_action_cb) },
 
     { "zoom-in", "zoom-in", N_("Zoom _In"), "<control>plus",
       N_("Enlarge the document"),
-      G_CALLBACK (main_window_zoom_in_cb) },
+      G_CALLBACK (main_window_zoom_in_action_cb) },
 
     { "zoom-out", "zoom-out", N_("Zoom _Out"), "<control>minus",
       N_("Shrink the document"),
-      G_CALLBACK (main_window_zoom_out_cb) },
+      G_CALLBACK (main_window_zoom_out_action_cb) },
 
     { "rotate-right", "object-rotate-right", N_("Rotate _Right"), "<control>bracketright",
       N_("Rotate the document 90 degrees clockwise"),
-      G_CALLBACK (main_window_rotate_right_cb) },
+      G_CALLBACK (main_window_rotate_right_action_cb) },
 
     { "rotate-left", "object-rotate-left", N_("Rotate _Left"), "<control>bracketleft",
       N_("Rotate the document 90 degrees counter-clockwise"),
-      G_CALLBACK (main_window_rotate_left_cb) },
+      G_CALLBACK (main_window_rotate_left_action_cb) },
 
     { "go-first", "go-first", N_("_First Page"), "<control>Home",
       N_("Go to the first page"),
-      G_CALLBACK (main_window_go_to_first_page_cb) },
-
-    { "go-next", "go-next", N_("_Next Page"), "<Shift>Page_Down",
-      N_("Go to the next page"),
-      G_CALLBACK (main_window_go_to_next_page_cb) },
-
-    { "go-previous", "go-previous", N_("_Previous Page"), "<Shift>Page_Up",
-      N_("Go to the previous page"),
-      G_CALLBACK (main_window_go_to_previous_page_cb) },
+      G_CALLBACK (main_window_go_to_first_page_action_cb) },
 
     { "go-last", "go-last", N_("_Last Page"), "<control>End",
       N_("Go to the last page"),
-      G_CALLBACK (main_window_go_to_last_page_cb) },
+      G_CALLBACK (main_window_go_to_last_page_action_cb) },
+
+    { "go-next", "go-next", N_("_Next Page"), "Page_Down",
+      N_("Go to the next page"),
+      G_CALLBACK (main_window_go_to_next_page_action_cb) },
+
+    { "go-previous", "go-previous", N_("_Previous Page"), "Page_Up",
+      N_("Go to the previous page"),
+      G_CALLBACK (main_window_go_to_previous_page_action_cb) },
 
     { "about", "help-about", N_("_About"), NULL,
       N_("Display application's credits"),
@@ -1581,19 +1608,7 @@ main_window_rotate_right_cb (GtkWidget *widget, gpointer data)
 }
 
 ///
-/// @brief The user tries to open a file (GAction callback).
-///
-static void
-main_window_open_file_action_cb (GSimpleAction *action, GVariant *parameter, gpointer data)
-{
-    g_assert ( NULL != data && "The data parameter is NULL.");
-
-    MainPter *pter = (MainPter *)data;
-    pter->openFileActivated ();
-}
-
-///
-/// @brief The user tries to open a file (widget callback for toolbar).
+/// @brief The user tries to open a file.
 ///
 void
 main_window_open_file_cb (GtkWidget *widget, gpointer data)

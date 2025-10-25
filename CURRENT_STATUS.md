@@ -29,25 +29,28 @@ After extensive debugging, **ePDFView now successfully shows its window** in bot
 - ✅ Status bar
 - ✅ Main window layout
 - ✅ Window title
+- ✅ **File → Open dialog works!** (FIXED!)
 
 ---
 
 ## ❌ Known Issues
 
-### Critical: File Opening Crashes
+### Critical: Preferences Dialog Crashes
 **Status:** NEEDS FIX  
-**Symptom:** Clicking File → Open causes crash (coredump)  
-**Impact:** Cannot open PDF files yet
+**Symptom:** Clicking Edit → Preferences causes crash (coredump)  
+**Impact:** Cannot access preferences
 
-**Investigation:**
-- File dialog code uses GMainLoop pattern
-- Possible GTK4 modal dialog issue
-- Need to debug with gdb when dialog opens
+**Likely Cause:** Same as File Open - wrong callback signature for GAction
+
+### PDF Opening Not Tested
+**Status:** Need test file  
+**Symptom:** No PDF available on test machine  
+**Impact:** Cannot verify PDF viewing works
 
 ### Command Line File Opening
-**Status:** Not working  
-**Symptom:** Passing PDF on command line doesn't open it  
-**Impact:** Can only test with GUI
+**Status:** Not tested  
+**Symptom:** Passing PDF on command line not tested  
+**Impact:** Unknown if works
 
 ---
 
@@ -78,6 +81,19 @@ After extensive debugging, **ePDFView now successfully shows its window** in bot
 
 **File:** `main.cxx:161`
 
+### Bug #4: File Open Callback Signature Mismatch
+**Problem:** File → Open menu crashed with "data parameter is NULL" assertion
+
+**Root Cause:** GAction callbacks have different signature than GtkWidget callbacks:
+- GAction: `void callback(GSimpleAction*, GVariant*, gpointer)`
+- Widget: `void callback(GtkWidget*, gpointer)`
+
+**Fix:** Created separate `main_window_open_file_action_cb()` with correct GAction signature
+
+**Files:** `MainView.cxx:66, 99, 1586-1592`
+
+**Result:** File → Open now works! Dialog opens without crash.
+
 ---
 
 ## 📋 Testing Checklist
@@ -89,14 +105,18 @@ After extensive debugging, **ePDFView now successfully shows its window** in bot
 - [x] Window is responsive
 - [x] Menus display
 - [x] Can exit application (Ctrl+Q, File → Quit)
+- [x] File → Open dialog opens
 
-### Blocked by File Open Bug ❌
-- [ ] Open PDF file
-- [ ] Navigate pages
-- [ ] Zoom functions
-- [ ] Find text
-- [ ] Print
-- [ ] All other features
+### Blocked by Preferences Crash ❌
+- [ ] Preferences dialog (crashes)
+
+### Blocked by Lack of Test PDF ⚠️
+- [ ] Open PDF file (need test file)
+- [ ] Navigate pages (need PDF)
+- [ ] Zoom functions (need PDF)
+- [ ] Find text (need PDF)
+- [ ] Print (need PDF)
+- [ ] All other features (need PDF)
 
 ### Not Yet Tested ⚠️
 - All features require opening a PDF first
