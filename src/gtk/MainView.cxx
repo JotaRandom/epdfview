@@ -743,10 +743,16 @@ void
 MainView::show (void)
 {
     Config &config = Config::getConfig ();
-    gtk_window_set_default_size (GTK_WINDOW (m_MainWindow),
-                                 config.getWindowWidth (),
-                                 config.getWindowHeight ());
-    gtk_widget_show (m_MainWindow);
+    gint width = config.getWindowWidth ();
+    gint height = config.getWindowHeight ();
+    
+    // GTK4/WSLg: Sanity check window size (WSLg can report bogus dimensions)
+    if (width <= 0 || width > 10000) width = 800;
+    if (height <= 0 || height > 10000) height = 600;
+    
+    gtk_window_set_default_size (GTK_WINDOW (m_MainWindow), width, height);
+    // GTK4: Use gtk_window_present() to show and raise the window
+    gtk_window_present (GTK_WINDOW (m_MainWindow));
     // GTK4: gtk_window_move removed (not supported on Wayland)
     // Window positioning is handled by the window manager
 }

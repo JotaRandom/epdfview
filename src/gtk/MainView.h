@@ -62,9 +62,20 @@ namespace ePDFView
             void sensitiveZoomFit (gboolean sensitive);
             void sensitiveZoomWidth (gboolean sensitive);
             void sensitiveFullScreen (gboolean sensitive);
+            void setCurrentPageGoto (gint number);
+            void setNumberOfPages (gint number);
+            void setOutline (DocumentOutline *outline);
+            void setPageMode (PageModeType mode);
+            void setWindow (GtkWindow *window);
+            void setZoomFactor (gfloat zoomFactor);
             void show (void);
             void showErrorMessage (const gchar *title, const gchar *body);
             void showIndex (gboolean show);
+            void showMenubar (gboolean show);
+            void showStatusbar (gboolean show);
+            void showToolbar (gboolean show);
+            void toggleInvertColors (void);
+            GtkWidget *getMainWindow () { return m_MainWindow; }
             void setCursor (ViewCursor cursorType);
             void setFullScreen (gboolean fullScreen);
             void setNumberOfPagesText (const gchar *text);

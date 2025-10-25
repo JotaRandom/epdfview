@@ -85,6 +85,9 @@ on_activate (GtkApplication *app, gpointer user_data)
     // Let the presenter know which is its view
     appData->mainPter->setView (appData->mainView);
     
+    // GTK4: Register the window with the application (prevents immediate exit)
+    gtk_application_add_window (app, GTK_WINDOW (appData->mainView->getMainWindow()));
+    
     // Show the main window (GTK4: windows are hidden by default)
     appData->mainView->show ();
     
