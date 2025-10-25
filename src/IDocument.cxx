@@ -1307,6 +1307,12 @@ IDocument::zoomOut (void)
 void
 IDocument::zoomToFit (gint width, gint height)
 {
+    // Guard against early calls with zero-sized view
+    if (width <= 0 || height <= 0)
+    {
+        return;
+    }
+
     gdouble pageWidth;
     gdouble pageHeight;
 
@@ -1329,6 +1335,12 @@ IDocument::zoomToFit (gint width, gint height)
 void
 IDocument::zoomToWidth (gint width)
 {
+    // Guard against early calls with zero-sized view
+    if (width <= 0)
+    {
+        return;
+    }
+
     gdouble pageWidth;
     gdouble pageHeight;
 

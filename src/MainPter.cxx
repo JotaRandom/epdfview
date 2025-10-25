@@ -112,6 +112,20 @@ MainPter::checkZoomSettings ()
     }
 }
 
+// Defer applying zoom-to-fit/width until the page view has a valid size
+static gboolean apply_initial_zoom_cb (gpointer data)
+{
+    MainPter *self = (MainPter *)data;
+    gint width = 0, height = 0;
+    self->m_PagePter->getSize (&width, &height);
+    if (width > 0 && height > 0)
+    {
+        self->checkZoomSettings ();
+        return FALSE; // stop timeout
+    }
+    return TRUE; // keep trying until size is known
+}
+
 ///
 /// @brief Initialises the view with the initial application's state.
 ///
@@ -154,8 +168,6 @@ MainPter::setInitialState ()
         view.sensitivePrint (TRUE);
 #endif // HAVE_CUPS
         view.sensitiveFullScreen (TRUE);
-
-        checkZoomSettings ();
 
         // Check if we should see the outlines.
         showSidebar = (0 < m_Document->getOutline ()->getNumChildren () &&
@@ -209,6 +221,8 @@ MainPter::setInitialState ()
     // to be the first page. If we don't do this, the first page pointed
     // by the first outline is selected and we don't want this.
     view.show ();
+    // GTK4: Defer zoom application until view reports non-zero size
+    g_timeout_add (150, apply_initial_zoom_cb, this);
 }
 
 ///
