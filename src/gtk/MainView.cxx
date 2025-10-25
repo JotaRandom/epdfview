@@ -1453,7 +1453,8 @@ void
 main_window_about_box_cb (GtkWidget *widget, gpointer data)
 {
     const gchar *authors[] = {
-        "Jordi Fita <jordi@emma-soft.com>\nPablo Lezaeta <prflr88@gmail.com>",
+        "Jordi Fita <jordi@emma-soft.com>",
+        "Pablo Lezaeta <prflr88@gmail.com>",
         NULL
     };
 
@@ -1477,7 +1478,8 @@ main_window_about_box_cb (GtkWidget *widget, gpointer data)
                                             _(license[2]), "\n", NULL);
     
     // GTK4: Load logo from SVG file
-    GdkPixbuf *logo = NULL;
+    GdkPixbuf *logo_pixbuf = NULL;
+    GdkTexture *logo_texture = NULL;
     
     // Try multiple paths: source dir (for development), then installed locations
     gchar *source_logo = g_build_filename(g_get_current_dir(), "data", "epdfview.svg", NULL);
@@ -1493,8 +1495,11 @@ main_window_about_box_cb (GtkWidget *widget, gpointer data)
     for (int i = 0; logo_paths[i] != NULL; i++) {
         GError *error = NULL;
         if (g_file_test(logo_paths[i], G_FILE_TEST_EXISTS)) {
-            logo = gdk_pixbuf_new_from_file_at_size(logo_paths[i], 128, 128, &error);
-            if (logo) {
+            logo_pixbuf = gdk_pixbuf_new_from_file_at_size(logo_paths[i], 128, 128, &error);
+            if (logo_pixbuf) {
+                // GTK4: Convert GdkPixbuf to GdkTexture (GdkPaintable) for about dialog
+                logo_texture = gdk_texture_new_for_pixbuf(logo_pixbuf);
+                g_object_unref(logo_pixbuf);
                 break;
             }
             if (error) {
@@ -1509,19 +1514,21 @@ main_window_about_box_cb (GtkWidget *widget, gpointer data)
     gtk_show_about_dialog (NULL,
             "program-name", _("ePDFView"),
             "version", VERSION,
-            "copyright", "\xc2\xa9 2006-2011 Emma's Software\n\xc2\xa9 2025 Jota Random",
+            "copyright", "\xc2\xa9 2006-2011 Emma's Software\n"
+                         "\xc2\xa9 2025 Pablo Lezaeta",
             "license", licenseTranslated,
-            "website", "http://www.emma-soft.com/projects/epdfview/\nhttps://github.com/JotaRandom/epdfview",
+            "website", "http://www.emma-soft.com/projects/epdfview/\n"
+                       "https://github.com/JotaRandom/epdfview",
             "authors", authors,
             "comments", comments,
             "translator-credits", _("translator-credits"),
-            "logo", logo,
+            "logo", logo_texture,
             "wrap-license", TRUE,
             NULL);
 
     g_free (licenseTranslated);
-    if (logo) {
-        g_object_unref(logo);
+    if (logo_texture) {
+        g_object_unref(logo_texture);
     }
 }
 

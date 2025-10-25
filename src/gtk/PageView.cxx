@@ -93,6 +93,12 @@ PageView::PageView ():
     gtk_widget_set_margin_end (m_PageImage, PAGE_VIEW_PADDING);
     gtk_widget_set_margin_top (m_PageImage, PAGE_VIEW_PADDING);
     gtk_widget_set_margin_bottom (m_PageImage, PAGE_VIEW_PADDING);
+    
+    // GTK4: Ensure the image can expand to fill available space
+    gtk_widget_set_hexpand (m_PageImage, TRUE);
+    gtk_widget_set_vexpand (m_PageImage, TRUE);
+    gtk_widget_set_halign (m_PageImage, GTK_ALIGN_CENTER);
+    gtk_widget_set_valign (m_PageImage, GTK_ALIGN_CENTER);
 
     // I want to be able to drag the page with the left mouse
     // button, because that will make possible to move the page
