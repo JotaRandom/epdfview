@@ -77,6 +77,8 @@ on_activate (GtkApplication *app, gpointer user_data)
     
     // Create the main presenter and document
     appData->document = new PDFDocument;
+    // Initialize background job dispatcher (queue + thread)
+    IJob::init();
     appData->mainPter = new MainPter (appData->document);
     
     // Create the main view
