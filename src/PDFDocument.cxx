@@ -648,13 +648,9 @@ PDFDocument::renderPage (gint pageNum)
     PopplerPage *page = poppler_document_get_page (m_Document, pageNum - 1);
     if ( NULL != page )
     {
-        cairo_surface_t *surface = cairo_image_surface_create_for_data (
-                renderedPage->getData(), 
-                CAIRO_FORMAT_ARGB32, 
-                width, 
-                height,
-                renderedPage->getRowStride());
-                
+        cairo_surface_t *surface = cairo_image_surface_create (
+            CAIRO_FORMAT_ARGB32, width, height);
+        
         cairo_t *context = cairo_create(surface);
         
         // Clear with white background
@@ -678,11 +674,31 @@ PDFDocument::renderPage (gint pageNum)
         cairo_translate(context, x_offset, y_offset);
         cairo_scale(context, scale, scale);
         
-        // Set render hints
-        PopplerPrintFlags flags = POPPLER_PRINT_HIGH_RESOLUTION;
+        // Render the page
+        poppler_page_render(page, context);
+        
+        // Copy the rendered data to our buffer
+        cairo_surface_flush(surface);
+        unsigned char *data = cairo_image_surface_get_data(surface);
+        int stride = cairo_image_surface_get_stride(surface);
+        // Set high-quality scaling
+        cairo_pattern_t *pattern = cairo_get_source(context);
+        cairo_pattern_set_filter(pattern, CAIRO_FILTER_BEST);
         
         // Render the page
-        poppler_page_render_for_printing_with_options(page, context, flags);
+        poppler_page_render(page, context);
+        
+        // Copy the rendered data to our buffer
+        cairo_surface_flush(surface);
+        unsigned char *data = cairo_image_surface_get_data(surface);
+        int stride = cairo_image_surface_get_stride(surface);
+        unsigned char *dest = renderedPage->getData();
+        
+        for (int y = 0; y < height; y++) {
+            memcpy(dest, data, width * 4); // 4 bytes per pixel (ARGB)
+            data += stride;
+            dest += renderedPage->getRowStride();
+        }
         
         // Clean up
         cairo_destroy(context);
@@ -691,58 +707,13 @@ PDFDocument::renderPage (gint pageNum)
         // Convert from BGRA to RGBA if needed
         convert_bgra_to_rgba(renderedPage->getData(), width, height);
         
-        // Apply rotation transformations
-        switch(getRotation())
-        {
-            case 90:
-                cairo_translate(context, width, 0);
-                break;
-
-            case 180:
-                cairo_translate(context, width, height);
-                break;
-
-            case 270:
-                cairo_translate(context, 0, height);
-                break;
-
-            default:
-                cairo_translate(context, 0, 0);
-                break;
-        }
-
-        // Apply rotation (in radians)
-        cairo_rotate(context, getRotation() * G_PI / 180.0);
-        
-        // Set high-quality scaling
-        cairo_pattern_t *pattern = cairo_get_source(context);
-        cairo_pattern_set_filter(pattern, CAIRO_FILTER_BEST);
-        
-        // Render the page (zoom is already applied in the width/height)
-        poppler_page_render (page, context);
-        cairo_destroy(context);
-        cairo_surface_destroy (surface);
-        convert_bgra_to_rgba(renderedPage->getData (), width, height);
-#else // !HAVE_POPPLER_0_17_0
-        // Create the pixbuf from the data and render to it.
-        GdkPixbuf *pixbuf = gdk_pixbuf_new_from_data (renderedPage->getData (),
-                                                      GDK_COLORSPACE_RGB,
-                                                      FALSE,
-                                                      PIXBUF_BITS_PER_SAMPLE,
-                                                      width, height,
-                                                      renderedPage->getRowStride (),
-                                                      NULL, NULL);
-        poppler_page_render_to_pixbuf (page, 0, 0, width, height, getZoom (),
-                                       getRotation (), pixbuf);
-        g_object_unref (pixbuf);
-#endif // HAVE_POPPLER_0_17_0
-        setLinks (renderedPage, page);
-        g_object_unref (G_OBJECT (page));
+        // Set up links and clean up
+        setLinks(renderedPage, page);
+        g_object_unref(G_OBJECT(page));
     }
 
     return (renderedPage);
 }
-
 ///
 /// @brief Saves a document's copy to a file.
 ///
