@@ -54,3 +54,8 @@ test-results/
 
 # Tests
 test*.sh
+
+# Powershell scripts and friends
+*.ps1
+*.bat
+*.py

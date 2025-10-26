@@ -1,5 +1,7 @@
 // ePDFView - A lightweight PDF Viewer.
-// Copyright (C) 2006, 2007, 2009 Emma's Software.
+// Copyright (C) 2006-2011 Emma's Software.
+// Copyright (C) 2014-2025 Pablo Lezaeta
+// Copyright (C) 2014 Pedro A. Aranda Gutiérrez
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -252,17 +254,9 @@ PageView::resizePage (gint width, gint height)
         GtkAdjustment *hAdjustment = gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(m_PageScroll));
         GtkAdjustment *vAdjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(m_PageScroll));
         
-        // Store current scroll positions as ratios (0.0 to 1.0)
-        gdouble hratio = 0.0, vratio = 0.0;
-        gdouble hpage_size = gtk_adjustment_get_page_size(hAdjustment);
-        gdouble vpage_size = gtk_adjustment_get_page_size(vAdjustment);
-        gdouble hadj_upper = gtk_adjustment_get_upper(hAdjustment);
-        gdouble vadj_upper = gtk_adjustment_get_upper(vAdjustment);
-        
-        if (hadj_upper > hpage_size)
-            hratio = gtk_adjustment_get_value(hAdjustment) / (hadj_upper - hpage_size);
-        if (vadj_upper > vpage_size)
-            vratio = gtk_adjustment_get_value(vAdjustment) / (vadj_upper - vpage_size);
+        // Store current scroll positions as absolute values
+        gdouble hadj_value = gtk_adjustment_get_value(hAdjustment);
+        gdouble vadj_value = gtk_adjustment_get_value(vAdjustment);
         
         // Calculate new dimensions with zoom and padding
         gint newWidth = (gint)(width * m_ZoomLevel) + (2 * PAGE_VIEW_PADDING);
@@ -289,20 +283,24 @@ PageView::resizePage (gint width, gint height)
             // Set the size request to the scaled size
             gtk_widget_set_size_request(m_PageImage, newWidth, newHeight);
             
+            // Get the viewport size
+            gint viewport_width = gtk_widget_get_allocated_width(GTK_WIDGET(m_PageScroll));
+            gint viewport_height = gtk_widget_get_allocated_height(GTK_WIDGET(m_PageScroll));
+            
             // Update the adjustments to match the new content size
             gtk_adjustment_set_upper(hAdjustment, newWidth);
-            gtk_adjustment_set_page_size(hAdjustment, MIN(gtk_widget_get_allocated_width(GTK_WIDGET(m_PageScroll)), newWidth));
+            gtk_adjustment_set_page_size(hAdjustment, MIN(viewport_width, newWidth));
             
             gtk_adjustment_set_upper(vAdjustment, newHeight);
-            gtk_adjustment_set_page_size(vAdjustment, MIN(gtk_widget_get_allocated_height(GTK_WIDGET(m_PageScroll)), newHeight));
+            gtk_adjustment_set_page_size(vAdjustment, MIN(viewport_height, newHeight));
             
-            // Restore scroll position based on the previous ratio
-            gdouble new_hscroll = hratio * MAX(0, newWidth - gtk_adjustment_get_page_size(hAdjustment));
-            gdouble new_vscroll = vratio * MAX(0, newHeight - gtk_adjustment_get_page_size(vAdjustment));
+            // Calculate the new scroll positions
+            gdouble new_hvalue = hadj_value * (newWidth / (gdouble)gtk_adjustment_get_upper(hAdjustment));
+            gdouble new_vvalue = vadj_value * (newHeight / (gdouble)gtk_adjustment_get_upper(vAdjustment));
             
-            // Set the new scroll positions
-            gtk_adjustment_set_value(hAdjustment, new_hscroll);
-            gtk_adjustment_set_value(vAdjustment, new_vscroll);
+            // Apply the new scroll positions
+            gtk_adjustment_set_value(hAdjustment, CLAMP(new_hvalue, 0, newWidth - viewport_width));
+            gtk_adjustment_set_value(vAdjustment, CLAMP(new_vvalue, 0, newHeight - viewport_height));
             
             // Thaw the scrolled window
             g_object_thaw_notify(G_OBJECT(m_PageScroll));

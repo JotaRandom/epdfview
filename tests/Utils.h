@@ -1,5 +1,10 @@
+﻿// ePDFView - A lightweight PDF Viewer.
+// Copyright (C) 2006-2011 Emma's Software.
+// Copyright (C) 2014-2025 Pablo Lezaeta
+// Copyright (C) 2014 Pedro A. Aranda GutiÃ©rrez
+
 // ePDFView - Test Util Functions.
-// Copyright (C) 2006, 2007, 2009 Emma's Software.
+// 
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
