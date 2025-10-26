@@ -82,13 +82,20 @@ PageView::PageView ():
     m_ZoomLevel = 1.0;
 
     // Create the scrolled window where the page image will be.
-    m_PageScroll = gtk_scrolled_window_new ();
+    m_PageScroll = gtk_scrolled_window_new();
     
     // Configure scrolled window to allow both horizontal and vertical scrolling
     m_EventBox = m_PageScroll;
-    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (m_PageScroll),
-                                    GTK_POLICY_AUTOMATIC,
-                                    GTK_POLICY_AUTOMATIC);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(m_PageScroll),
+                                  GTK_POLICY_AUTOMATIC,
+                                  GTK_POLICY_AUTOMATIC);
+    
+    // Configure scrolled window properties for better zoom behavior
+    gtk_scrolled_window_set_min_content_width(GTK_SCROLLED_WINDOW(m_PageScroll), 10);
+    gtk_scrolled_window_set_min_content_height(GTK_SCROLLED_WINDOW(m_PageScroll), 10);
+    gtk_scrolled_window_set_has_frame(GTK_SCROLLED_WINDOW(m_PageScroll), FALSE);
+    gtk_widget_set_hexpand(m_PageScroll, TRUE);
+    gtk_widget_set_vexpand(m_PageScroll, TRUE);
 
     // Create a container box to hold the image
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
@@ -238,25 +245,32 @@ PageView::resizePage (gint width, gint height)
 {
     if (m_CurrentPixbuf != NULL)
     {
+        // Freeze the scrolled window to prevent flickering
+        g_object_freeze_notify(G_OBJECT(m_PageScroll));
+        
         // Get the current scroll position before resizing
         GtkAdjustment *hAdjustment = gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(m_PageScroll));
         GtkAdjustment *vAdjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(m_PageScroll));
-        gdouble hscroll = gtk_adjustment_get_value(hAdjustment);
-        gdouble vscroll = gtk_adjustment_get_value(vAdjustment);
         
-        // Calculate the ratio of the current scroll position to the total size
+        // Store current scroll positions as ratios (0.0 to 1.0)
         gdouble hratio = 0.0, vratio = 0.0;
+        gdouble hpage_size = gtk_adjustment_get_page_size(hAdjustment);
+        gdouble vpage_size = gtk_adjustment_get_page_size(vAdjustment);
         gdouble hadj_upper = gtk_adjustment_get_upper(hAdjustment);
         gdouble vadj_upper = gtk_adjustment_get_upper(vAdjustment);
         
-        if (hadj_upper > 0)
-            hratio = hscroll / hadj_upper;
-        if (vadj_upper > 0)
-            vratio = vscroll / vadj_upper;
+        if (hadj_upper > hpage_size)
+            hratio = gtk_adjustment_get_value(hAdjustment) / (hadj_upper - hpage_size);
+        if (vadj_upper > vpage_size)
+            vratio = gtk_adjustment_get_value(vAdjustment) / (vadj_upper - vpage_size);
         
-        // Calculate the new size with padding and apply the zoom level
+        // Calculate new dimensions with zoom and padding
         gint newWidth = (gint)(width * m_ZoomLevel) + (2 * PAGE_VIEW_PADDING);
         gint newHeight = (gint)(height * m_ZoomLevel) + (2 * PAGE_VIEW_PADDING);
+        
+        // Ensure minimum size to prevent rendering issues
+        newWidth = MAX(newWidth, 10);
+        newHeight = MAX(newHeight, 10);
         
         // Scale the pixbuf to the new size
         GdkPixbuf *scaledPage = gdk_pixbuf_scale_simple(m_CurrentPixbuf,
@@ -276,19 +290,22 @@ PageView::resizePage (gint width, gint height)
             gtk_widget_set_size_request(m_PageImage, newWidth, newHeight);
             
             // Update the adjustments to match the new content size
-            gtk_adjustment_set_upper(hAdjustment, MAX(newWidth, 1));
-            gtk_adjustment_set_upper(vAdjustment, MAX(newHeight, 1));
+            gtk_adjustment_set_upper(hAdjustment, newWidth);
+            gtk_adjustment_set_page_size(hAdjustment, MIN(gtk_widget_get_allocated_width(GTK_WIDGET(m_PageScroll)), newWidth));
+            
+            gtk_adjustment_set_upper(vAdjustment, newHeight);
+            gtk_adjustment_set_page_size(vAdjustment, MIN(gtk_widget_get_allocated_height(GTK_WIDGET(m_PageScroll)), newHeight));
             
             // Restore scroll position based on the previous ratio
-            hscroll = hratio * MAX(newWidth - gtk_adjustment_get_page_size(hAdjustment), 0);
-            vscroll = vratio * MAX(newHeight - gtk_adjustment_get_page_size(vAdjustment), 0);
+            gdouble new_hscroll = hratio * MAX(0, newWidth - gtk_adjustment_get_page_size(hAdjustment));
+            gdouble new_vscroll = vratio * MAX(0, newHeight - gtk_adjustment_get_page_size(vAdjustment));
             
-            // Make sure the scroll position is within bounds
-            hscroll = CLAMP(hscroll, 0, MAX(newWidth - gtk_adjustment_get_page_size(hAdjustment), 0));
-            vscroll = CLAMP(vscroll, 0, MAX(newHeight - gtk_adjustment_get_page_size(vAdjustment), 0));
+            // Set the new scroll positions
+            gtk_adjustment_set_value(hAdjustment, new_hscroll);
+            gtk_adjustment_set_value(vAdjustment, new_vscroll);
             
-            gtk_adjustment_set_value(hAdjustment, hscroll);
-            gtk_adjustment_set_value(vAdjustment, vscroll);
+            // Thaw the scrolled window
+            g_object_thaw_notify(G_OBJECT(m_PageScroll));
             
             // Force a redraw of the scrolled window
             gtk_widget_queue_draw(m_PageScroll);
@@ -296,6 +313,11 @@ PageView::resizePage (gint width, gint height)
             // Clean up
             g_object_unref(texture);
             g_object_unref(scaledPage);
+        }
+        else
+        {
+            // If scaling failed, thaw the scrolled window anyway
+            g_object_thaw_notify(G_OBJECT(m_PageScroll));
         }
     }
 }
