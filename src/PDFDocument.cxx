@@ -674,13 +674,6 @@ PDFDocument::renderPage (gint pageNum)
         cairo_translate(context, x_offset, y_offset);
         cairo_scale(context, scale, scale);
         
-        // Render the page
-        poppler_page_render(page, context);
-        
-        // Copy the rendered data to our buffer
-        cairo_surface_flush(surface);
-        unsigned char *data = cairo_image_surface_get_data(surface);
-        int stride = cairo_image_surface_get_stride(surface);
         // Set high-quality scaling
         cairo_pattern_t *pattern = cairo_get_source(context);
         cairo_pattern_set_filter(pattern, CAIRO_FILTER_BEST);
