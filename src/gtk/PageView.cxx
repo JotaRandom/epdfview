@@ -78,6 +78,9 @@ PageView::PageView ():
     // GTK4: Store current pixbuf separately since gtk_image_get_pixbuf is removed
     m_CurrentPixbuf = NULL;
 
+    // The current zoom level
+    m_ZoomLevel = 1.0;
+
     // Create the scrolled window where the page image will be.
     m_PageScroll = gtk_scrolled_window_new ();
     
@@ -115,6 +118,9 @@ PageView::PageView ():
     gtk_widget_set_size_request(m_PageScroll, 100, 100);
 
     // In GTK4, widgets are visible by default - no need for gtk_widget_show_all
+    
+    // Initialize zoom level to 1.0 (100%)
+    m_ZoomLevel = 1.0;
     
     invertColorToggle = 0;
     hasShownAPage = 0;
@@ -248,13 +254,14 @@ PageView::resizePage (gint width, gint height)
         if (vadj_upper > 0)
             vratio = vscroll / vadj_upper;
         
-        // Calculate the new size with padding
-        gint newWidth = width + (2 * PAGE_VIEW_PADDING);
-        gint newHeight = height + (2 * PAGE_VIEW_PADDING);
+        // Calculate the new size with padding and apply the zoom level
+        gint newWidth = (gint)(width * m_ZoomLevel) + (2 * PAGE_VIEW_PADDING);
+        gint newHeight = (gint)(height * m_ZoomLevel) + (2 * PAGE_VIEW_PADDING);
         
         // Scale the pixbuf to the new size
         GdkPixbuf *scaledPage = gdk_pixbuf_scale_simple(m_CurrentPixbuf,
-                                                       width, height,
+                                                       (gint)(width * m_ZoomLevel),
+                                                       (gint)(height * m_ZoomLevel),
                                                        GDK_INTERP_BILINEAR);
         
         if (scaledPage != NULL)
@@ -265,7 +272,7 @@ PageView::resizePage (gint width, gint height)
             // Set the texture to the picture
             gtk_picture_set_paintable(GTK_PICTURE(m_PageImage), GDK_PAINTABLE(texture));
             
-            // Update the scrolled window's adjustments
+            // Set the size request to the scaled size
             gtk_widget_set_size_request(m_PageImage, newWidth, newHeight);
             
             // Update the adjustments to match the new content size
@@ -283,9 +290,31 @@ PageView::resizePage (gint width, gint height)
             gtk_adjustment_set_value(hAdjustment, hscroll);
             gtk_adjustment_set_value(vAdjustment, vscroll);
             
+            // Force a redraw of the scrolled window
+            gtk_widget_queue_draw(m_PageScroll);
+            
             // Clean up
             g_object_unref(texture);
             g_object_unref(scaledPage);
+        }
+    }
+}
+
+void
+PageView::setZoom (gdouble zoom)
+{
+    // Only update if the zoom level has actually changed
+    if (ABS(zoom - m_ZoomLevel) > 0.001)
+    {
+        // Update the zoom level
+        m_ZoomLevel = zoom;
+        
+        // If we have a current pixbuf, resize the page to apply the new zoom
+        if (m_CurrentPixbuf != NULL)
+        {
+            gint width = gdk_pixbuf_get_width(m_CurrentPixbuf);
+            gint height = gdk_pixbuf_get_height(m_CurrentPixbuf);
+            resizePage(width, height);
         }
     }
 }

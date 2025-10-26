@@ -45,6 +45,7 @@ namespace ePDFView
             void showText (const gchar *text);
             
             void setInvertColorToggle(char on); // krogan edit
+            void setZoom(gdouble zoom);
 
         protected:
 			DocumentPage *lastPageShown;
@@ -56,6 +57,7 @@ namespace ePDFView
             GtkWidget *m_PageImage;
             GtkWidget *m_PageScroll;
             GdkPixbuf *m_CurrentPixbuf; // GTK4: Store current pixbuf separately
+            gdouble m_ZoomLevel;
 
             GdkPixbuf *getPixbufFromPage (DocumentPage *page);
             
