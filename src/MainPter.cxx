@@ -1,4 +1,4 @@
-﻿// ePDFView - A lightweight PDF Viewer.
+// ePDFView - A lightweight PDF Viewer.
 // Copyright (C) 2006-2011 Emma's Software.
 // Copyright (C) 2014-2025 Pablo Lezaeta
 // Copyright (C) 2014 Pedro A. Aranda GutiÃ©rrez
@@ -588,8 +588,29 @@ MainPter::rotateLeftActivated ()
 {
     g_assert ( NULL != m_Document && "Tried to rotate a NULL document.");
 
-    m_Document->rotateLeft ();
-    checkZoomSettings ();
+    // Store current zoom settings
+    gboolean wasZoomFit = Config::getConfig().zoomToFit();
+    gboolean wasZoomWidth = Config::getConfig().zoomToWidth();
+    
+    // Disable auto-zoom during rotation
+    if (wasZoomFit || wasZoomWidth) {
+        Config::getConfig().setZoomToFit(FALSE);
+        Config::getConfig().setZoomToWidth(FALSE);
+    }
+
+    m_Document->rotateLeft();
+    
+    // Restore zoom settings if needed
+    if (wasZoomFit || wasZoomWidth) {
+        g_idle_add([](gpointer data) -> gboolean {
+            MainPter* self = static_cast<MainPter*>(data);
+            Config& config = Config::getConfig();
+            if (config.zoomToFit() || config.zoomToWidth()) {
+                self->checkZoomSettings();
+            }
+            return G_SOURCE_REMOVE;
+        }, this);
+    }
 }
 
 ///
@@ -600,9 +621,29 @@ MainPter::rotateRightActivated ()
 {
     g_assert ( NULL != m_Document && "Tried to rotate a NULL document.");
 
-    m_Document->rotateRight ();
-    checkZoomSettings ();
-}
+    // Store current zoom settings
+    gboolean wasZoomFit = Config::getConfig().zoomToFit();
+    gboolean wasZoomWidth = Config::getConfig().zoomToWidth();
+    
+    // Disable auto-zoom during rotation
+    if (wasZoomFit || wasZoomWidth) {
+        Config::getConfig().setZoomToFit(FALSE);
+        Config::getConfig().setZoomToWidth(FALSE);
+    }
+
+    m_Document->rotateRight();
+    
+    // Restore zoom settings if needed
+    if (wasZoomFit || wasZoomWidth) {
+        g_idle_add([](gpointer data) -> gboolean {
+            MainPter* self = static_cast<MainPter*>(data);
+            Config& config = Config::getConfig();
+            if (config.zoomToFit() || config.zoomToWidth()) {
+                self->checkZoomSettings();
+            }
+            return G_SOURCE_REMOVE;
+        }, this);
+    }
 
 ///
 /// @brief The Save File action was activated.
