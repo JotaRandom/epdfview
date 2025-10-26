@@ -1316,12 +1316,22 @@ IDocument::zoomToFit (gint width, gint height)
     gdouble pageWidth;
     gdouble pageHeight;
 
-    getPageSize (&pageWidth, &pageHeight);
+    getPageSize(&pageWidth, &pageHeight);
+    
     // In this case we are interested in the minimum zoom level, 
     // as is the one that fits best.
     gdouble widthScale = (gdouble)width / pageWidth;
     gdouble heightScale = (gdouble)height / pageHeight;
-    setZoom (MIN (widthScale, heightScale));
+    
+    // Use the smaller scale to ensure the entire page fits
+    gdouble scale = MIN(widthScale, heightScale);
+    
+    // Ensure we don't go below minimum zoom
+    scale = MAX(scale, ZOOM_OUT_MAX);
+    // Ensure we don't exceed maximum zoom
+    scale = MIN(scale, ZOOM_IN_MAX);
+    
+    setZoom(scale);
 }
 
 ///
@@ -1348,6 +1358,10 @@ IDocument::zoomToWidth (gint width)
     if (pageWidth > 0) {
         // Calculate scale based on width while maintaining aspect ratio
         gdouble scale = (gdouble)width / pageWidth;
+        // Ensure we don't go below minimum zoom
+        scale = MAX(scale, ZOOM_OUT_MAX);
+        // Ensure we don't exceed maximum zoom
+        scale = MIN(scale, ZOOM_IN_MAX);
         setZoom(scale);
     }
 }
