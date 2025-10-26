@@ -277,7 +277,7 @@ MainView::MainView (MainPter *pter):
     // Create the main vertical box.
     m_MainBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
     gtk_window_set_child (GTK_WINDOW (m_MainWindow), m_MainBox);
-    gtk_widget_show (m_MainBox);
+    gtk_widget_set_visible (m_MainBox, TRUE);
     // Create actions, menu and tool bars.
     createActions ();
     createMenuBar ();
@@ -823,11 +823,11 @@ MainView::showIndex (gboolean show)
 {
     if ( show )
     {
-        gtk_widget_show (m_Sidebar);
+        gtk_widget_set_visible (m_Sidebar, TRUE);
     }
     else
     {
-        gtk_widget_hide (m_Sidebar);
+        gtk_widget_set_visible (m_Sidebar, FALSE);
     }
     GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "show-index");
     if (action) {
@@ -866,16 +866,16 @@ MainView::setFullScreen (gboolean fullScreen)
         gtk_window_fullscreen (GTK_WINDOW (m_MainWindow));
         // Hide the menu bar, tool bar, status bar and the index bar. Then
         // zoom to fit.
-        gtk_widget_hide (m_MenuBar);
-        gtk_widget_hide (m_ToolBar);
-        gtk_widget_hide (m_StatusBar);
-        gtk_widget_hide (m_Sidebar);
+        gtk_widget_set_visible (m_MenuBar, FALSE);
+        gtk_widget_set_visible (m_ToolBar, FALSE);
+        gtk_widget_set_visible (m_StatusBar, FALSE);
+        gtk_widget_set_visible (m_Sidebar, FALSE);
         activeZoomFit (TRUE);
     }
     else
     {
         gtk_window_unfullscreen (GTK_WINDOW (m_MainWindow));
-        gtk_widget_show (m_MenuBar);
+        gtk_widget_set_visible (m_MenuBar, TRUE);
         // Show again the toolbar, status bar and index, only if it was
         // enabled.
         // GTK4: GSimpleAction callbacks require 3 parameters
@@ -978,11 +978,11 @@ MainView::showMenubar (gboolean show)
 {
     if ( show )
     {
-        gtk_widget_show (m_MenuBar);
+        gtk_widget_set_visible (m_MenuBar, TRUE);
     }
     else
     {
-        gtk_widget_hide (m_MenuBar);
+        gtk_widget_set_visible (m_MenuBar, FALSE);
     }
     GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "show-menubar");
     if (action) {
@@ -1008,11 +1008,11 @@ MainView::showStatusbar (gboolean show)
     }
     if ( show )
     {
-        gtk_widget_show (m_StatusBar);
+        gtk_widget_set_visible (m_StatusBar, TRUE);
     }
     else
     {
-        gtk_widget_hide (m_StatusBar);
+        gtk_widget_set_visible (m_StatusBar, FALSE);
     }
 }
 
@@ -1025,11 +1025,11 @@ MainView::showToolbar (gboolean show)
     }
     if ( show )
     {
-        gtk_widget_show (m_ToolBar);
+        gtk_widget_set_visible (m_ToolBar, TRUE);
     }
     else
     {
-        gtk_widget_hide (m_ToolBar);
+        gtk_widget_set_visible (m_ToolBar, FALSE);
     }
 }
 

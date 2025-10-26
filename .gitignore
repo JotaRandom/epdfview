@@ -50,3 +50,6 @@ test-results/
 *.gdb
 *.gdbinit
 *.gdb.*
+
+# Tests
+test*.sh
