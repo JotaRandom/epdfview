@@ -55,6 +55,7 @@ static void main_window_find_cb (GtkWidget *, gpointer);
 static void main_window_fullscreen_cb (GSimpleAction *, GVariant *, gpointer);
 // GTK4: Window configure events removed
 // static gboolean main_window_moved_or_resized_cb (GtkWidget *, gpointer);
+static void main_window_size_changed_cb (GtkWidget *, GtkAllocation *, gpointer);
 static void main_window_go_to_first_page_cb (GtkWidget *, gpointer);
 static void main_window_go_to_last_page_cb (GtkWidget *, gpointer);
 static void main_window_go_to_next_page_cb (GtkWidget *, gpointer);
@@ -267,29 +268,27 @@ MainView::MainView (MainPter *pter):
 {
     // Initialise the stock items.
     epdfview_stock_icons_init ();
-    // Create the main window with proper Wayland support
+    // Create the main window
     m_MainWindow = gtk_window_new ();
     setMainWindowIcon ();
     
-    // Enable window resizing and state management
-    gtk_window_set_resizable (GTK_WINDOW (m_MainWindow), TRUE);
+    // Set window properties
+    gtk_window_set_title (GTK_WINDOW (m_MainWindow), "ePDFView");
     gtk_window_set_default_size (GTK_WINDOW (m_MainWindow), 800, 600);
+    gtk_window_set_resizable (GTK_WINDOW (m_MainWindow), TRUE);
+    gtk_window_set_decorated (GTK_WINDOW (m_MainWindow), TRUE);
     
-    // Set window class for Wayland
-    gtk_widget_add_css_class (m_MainWindow, "epdfview-window");
+    // Set application ID for Wayland
+    gtk_window_set_application (GTK_WINDOW (m_MainWindow), 
+                               g_application_get_default ());
     
     // Connect signals
     g_signal_connect (G_OBJECT (m_MainWindow), "destroy",
-                      G_CALLBACK (main_window_quit_cb), NULL);
+                     G_CALLBACK (main_window_quit_cb), NULL);
     
-    // Handle window state changes for proper Wayland support
-    g_signal_connect (m_MainWindow, "notify::default-width",
+    // Connect size-allocate for window size changes
+    g_signal_connect (G_OBJECT (m_MainWindow), "size-allocate",
                      G_CALLBACK (main_window_size_changed_cb), this);
-    g_signal_connect (m_MainWindow, "notify::default-height",
-                     G_CALLBACK (main_window_size_changed_cb), this);
-    
-    // Enable window controls for Wayland
-    gtk_window_set_decorated (GTK_WINDOW (m_MainWindow), TRUE);
     // Create the main vertical box.
     m_MainBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
     gtk_window_set_child (GTK_WINDOW (m_MainWindow), m_MainBox);
@@ -1600,27 +1599,26 @@ main_window_fullscreen_cb (GSimpleAction *action, GVariant *parameter, gpointer 
 /// Handles window size changes to ensure proper window management in Wayland.
 ///
 /// @param widget The widget that received the signal
-/// @param pspec The GParamSpec of the property that changed
+/// @param allocation The new allocation
 /// @param user_data User data (MainView instance)
 ////////////////////////////////////////////////////////////////
 static void
 main_window_size_changed_cb (GtkWidget *widget,
-                            GParamSpec *pspec,
+                            GtkAllocation *allocation,
                             gpointer user_data)
 {
     MainView *view = (MainView *)user_data;
-    GtkWidget *window = GTK_WIDGET(widget);
     
     // Ensure the window is properly managed by the window manager
-    if (gtk_widget_get_realized(window)) {
+    if (gtk_widget_get_realized(widget)) {
         // Request the window manager to allow resizing
-        gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
+        gtk_window_set_resizable(GTK_WINDOW(widget), TRUE);
         
         // Ensure the window can be maximized
-        gtk_window_set_decorated(GTK_WINDOW(window), TRUE);
+        gtk_window_set_decorated(GTK_WINDOW(widget), TRUE);
         
         // Force a window redraw
-        gtk_widget_queue_draw(window);
+        gtk_widget_queue_draw(widget);
     }
 }
 
