@@ -43,32 +43,53 @@ static void page_view_resized_cb (GtkWidget *, GtkAllocation *, gpointer);
 static gboolean page_view_scrolled_cb (GtkEventControllerScroll *, gdouble, gdouble, gpointer);
 static gboolean page_view_keypress_cb (GtkEventControllerKey *, guint, guint, GdkModifierType, gpointer);
 
-static void gdkpixbuf_invert(GdkPixbuf *pb) {//krogan edit
-	int width, height, rowlength, n_channels;
-	guchar *pixels, *p;
+///
+/// @brief Inverts the colors of a GdkPixbuf
+///
+/// This function inverts the RGB values of a GdkPixbuf while preserving the alpha channel.
+/// @param pb The GdkPixbuf to invert. If NULL or invalid, the function does nothing.
+///
+static void gdkpixbuf_invert(GdkPixbuf *pb) {
+    // Check if the pixbuf is valid
+    if (pb == NULL) {
+        g_warning("gdkpixbuf_invert: NULL pixbuf provided");
+        return;
+    }
 
-	n_channels = gdk_pixbuf_get_n_channels (pb);
+    // Get pixbuf properties
+    int n_channels = gdk_pixbuf_get_n_channels(pb);
+    
+    // Validate pixbuf format
+    if (gdk_pixbuf_get_colorspace(pb) != GDK_COLORSPACE_RGB ||
+        gdk_pixbuf_get_bits_per_sample(pb) != 8 ||
+        !gdk_pixbuf_get_has_alpha(pb) ||
+        n_channels != 4) {
+        g_warning("gdkpixbuf_invert: Unsupported pixbuf format");
+        return;
+    }
 
-	g_assert (gdk_pixbuf_get_colorspace (pb) == GDK_COLORSPACE_RGB);
-	g_assert (gdk_pixbuf_get_bits_per_sample (pb) == 8);
-	g_assert (gdk_pixbuf_get_has_alpha (pb));
-	g_assert (n_channels == 4);
-
-	width = gdk_pixbuf_get_width (pb);
-	height = gdk_pixbuf_get_height (pb);
-
-	rowlength = width*n_channels;
-	
-	pixels = gdk_pixbuf_get_pixels (pb);
-	
-	int i;
-	int max = rowlength*height;
-	for(i=0;i<max;i+=n_channels) {
-		p = pixels + i;
-		p[0] = 255 - p[0];
-		p[1] = 255 - p[1];
-		p[2] = 255 - p[2];
-	}
+    int width = gdk_pixbuf_get_width(pb);
+    int height = gdk_pixbuf_get_height(pb);
+    int rowstride = gdk_pixbuf_get_rowstride(pb);
+    guchar *pixels = gdk_pixbuf_get_pixels(pb);
+    
+    // Check if we have valid dimensions and pixel data
+    if (width <= 0 || height <= 0 || pixels == NULL) {
+        g_warning("gdkpixbuf_invert: Invalid pixbuf dimensions or pixel data");
+        return;
+    }
+    
+    // Invert each pixel
+    for (int y = 0; y < height; y++) {
+        guchar *row = pixels + y * rowstride;
+        for (int x = 0; x < width; x++) {
+            guchar *p = row + x * n_channels;
+            p[0] = 255 - p[0];  // Red
+            p[1] = 255 - p[1];  // Green
+            p[2] = 255 - p[2];  // Blue
+            // p[3] is alpha, leave it unchanged
+        }
+    }
 }
 
 PageView::PageView ():
@@ -519,7 +540,10 @@ PageView::showPage (DocumentPage *page, PageScroll scroll)
               gdk_pixbuf_get_width(m_CurrentPixbuf),
               gdk_pixbuf_get_height(m_CurrentPixbuf));
     
-    if(invertColorToggle) { gdkpixbuf_invert(m_CurrentPixbuf); }
+    // Invert colors if needed
+    if (invertColorToggle && m_CurrentPixbuf != NULL) {
+        gdkpixbuf_invert(m_CurrentPixbuf);
+    }
     
     // GTK4: Convert pixbuf to texture for display
     GdkTexture *texture = gdk_texture_new_for_pixbuf (m_CurrentPixbuf);
