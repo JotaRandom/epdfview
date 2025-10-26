@@ -81,30 +81,38 @@ PageView::PageView ():
     // Create the scrolled window where the page image will be.
     m_PageScroll = gtk_scrolled_window_new ();
     
-    // GTK4: Create event box for page image (not needed in GTK4, add controllers directly)
+    // Configure scrolled window to allow both horizontal and vertical scrolling
     m_EventBox = m_PageScroll;
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (m_PageScroll),
                                     GTK_POLICY_AUTOMATIC,
                                     GTK_POLICY_AUTOMATIC);
 
-    // The actual page image - use GtkPicture in GTK4 for better image handling
-    m_PageImage = gtk_picture_new ();
-    gtk_widget_set_margin_start (m_PageImage, PAGE_VIEW_PADDING);
-    gtk_widget_set_margin_end (m_PageImage, PAGE_VIEW_PADDING);
-    gtk_widget_set_margin_top (m_PageImage, PAGE_VIEW_PADDING);
-    gtk_widget_set_margin_bottom (m_PageImage, PAGE_VIEW_PADDING);
+    // Create a container box to hold the image
+    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_widget_set_hexpand(box, TRUE);
+    gtk_widget_set_vexpand(box, TRUE);
     
-    // Configure the image to expand and be scrollable
-    gtk_widget_set_hexpand (m_PageImage, TRUE);
-    gtk_widget_set_vexpand (m_PageImage, TRUE);
-    gtk_widget_set_halign (m_PageImage, GTK_ALIGN_FILL);
-    gtk_widget_set_valign (m_PageImage, GTK_ALIGN_FILL);
+    // Create the actual page image
+    m_PageImage = gtk_picture_new();
     
-    // Set the image as the child of the scrolled window
-    gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (m_PageScroll), m_PageImage);
+    // Configure the image to maintain its size and not be constrained by the window
+    gtk_widget_set_hexpand(m_PageImage, FALSE);
+    gtk_widget_set_vexpand(m_PageImage, FALSE);
+    gtk_widget_set_halign(m_PageImage, GTK_ALIGN_START);
+    gtk_widget_set_valign(m_PageImage, GTK_ALIGN_START);
     
-    // Set minimum size to ensure the scrolled window has some space
-    gtk_widget_set_size_request (m_PageScroll, 100, 100);
+    // Add padding around the image
+    gtk_widget_set_margin_start(m_PageImage, PAGE_VIEW_PADDING);
+    gtk_widget_set_margin_end(m_PageImage, PAGE_VIEW_PADDING);
+    gtk_widget_set_margin_top(m_PageImage, PAGE_VIEW_PADDING);
+    gtk_widget_set_margin_bottom(m_PageImage, PAGE_VIEW_PADDING);
+    
+    // Add the image to the box and the box to the scrolled window
+    gtk_box_append(GTK_BOX(box), m_PageImage);
+    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(m_PageScroll), box);
+    
+    // Set a minimum size for the scrolled window
+    gtk_widget_set_size_request(m_PageScroll, 100, 100);
 
     // In GTK4, widgets are visible by default - no need for gtk_widget_show_all
     
@@ -222,51 +230,62 @@ PageView::makeRectangleVisible (DocumentRectangle &rect, gdouble scale)
 void
 PageView::resizePage (gint width, gint height)
 {
-    // GTK4: Use stored pixbuf since gtk_image_get_pixbuf is removed
-    if ( NULL != m_CurrentPixbuf )
+    if (m_CurrentPixbuf != NULL)
     {
-        // Get the current scroll position
+        // Get the current scroll position before resizing
         GtkAdjustment *hAdjustment = gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(m_PageScroll));
         GtkAdjustment *vAdjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(m_PageScroll));
         gdouble hscroll = gtk_adjustment_get_value(hAdjustment);
         gdouble vscroll = gtk_adjustment_get_value(vAdjustment);
         
-        // Get the viewport size
-        gint viewportWidth = gtk_widget_get_allocated_width(GTK_WIDGET(m_PageScroll));
-        gint viewportHeight = gtk_widget_get_allocated_height(GTK_WIDGET(m_PageScroll));
+        // Calculate the ratio of the current scroll position to the total size
+        gdouble hratio = 0.0, vratio = 0.0;
+        gdouble hadj_upper = gtk_adjustment_get_upper(hAdjustment);
+        gdouble vadj_upper = gtk_adjustment_get_upper(vAdjustment);
+        
+        if (hadj_upper > 0)
+            hratio = hscroll / hadj_upper;
+        if (vadj_upper > 0)
+            vratio = vscroll / vadj_upper;
         
         // Calculate the new size with padding
         gint newWidth = width + (2 * PAGE_VIEW_PADDING);
         gint newHeight = height + (2 * PAGE_VIEW_PADDING);
         
-        // Update the scrolled window's adjustments
-        gtk_adjustment_set_upper(hAdjustment, MAX(newWidth, viewportWidth));
-        gtk_adjustment_set_page_size(hAdjustment, viewportWidth);
-        gtk_adjustment_set_step_increment(hAdjustment, viewportWidth * 0.1);
-        gtk_adjustment_set_page_increment(hAdjustment, viewportWidth * 0.9);
+        // Scale the pixbuf to the new size
+        GdkPixbuf *scaledPage = gdk_pixbuf_scale_simple(m_CurrentPixbuf,
+                                                       width, height,
+                                                       GDK_INTERP_BILINEAR);
         
-        gtk_adjustment_set_upper(vAdjustment, MAX(newHeight, viewportHeight));
-        gtk_adjustment_set_page_size(vAdjustment, viewportHeight);
-        gtk_adjustment_set_step_increment(vAdjustment, viewportHeight * 0.1);
-        gtk_adjustment_set_page_increment(vAdjustment, viewportHeight * 0.9);
-        
-        // Scale the pixbuf
-        GdkPixbuf *scaledPage = gdk_pixbuf_scale_simple (m_CurrentPixbuf,
-                                                         width, height,
-                                                         GDK_INTERP_BILINEAR);
-        if ( NULL != scaledPage )
+        if (scaledPage != NULL)
         {
-            GdkTexture *texture = gdk_texture_new_for_pixbuf (scaledPage);
-            gtk_picture_set_paintable (GTK_PICTURE (m_PageImage), GDK_PAINTABLE (texture));
+            // Create a texture from the scaled pixbuf
+            GdkTexture *texture = gdk_texture_new_for_pixbuf(scaledPage);
             
-            // Restore scroll position
-            hscroll = CLAMP(hscroll, 0, newWidth - viewportWidth);
-            vscroll = CLAMP(vscroll, 0, newHeight - viewportHeight);
+            // Set the texture to the picture
+            gtk_picture_set_paintable(GTK_PICTURE(m_PageImage), GDK_PAINTABLE(texture));
+            
+            // Update the scrolled window's adjustments
+            gtk_widget_set_size_request(m_PageImage, newWidth, newHeight);
+            
+            // Update the adjustments to match the new content size
+            gtk_adjustment_set_upper(hAdjustment, MAX(newWidth, 1));
+            gtk_adjustment_set_upper(vAdjustment, MAX(newHeight, 1));
+            
+            // Restore scroll position based on the previous ratio
+            hscroll = hratio * MAX(newWidth - gtk_adjustment_get_page_size(hAdjustment), 0);
+            vscroll = vratio * MAX(newHeight - gtk_adjustment_get_page_size(vAdjustment), 0);
+            
+            // Make sure the scroll position is within bounds
+            hscroll = CLAMP(hscroll, 0, MAX(newWidth - gtk_adjustment_get_page_size(hAdjustment), 0));
+            vscroll = CLAMP(vscroll, 0, MAX(newHeight - gtk_adjustment_get_page_size(vAdjustment), 0));
+            
             gtk_adjustment_set_value(hAdjustment, hscroll);
             gtk_adjustment_set_value(vAdjustment, vscroll);
             
-            g_object_unref (texture);
-            g_object_unref (scaledPage);
+            // Clean up
+            g_object_unref(texture);
+            g_object_unref(scaledPage);
         }
     }
 }
