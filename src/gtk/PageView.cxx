@@ -808,33 +808,43 @@ page_view_resized_cb (GtkWidget *widget, GtkAllocation *allocation,
 ///
 /// @brief The page view has been scrolled.
 ///
-/// This only happens when the user uses the mouse wheel.
+/// Handles mouse wheel events for page navigation.
 ///
 static gboolean
-page_view_scrolled_cb (GtkEventControllerScroll *controller, gdouble dx, gdouble dy, gpointer data)
+page_view_scrolled_cb (GtkEventControllerScroll *controller, 
+                      gdouble dx, gdouble dy, 
+                      gpointer data)
 {
-    g_assert ( NULL != data && "The data parameter is NULL.");
+    g_assert (NULL != data && "The data parameter is NULL.");
+
+    // Only handle vertical scrolling with significant movement
+    if (fabs(dy) < 0.1) {
+        return FALSE; // Let default handler deal with horizontal scrolling
+    }
 
     PagePter *pter = (PagePter *)data;
-    GtkWidget *widget = gtk_event_controller_get_widget (GTK_EVENT_CONTROLLER (controller));
-    GtkAdjustment *adjustment = 
-        gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (widget));
-    gdouble position = gtk_adjustment_get_value (adjustment);
-    gdouble lower = gtk_adjustment_get_lower (adjustment);
-    gdouble upper = gtk_adjustment_get_upper (adjustment);
-    gdouble page_size = gtk_adjustment_get_page_size (adjustment);
+    GtkWidget *widget = gtk_event_controller_get_widget(GTK_EVENT_CONTROLLER(controller));
+    GtkAdjustment *vadjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(widget));
     
-    if ( dy < 0 && position == lower )
-    {
-        pter->scrollToPreviousPage ();
+    // Get scroll position and bounds
+    gdouble position = gtk_adjustment_get_value(vadjustment);
+    gdouble lower = gtk_adjustment_get_lower(vadjustment);
+    gdouble upper = gtk_adjustment_get_upper(vadjustment);
+    gdouble page_size = gtk_adjustment_get_page_size(vadjustment);
+    gdouble epsilon = 1.0; // Small threshold for floating point comparison
+    
+    // Check for page up (scrolling up at the top)
+    if (dy < -0.1 && position <= lower + epsilon) {
+        pter->scrollToPreviousPage();
         return TRUE;
     }
-    else if ( dy > 0 && position == (upper - page_size) )
-    {
-        pter->scrollToNextPage ();
+    // Check for page down (scrolling down at the bottom)
+    else if (dy > 0.1 && position >= (upper - page_size - epsilon)) {
+        pter->scrollToNextPage();
         return TRUE;
     }
 
+    // Let the default scrolling behavior handle the rest
     return FALSE;
 }
 
