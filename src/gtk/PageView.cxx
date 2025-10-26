@@ -94,9 +94,9 @@ PageView::PageView ():
     gtk_widget_set_margin_top (m_PageImage, PAGE_VIEW_PADDING);
     gtk_widget_set_margin_bottom (m_PageImage, PAGE_VIEW_PADDING);
     
-    // GTK4: Ensure the image can expand to fill available space
-    gtk_widget_set_hexpand (m_PageImage, TRUE);
-    gtk_widget_set_vexpand (m_PageImage, TRUE);
+    // GTK4: Configure image to display at natural size
+    gtk_widget_set_hexpand (m_PageImage, FALSE);
+    gtk_widget_set_vexpand (m_PageImage, FALSE);
     gtk_widget_set_halign (m_PageImage, GTK_ALIGN_CENTER);
     gtk_widget_set_valign (m_PageImage, GTK_ALIGN_CENTER);
 
@@ -146,8 +146,9 @@ PageView::getSize (gint *width, gint *height)
 
     // GTK4: Check if widget is valid and realized before getting dimensions
     if (!GTK_IS_WIDGET(m_PageScroll) || !gtk_widget_get_realized(m_PageScroll)) {
-        *width = 0;
-        *height = 0;
+        // Return reasonable default size if widget not ready
+        *width = 800;
+        *height = 600;
         return;
     }
 
@@ -399,10 +400,14 @@ PageView::showPage (DocumentPage *page, PageScroll scroll)
     // GTK4: Force widget visibility and request proper size
     gtk_widget_set_visible(m_PageImage, TRUE);
     
-    // GTK4: Request size based on pixbuf dimensions
+    // GTK4: Get pixbuf dimensions for debugging
     gint pixbuf_width = gdk_pixbuf_get_width(m_CurrentPixbuf);
     gint pixbuf_height = gdk_pixbuf_get_height(m_CurrentPixbuf);
-    gtk_widget_set_size_request(m_PageImage, pixbuf_width, pixbuf_height);
+    
+    // GTK4: Don't use set_size_request as it can limit widget size
+    // Instead, let the image widget size itself naturally
+    gtk_widget_set_halign(m_PageImage, GTK_ALIGN_CENTER);
+    gtk_widget_set_valign(m_PageImage, GTK_ALIGN_CENTER);
     
     gtk_widget_queue_resize(m_PageImage);
     gtk_widget_queue_draw(m_PageImage);
