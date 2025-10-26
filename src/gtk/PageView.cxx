@@ -87,18 +87,21 @@ PageView::PageView ():
                                     GTK_POLICY_AUTOMATIC,
                                     GTK_POLICY_AUTOMATIC);
 
-    // The actual page image.
-    m_PageImage = gtk_image_new ();
+    // The actual page image - use GtkPicture in GTK4 for better image handling
+    m_PageImage = gtk_picture_new ();
     gtk_widget_set_margin_start (m_PageImage, PAGE_VIEW_PADDING);
     gtk_widget_set_margin_end (m_PageImage, PAGE_VIEW_PADDING);
     gtk_widget_set_margin_top (m_PageImage, PAGE_VIEW_PADDING);
     gtk_widget_set_margin_bottom (m_PageImage, PAGE_VIEW_PADDING);
     
-    // GTK4: Configure image to display at natural size
+    // GTK4: Configure picture to display at natural size
     gtk_widget_set_hexpand (m_PageImage, FALSE);
     gtk_widget_set_vexpand (m_PageImage, FALSE);
     gtk_widget_set_halign (m_PageImage, GTK_ALIGN_CENTER);
     gtk_widget_set_valign (m_PageImage, GTK_ALIGN_CENTER);
+    
+    // GTK4: Configure GtkPicture to display at natural size
+    gtk_picture_set_content_fit (GTK_PICTURE (m_PageImage), GTK_CONTENT_FIT_FILL);
 
     // I want to be able to drag the page with the left mouse
     // button, because that will make possible to move the page
@@ -234,7 +237,7 @@ PageView::resizePage (gint width, gint height)
         if ( NULL != scaledPage )
         {
             GdkTexture *texture = gdk_texture_new_for_pixbuf (scaledPage);
-            gtk_image_set_from_paintable (GTK_IMAGE (m_PageImage), GDK_PAINTABLE (texture));
+            gtk_picture_set_paintable (GTK_PICTURE (m_PageImage), GDK_PAINTABLE (texture));
             g_object_unref (texture);
             g_object_unref (scaledPage);
         }
@@ -364,7 +367,7 @@ PageView::showPage (DocumentPage *page, PageScroll scroll)
 	lastScroll = scroll;
 	
     // Clear current image
-    gtk_image_clear (GTK_IMAGE (m_PageImage));
+    gtk_picture_set_paintable (GTK_PICTURE (m_PageImage), NULL);
     
     // Release old pixbuf if any
     if (m_CurrentPixbuf != NULL)
@@ -393,7 +396,7 @@ PageView::showPage (DocumentPage *page, PageScroll scroll)
         return;
     }
     
-    gtk_image_set_from_paintable (GTK_IMAGE (m_PageImage), GDK_PAINTABLE (texture));
+    gtk_picture_set_paintable (GTK_PICTURE (m_PageImage), GDK_PAINTABLE (texture));
     g_message("PageView::showPage: Successfully set image from texture");
     g_object_unref (texture);
     
@@ -404,10 +407,12 @@ PageView::showPage (DocumentPage *page, PageScroll scroll)
     gint pixbuf_width = gdk_pixbuf_get_width(m_CurrentPixbuf);
     gint pixbuf_height = gdk_pixbuf_get_height(m_CurrentPixbuf);
     
-    // GTK4: Don't use set_size_request as it can limit widget size
-    // Instead, let the image widget size itself naturally
+    // GTK4: Configure image to display at natural size
     gtk_widget_set_halign(m_PageImage, GTK_ALIGN_CENTER);
     gtk_widget_set_valign(m_PageImage, GTK_ALIGN_CENTER);
+    
+    // GTK4: Force the widget to request its natural size
+    gtk_widget_set_size_request(m_PageImage, -1, -1);
     
     gtk_widget_queue_resize(m_PageImage);
     gtk_widget_queue_draw(m_PageImage);

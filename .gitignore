@@ -45,3 +45,8 @@ vgcore.*
 # Test files
 test-results/
 *.log
+
+# Debug files
+*.gdb
+*.gdbinit
+*.gdb.*
