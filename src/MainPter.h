@@ -1,4 +1,4 @@
-﻿// ePDFView - A lightweight PDF Viewer.
+// ePDFView - A lightweight PDF Viewer.
 // Copyright (C) 2006-2011 Emma's Software.
 // Copyright (C) 2014-2025 Pablo Lezaeta
 // Copyright (C) 2014 Pedro A. Aranda GutiÃ©rrez
@@ -118,6 +118,18 @@ namespace ePDFView
             gint m_ReloadPage;
             /// The main view.
             IMainView *m_View;
+            
+            /// Previous width of the view before rotation
+            gint oldWidth;
+            
+            /// Previous height of the view before rotation
+            gint oldHeight;
+            
+            /// Horizontal scroll position before rotation
+            gdouble scrollX;
+            
+            /// Vertical scroll position before rotation
+            gdouble scrollY;
 
             void setZoomText (gdouble zoom);
             void zoomFit (void);

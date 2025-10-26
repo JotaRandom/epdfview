@@ -1,4 +1,4 @@
-﻿// ePDFView - A lightweight PDF Viewer.
+// ePDFView - A lightweight PDF Viewer.
 // Copyright (C) 2006-2011 Emma's Software.
 // Copyright (C) 2014-2025 Pablo Lezaeta
 // Copyright (C) 2014 Pedro A. Aranda GutiÃ©rrez
@@ -23,8 +23,77 @@
 #if !defined (__PRINT_VIEW_H__)
 #define __PRINT_VIEW_H__
 
+#include <gio/gio.h>
+
+// Define GType for our custom data structures
+G_BEGIN_DECLS
+
+typedef struct _OptionData OptionData;
+struct _OptionData {
+    gchar *name;
+    gchar *value;
+};
+
+GType option_data_get_type(void);
+#define OPTION_DATA_TYPE (option_data_get_type())
+
+// Function declarations for OptionData
+OptionData *option_data_copy(const OptionData *data);
+void option_data_free(OptionData *data);
+
+typedef struct _PrinterData PrinterData;
+struct _PrinterData {
+    gchar *name;
+    gchar *state;
+    gint jobs;
+    gchar *location;
+};
+
+GType printer_data_get_type(void);
+#define PRINTER_DATA_TYPE (printer_data_get_type())
+
+// Function declarations for PrinterData
+PrinterData *printer_data_copy(const PrinterData *data);
+void printer_data_free(PrinterData *data);
+
+// Print page layout options
+typedef enum {
+    PRINT_PAGE_LAYOUT_1IN1 = 0,
+    PRINT_PAGE_LAYOUT_2IN1,
+    PRINT_PAGE_LAYOUT_4IN1,
+    PRINT_PAGE_LAYOUT_6IN1
+} PrintPageLayout;
+
+// Print page orientation options
+typedef enum {
+    PRINT_PAGE_ORIENTATION_PORTRAIT = 0,
+    PRINT_PAGE_ORIENTATION_LANDSCAPE
+} PrintPageOrientation;
+
+G_END_DECLS
+
 namespace ePDFView
 {
+    // Column indices for the printer list
+    enum {
+        PRINTER_LIST_NAME_COLUMN,
+        PRINTER_LIST_STATE_COLUMN,
+        PRINTER_LIST_JOBS_COLUMN,
+        PRINTER_LIST_LOCATION_COLUMN,
+        PRINTER_LIST_N_COLUMNS
+    };
+
+    // Column indices for the option list
+    enum {
+        OPTION_LIST_LABEL_COLUMN,
+        OPTION_LIST_VALUE_COLUMN,
+        OPTION_LIST_N_COLUMNS
+    };
+    
+    // For backward compatibility
+    static constexpr gint printOptionLabelColumn = OPTION_LIST_LABEL_COLUMN;
+    static constexpr gint printerListNameColumn = PRINTER_LIST_NAME_COLUMN;
+
     class PrintView: public IPrintView
     {
         public:
@@ -68,28 +137,43 @@ namespace ePDFView
         protected:
             GtkWidget *m_AllPagesRangeOption;
             GtkWidget *m_Collate;
-            GtkListStore *m_ColorModel;
+            GListStore *m_ColorModel;
             GtkWidget *m_ColorModelView;
             GtkWidget *m_CustomPagesRangeOption;
             GtkWidget *m_EvenPageSet;
-            GtkListStore *m_Layout;
+            GListStore *m_Layout;
             GtkWidget *m_LayoutView;
             GtkWidget *m_NumberOfCopies;
             GtkWidget *m_OddPageSet;
-            GtkListStore *m_Orientation;
+            GListStore *m_Orientation;
             GtkWidget *m_OrientationView;
             GtkWidget *m_PageRange;
-            GtkListStore *m_PageSize;
+            GListStore *m_PageSize;
             GtkWidget *m_PageSizeView;
             GtkWidget *m_PrintDialog;
-            GtkListStore *m_PrinterList;
+            GListStore *m_PrinterList;
             GtkWidget *m_PrinterListView;
-            GtkListStore *m_Resolution;
+            GListStore *m_Resolution;
             GtkWidget *m_ResolutionView;
             GtkWidget *scrollBox;
+            PrintPter *m_Presenter;
 
-            void addOptionToList (GtkListStore *optionList,
-                                  const gchar *name, const gchar *value);
+            // Structure to hold option data for GListStore
+            struct OptionData {
+                gchar *name;
+                gchar *value;
+            };
+            
+            // Structure to hold printer data for GListStore
+            struct PrinterData {
+                gchar *name;
+                gchar *state;
+                gint jobs;
+                gchar *location;
+            };
+            
+            void addOptionToList (GListStore *optionList,
+                                const gchar *name, const gchar *value);
             void getOptionFromComboBox (GtkWidget *comboBox, gpointer value);
 
             GtkWidget *createJobTab (void);

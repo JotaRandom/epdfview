@@ -379,7 +379,6 @@ PageView::resizePage (gint width, gint height)
 }
 
 void
-void
 PageView::setZoom (gdouble zoom)
 {
     // Only update if the zoom level has actually changed
@@ -410,13 +409,16 @@ PageView::setZoom (gdouble zoom)
 }
 
 void
-PageView::setCursor (PageView::PageCursor cursorType)
+PageView::setCursor (PageCursor cursorType)
 {
-    if ( cursorType != m_CurrentCursor )
+    if (cursorType != m_CurrentCursor)
     {
         const char *cursor_name = NULL;
         switch (cursorType)
         {
+            case PAGE_VIEW_CURSOR_NORMAL:
+                cursor_name = "default";
+                break;
             case PAGE_VIEW_CURSOR_SELECT_TEXT:
                 cursor_name = "text";
                 break;

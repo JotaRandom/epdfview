@@ -16,7 +16,12 @@ else
 endif
 
 # Additional compiler flags
-add_project_arguments('-Wno-long-long', language : 'cpp')
+add_project_arguments([
+  '-Wno-long-long',
+  '-Wno-deprecated-declarations',
+  '-Wno-deprecated',
+  '-Wno-error=deprecated-declarations',
+], language : 'cpp')
 
 # Dependencies with version requirements
 gtk_dep = dependency('gtk4', version : '>= 4.0.0')

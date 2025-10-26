@@ -1,4 +1,4 @@
-﻿// ePDFView - A lightweight PDF Viewer.
+// ePDFView - A lightweight PDF Viewer.
 // Copyright (C) 2006-2011 Emma's Software.
 // Copyright (C) 2014-2025 Pablo Lezaeta
 // Copyright (C) 2014 Pedro A. Aranda GutiÃ©rrez
@@ -27,24 +27,72 @@
 #include "StockIcons.h"
 #include "PrintView.h"
 
+// Type registration for OptionData
+GType option_data_get_type(void)
+{
+    static GType type = 0;
+    if (type == 0) {
+        type = g_boxed_type_register_static("OptionData",
+            (GBoxedCopyFunc)option_data_copy,
+            (GBoxedFreeFunc)option_data_free);
+    }
+    return type;
+}
+
+// Type registration for PrinterData
+GType printer_data_get_type(void)
+{
+    static GType type = 0;
+    if (type == 0) {
+        type = g_boxed_type_register_static("PrinterData",
+            (GBoxedCopyFunc)printer_data_copy,
+            (GBoxedFreeFunc)printer_data_free);
+    }
+    return type;
+}
+
+// Copy function for OptionData
+OptionData *
+option_data_copy(const OptionData *data) {
+    OptionData *new_data = g_new0(OptionData, 1);
+    new_data->name = g_strdup(data->name);
+    new_data->value = g_strdup(data->value);
+    return new_data;
+}
+
+// Free function for OptionData
+void
+option_data_free(OptionData *data) {
+    g_free(data->name);
+    g_free(data->value);
+    g_free(data);
+}
+
+// Copy function for PrinterData
+PrinterData *
+printer_data_copy(const PrinterData *data) {
+    PrinterData *new_data = g_new0(PrinterData, 1);
+    new_data->name = g_strdup(data->name);
+    new_data->state = g_strdup(data->state);
+    new_data->jobs = data->jobs;
+    new_data->location = g_strdup(data->location);
+    return new_data;
+}
+
+// Free function for PrinterData
+void
+printer_data_free(PrinterData *data) {
+    g_free(data->name);
+    g_free(data->state);
+    g_free(data->location);
+    g_free(data);
+}
+
 using namespace ePDFView;
 
 // Enumerations.
-enum printerListColumns
-{
-    printerListNameColumn,
-    printerListStateColumn,
-    printerListJobsColumn,
-    printerListLocationColumn,
-    printerListNumColumn
-};
-
-enum printOptionsColumn
-{
-    printOptionLabelColumn,
-    printOptionValueColumn,
-    printOptionNumColumn
-};
+// These are no longer needed as we're using GListModel with custom data types
+// but keeping them for compatibility with existing code
 
 // Callbacks.
 #if defined (HAVE_CUPS)
@@ -160,17 +208,21 @@ PrintView::addPageSize (const gchar *name, const gchar *value)
 }
 
 void
-PrintView::addPrinter (const gchar *name, int jobs, const gchar *state,
-                       const gchar *location)
+PrintView::addPrinter (const gchar *name, gint jobs, const gchar *state,
+                      const gchar *location)
 {
-    GtkTreeIter printerIter;
-    gtk_list_store_append (m_PrinterList, &printerIter);
-    gtk_list_store_set (m_PrinterList, &printerIter,
-                        printerListNameColumn, name,
-                        printerListJobsColumn, jobs,
-                        printerListStateColumn, state,
-                        printerListLocationColumn, location,
-                        -1);
+    // Create a new PrinterData structure
+    PrinterData *data = g_new0(PrinterData, 1);
+    data->name = g_strdup(name);
+    data->jobs = jobs;
+    data->state = g_strdup(state);
+    data->location = g_strdup(location);
+    
+    // Add the data to the GListStore
+    g_list_store_append(m_PrinterList, data);
+    
+    // The list store takes ownership of the data, so we don't need to free it
+    g_object_unref(data);
 }
 
 void
@@ -182,19 +234,34 @@ PrintView::addResolution (const gchar *name, const gchar *value)
 void
 PrintView::clearColorModelList ()
 {
-    gtk_list_store_clear (m_ColorModel);
+    // Remove all items from the GListStore
+    guint n_items = g_list_model_get_n_items(G_LIST_MODEL(m_ColorModel));
+    while (n_items > 0) {
+        g_list_store_remove(m_ColorModel, 0);
+        n_items--;
+    }
 }
 
 void
-PrintView::clearPageSizeList ()
+PrintView::clearPageSizeList (void)
 {
-    gtk_list_store_clear (m_PageSize);
+    // Remove all items from the GListStore
+    guint n_items = g_list_model_get_n_items(G_LIST_MODEL(m_PageSize));
+    while (n_items > 0) {
+        g_list_store_remove(m_PageSize, 0);
+        n_items--;
+    }
 }
 
 void
-PrintView::clearResolutionList ()
+PrintView::clearResolutionList (void)
 {
-    gtk_list_store_clear (m_Resolution);
+    // Remove all items from the GListStore
+    guint n_items = g_list_model_get_n_items(G_LIST_MODEL(m_Resolution));
+    while (n_items > 0) {
+        g_list_store_remove(m_Resolution, 0);
+        n_items--;
+    }
 }
 
 unsigned int
@@ -211,20 +278,16 @@ PrintView::getColorModel ()
     return colorModel;
 }
 
-PrintPageLayout
-PrintView::getPageLayout ()
+ePDFView::PrintPageLayout
+PrintView::getPageLayout (void)
 {
-    PrintPageLayout layout = PRINT_PAGE_LAYOUT_PLAIN;
-    getOptionFromComboBox (m_LayoutView, &layout);
-    return layout;
+    return (ePDFView::PrintPageLayout)gtk_drop_down_get_selected(GTK_DROP_DOWN(m_LayoutView));
 }
 
-PrintPageOrientation
-PrintView::getPageOrientation ()
+ePDFView::PrintPageOrientation
+PrintView::getPageOrientation (void)
 {
-    PrintPageOrientation orientation = PRINT_PAGE_ORIENTATION_PORTRAIT;
-    getOptionFromComboBox (m_OrientationView, &orientation);
-    return orientation;
+    return (ePDFView::PrintPageOrientation)gtk_drop_down_get_selected(GTK_DROP_DOWN(m_OrientationView));
 }
 
 const gchar *
@@ -251,21 +314,24 @@ PrintView::getResolution ()
 }
 
 gchar *
-PrintView::getSelectedPrinterName ()
+PrintView::getSelectedPrinterName (void)
 {
     gchar *printerName = NULL;
-    GtkTreeSelection *selectedPrinter =
-        gtk_tree_view_get_selection (GTK_TREE_VIEW (m_PrinterListView));
-    GtkTreeIter selectedPrinterIter;
-    if ( gtk_tree_selection_get_selected (selectedPrinter, NULL,
-                                          &selectedPrinterIter) )
+    guint selected = gtk_drop_down_get_selected(GTK_DROP_DOWN(m_PrinterListView));
+    
+    if (selected != GTK_INVALID_LIST_POSITION)
     {
-        gtk_tree_model_get (GTK_TREE_MODEL (m_PrinterList),
-                            &selectedPrinterIter,
-                            printerListNameColumn, &printerName,
-                            -1);
+        GListModel *model = gtk_drop_down_get_model(GTK_DROP_DOWN(m_PrinterListView));
+        PrinterData *data = NULL;
+        g_object_get(G_OBJECT(model), "item", &data, NULL);
+        
+        if (data != NULL && data->name != NULL)
+        {
+            printerName = g_strdup(data->name);
+            g_object_unref(data);
+        }
     }
-
+    
     return printerName;
 }
 
@@ -296,29 +362,28 @@ PrintView::isSelectedOddPageSet ()
 void
 PrintView::selectColorModel (guint colorModelIndex)
 {
-    gtk_combo_box_set_active (GTK_COMBO_BOX (m_ColorModelView),
-                              colorModelIndex);
+    if (m_ColorModelView != NULL && GTK_IS_DROP_DOWN(m_ColorModelView))
+    {
+        gtk_drop_down_set_selected(GTK_DROP_DOWN(m_ColorModelView), colorModelIndex);
+    }
 }
 
 void
 PrintView::selectPageSize (guint pageSizeIndex)
 {
-    gtk_combo_box_set_active (GTK_COMBO_BOX (m_PageSizeView), pageSizeIndex);
+    if (m_PageSizeView != NULL && GTK_IS_DROP_DOWN(m_PageSizeView))
+    {
+        gtk_drop_down_set_selected(GTK_DROP_DOWN(m_PageSizeView), pageSizeIndex);
+    }
 }
 
 void
 PrintView::selectPrinter (guint printerIndex)
 {
-    gchar *pathString = g_strdup_printf ("%d", printerIndex);
-    GtkTreeIter printerIter;
-    if ( gtk_tree_model_get_iter_from_string (GTK_TREE_MODEL (m_PrinterList),
-                                              &printerIter, pathString) )
+    if (m_PrinterListView != NULL && GTK_IS_DROP_DOWN(m_PrinterListView))
     {
-        GtkTreeSelection *selection =
-            gtk_tree_view_get_selection (GTK_TREE_VIEW (m_PrinterListView));
-        gtk_tree_selection_select_iter (selection, &printerIter);
+        gtk_drop_down_set_selected(GTK_DROP_DOWN(m_PrinterListView), printerIndex);
     }
-    g_free (pathString);
 }
 
 void
@@ -343,382 +408,335 @@ PrintView::sensitivePageRange (gboolean sensitive)
 void
 PrintView::sensitivePrintButton (gboolean sensitive)
 {
-    gtk_dialog_set_response_sensitive (GTK_DIALOG (m_PrintDialog),
-                                       GTK_RESPONSE_ACCEPT, sensitive);
+    // In GTK4, we need to get the button from the dialog and set its sensitivity
+    GtkWidget *button = gtk_dialog_get_widget_for_response(GTK_DIALOG(m_PrintDialog), GTK_RESPONSE_ACCEPT);
+    if (button != NULL) {
+        gtk_widget_set_sensitive(button, sensitive);
+    }
 }
 
 void
-PrintView::addOptionToList (GtkListStore *optionList, const gchar *name,
-                            const gchar *value)
+PrintView::addOptionToList (GListStore *optionList, const gchar *name,
+                         const gchar *value)
 {
-    GtkTreeIter newOptionIter;
-    gtk_list_store_append (optionList, &newOptionIter);
-    gtk_list_store_set (optionList, &newOptionIter,
-                        printOptionLabelColumn, name,
-                        printOptionValueColumn, value,
-                        -1);
+    // Create a new OptionData structure
+    OptionData *data = g_new0(OptionData, 1);
+    data->name = g_strdup(name);
+    data->value = g_strdup(value);
+    
+    // Append to the list store
+    g_list_store_append(optionList, data);
+    
+    // The list store takes ownership of the data, no need to free it here
+    // The GListStore will handle the cleanup through the registered free function
 }
 
 void
 PrintView::getOptionFromComboBox (GtkWidget *comboBox, gpointer value)
 {
-    GtkTreeIter optionIter;
-    if ( gtk_combo_box_get_active_iter (GTK_COMBO_BOX (comboBox), &optionIter) )
+    if (GTK_IS_DROP_DOWN (comboBox))
     {
-        GtkTreeModel *model =
-            gtk_combo_box_get_model (GTK_COMBO_BOX (comboBox));
-        gtk_tree_model_get (model, &optionIter,
-                            printOptionValueColumn, value,
-                            -1);
+        GListModel *model = gtk_drop_down_get_model(GTK_DROP_DOWN(comboBox));
+        guint selected = gtk_drop_down_get_selected(GTK_DROP_DOWN(comboBox));
+        
+        if (selected != GTK_INVALID_LIST_POSITION)
+        {
+            OptionData *data = NULL;
+            g_object_get(G_OBJECT(model), "item", &data, NULL);
+            if (data != NULL && data->value != NULL)
+            {
+                gchar **string = (gchar **)value;
+                *string = g_strdup(data->value);
+            }
+            if (data != NULL) {
+                g_object_unref(data);
+            }
+        }
     }
 }
+
 // Tab Creators
-////////////////////////////////////////////////////////////////
 
-GtkWidget *
-PrintView::createJobTab ()
+// Helper function for printer item binding
+static void
+printer_item_bind(GtkSignalListItemFactory *factory,
+                 GtkListItem              *list_item,
+                 gpointer                  user_data)
 {
-    // GTK4: Use margins instead of gtk_container_set_border_width
-    GtkWidget *mainBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 12);
-    gtk_widget_set_margin_start (mainBox, 3);
-    gtk_widget_set_margin_end (mainBox, 3);
-    gtk_widget_set_margin_top (mainBox, 3);
-    gtk_widget_set_margin_bottom (mainBox, 3);
-
-    // Print range frame.
-    GtkWidget *printRangeLabel = gtk_label_new (_("<b>Print Range</b>"));
-    GtkWidget *printRangeFrame = gtk_frame_new (NULL);
-    gtk_box_append (GTK_BOX (mainBox), printRangeFrame); // GTK4: use append
-    // Set a bold label.
-    gtk_label_set_use_markup (GTK_LABEL (printRangeLabel), TRUE);
-    gtk_frame_set_label_widget (GTK_FRAME (printRangeFrame), printRangeLabel);
-    // GTK4: gtk_frame_set_shadow_type removed
+    GtkWidget *box = gtk_list_item_get_child(list_item);
+    GtkLabel *name_label = GTK_LABEL(g_object_get_data(G_OBJECT(box), "name"));
+    GtkLabel *state_label = GTK_LABEL(g_object_get_data(G_OBJECT(box), "state"));
+    GtkLabel *jobs_label = GTK_LABEL(g_object_get_data(G_OBJECT(box), "jobs"));
+    GtkLabel *location_label = GTK_LABEL(g_object_get_data(G_OBJECT(box), "location"));
     
-    // GTK4: Replace GtkAlignment with margins on child widget
-    GtkWidget *printRangeGrid = gtk_grid_new (); // GTK4: GtkGrid instead of GtkTable
-    gtk_widget_set_margin_start (printRangeGrid, 12);
-    gtk_widget_set_margin_end (printRangeGrid, 6);
-    gtk_widget_set_margin_top (printRangeGrid, 6);
-    gtk_widget_set_margin_bottom (printRangeGrid, 0);
-    gtk_frame_set_child (GTK_FRAME (printRangeFrame), printRangeGrid); // GTK4: set_child
-    gtk_grid_set_row_spacing (GTK_GRID (printRangeGrid), 3);
-    gtk_grid_set_column_spacing (GTK_GRID (printRangeGrid), 12);
+    PrinterData *data = (PrinterData *)gtk_list_item_get_item(list_item);
     
-    // Create the two radio buttons.
-    m_AllPagesRangeOption =
-        gtk_check_button_new_with_mnemonic (_("_All pages"));
-    m_CustomPagesRangeOption =
-        gtk_check_button_new_with_mnemonic (_("_Range:"));
-    // GTK4: Radio buttons now use check buttons as group
-    gtk_check_button_set_group (GTK_CHECK_BUTTON (m_CustomPagesRangeOption),
-                                GTK_CHECK_BUTTON (m_AllPagesRangeOption));
-    m_PageRange = gtk_entry_new ();
-    
-    // GTK4: gtk_grid_attach instead of gtk_table_attach
-    gtk_grid_attach (GTK_GRID (printRangeGrid), m_AllPagesRangeOption,
-                     0, 0, 2, 1);
-    gtk_grid_attach (GTK_GRID (printRangeGrid), m_CustomPagesRangeOption,
-                     0, 1, 1, 1);
-    gtk_grid_attach (GTK_GRID (printRangeGrid), m_PageRange,
-                     1, 1, 1, 1);
-
-    // Page set frame
-    GtkWidget *pageSetLabel = gtk_label_new (_("<b>Page Set</b>"));
-    GtkWidget *pageSetFrame = gtk_frame_new (NULL);
-    gtk_box_append (GTK_BOX (mainBox), pageSetFrame);
-    gtk_label_set_use_markup (GTK_LABEL (pageSetLabel), TRUE);
-    gtk_frame_set_label_widget (GTK_FRAME (pageSetFrame), pageSetLabel);
-    // GTK4: gtk_frame_set_shadow_type removed
-    
-    // GTK4: Replace GtkAlignment with margins on child
-    GtkWidget *pageSetBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 3);
-    gtk_widget_set_margin_start (pageSetBox, 12);
-    gtk_widget_set_margin_end (pageSetBox, 6);
-    gtk_widget_set_margin_top (pageSetBox, 6);
-    gtk_widget_set_margin_bottom (pageSetBox, 0);
-    gtk_box_set_homogeneous (GTK_BOX (pageSetBox), TRUE);
-    gtk_frame_set_child (GTK_FRAME (pageSetFrame), pageSetBox);
-    
-    // GTK4: Radio buttons now use check buttons as group
-    GtkWidget *allPageSetRadio =
-        gtk_check_button_new_with_mnemonic (_("A_ll pages"));
-    gtk_box_append (GTK_BOX (pageSetBox), allPageSetRadio);
-    m_OddPageSet =
-        gtk_check_button_new_with_mnemonic (_("O_dd pages"));
-    gtk_check_button_set_group (GTK_CHECK_BUTTON (m_OddPageSet),
-                                GTK_CHECK_BUTTON (allPageSetRadio));
-    gtk_box_append (GTK_BOX (pageSetBox), m_OddPageSet);
-    m_EvenPageSet =
-        gtk_check_button_new_with_mnemonic (_("_Even pages"));
-    gtk_check_button_set_group (GTK_CHECK_BUTTON (m_EvenPageSet),
-                                GTK_CHECK_BUTTON (allPageSetRadio));
-    gtk_box_append (GTK_BOX (pageSetBox), m_EvenPageSet);
-
-    // Copies frame
-    GtkWidget *copiesLabel = gtk_label_new (_("<b>Copies</b>"));
-    GtkWidget *copiesFrame = gtk_frame_new (NULL);
-    gtk_box_append (GTK_BOX (mainBox), copiesFrame);
-    gtk_label_set_use_markup (GTK_LABEL (copiesLabel), TRUE);
-    gtk_frame_set_label_widget (GTK_FRAME (copiesFrame), copiesLabel);
-    // GTK4: gtk_frame_set_shadow_type removed
-    
-    // GTK4: Replace GtkTable with GtkGrid
-    GtkWidget *copiesGrid = gtk_grid_new ();
-    gtk_widget_set_margin_start (copiesGrid, 12);
-    gtk_widget_set_margin_end (copiesGrid, 6);
-    gtk_widget_set_margin_top (copiesGrid, 6);
-    gtk_widget_set_margin_bottom (copiesGrid, 0);
-    gtk_frame_set_child (GTK_FRAME (copiesFrame), copiesGrid);
-    gtk_grid_set_row_spacing (GTK_GRID (copiesGrid), 3);
-    gtk_grid_set_column_spacing (GTK_GRID (copiesGrid), 12);
-    
-    // Create the Num. of Copies label and spin.
-    GtkWidget *numCopiesLabel = gtk_label_new (_("N_umber of copies:"));
-    // GTK4: gtk_misc_set_alignment removed
-    gtk_label_set_xalign (GTK_LABEL (numCopiesLabel), 1.0);
-    gtk_label_set_yalign (GTK_LABEL (numCopiesLabel), 0.5);
-    gtk_label_set_use_underline (GTK_LABEL (numCopiesLabel), TRUE);
-    m_NumberOfCopies = gtk_spin_button_new_with_range (1, 999, 1);
-    gtk_label_set_mnemonic_widget (GTK_LABEL (numCopiesLabel),
-                                   m_NumberOfCopies);
-    // Create the collate check box.
-    m_Collate = gtk_check_button_new_with_mnemonic (_("C_ollate"));
-    
-    gtk_widget_set_hexpand (m_NumberOfCopies, TRUE);
-    gtk_widget_set_hexpand (m_Collate, TRUE);
-    gtk_grid_attach (GTK_GRID (copiesGrid), numCopiesLabel, 0, 0, 1, 1);
-    gtk_grid_attach (GTK_GRID (copiesGrid), m_NumberOfCopies, 1, 0, 1, 1);
-    gtk_grid_attach (GTK_GRID (copiesGrid), m_Collate, 1, 1, 1, 1);
-
-    return mainBox;
+    if (data != NULL) {
+        gtk_label_set_text(name_label, data->name ? data->name : "");
+        gtk_label_set_text(state_label, data->state ? data->state : "");
+        gtk_label_set_text(jobs_label, g_strdup_printf("%d", data->jobs));
+        gtk_label_set_text(location_label, data->location ? data->location : "");
+    }
 }
 
-GtkWidget *
-PrintView::createPaperTab ()
+// Helper functions for printer item rendering
+static void
+printer_item_setup(GtkListItemFactory *factory,
+                   GtkListItem        *list_item,
+                   gpointer            user_data)
 {
-    // GTK4: Use margins instead of gtk_container_set_border_width
-    GtkWidget *mainBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 12);
-    gtk_widget_set_margin_start (mainBox, 3);
-    gtk_widget_set_margin_end (mainBox, 3);
-    gtk_widget_set_margin_top (mainBox, 3);
-    gtk_widget_set_margin_bottom (mainBox, 3);
+    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+    GtkWidget *name_label = gtk_label_new(NULL);
+    GtkWidget *state_label = gtk_label_new(NULL);
+    GtkWidget *jobs_label = gtk_label_new(NULL);
+    GtkWidget *location_label = gtk_label_new(NULL);
 
-    // Paper frame
-    GtkWidget *paperLabel = gtk_label_new (_("<b>Paper and Layout</b>"));
-    GtkWidget *paperFrame = gtk_frame_new (NULL);
-    gtk_box_append (GTK_BOX (mainBox), paperFrame);
-    gtk_label_set_use_markup (GTK_LABEL (paperLabel), TRUE);
-    gtk_frame_set_label_widget (GTK_FRAME (paperFrame), paperLabel);
-    // GTK4: gtk_frame_set_shadow_type removed
+    gtk_label_set_xalign(GTK_LABEL(name_label), 0.0);
+    gtk_label_set_xalign(GTK_LABEL(state_label), 0.0);
+    gtk_label_set_xalign(GTK_LABEL(jobs_label), 1.0);
+    gtk_label_set_xalign(GTK_LABEL(location_label), 0.0);
+
+    gtk_widget_set_hexpand(name_label, TRUE);
+    gtk_widget_set_hexpand(state_label, TRUE);
+    gtk_widget_set_hexpand(jobs_label, FALSE);
+    gtk_widget_set_hexpand(location_label, TRUE);
+
+    gtk_box_append(GTK_BOX(box), name_label);
+    gtk_box_append(GTK_BOX(box), state_label);
+    gtk_box_append(GTK_BOX(box), jobs_label);
+    gtk_box_append(GTK_BOX(box), location_label);
+
+    gtk_list_item_set_child(list_item, box);
+
+    g_object_set_data_full(G_OBJECT(box), "name", name_label, NULL);
+    g_object_set_data_full(G_OBJECT(box), "state", state_label, NULL);
+    g_object_set_data_full(G_OBJECT(box), "jobs", jobs_label, NULL);
+    g_object_set_data_full(G_OBJECT(box), "location", location_label, NULL);
+}
+
+static void
+print_view_printer_selected(GtkDropDown *dropdown, GParamSpec *pspec, gpointer user_data)
+{
+    PrintView *view = (PrintView *)user_data;
+    guint selected = gtk_drop_down_get_selected(dropdown);
     
-    // GTK4: Replace GtkTable with GtkGrid
-    GtkWidget *paperGrid = gtk_grid_new ();
-    gtk_widget_set_margin_start (paperGrid, 12);
-    gtk_widget_set_margin_end (paperGrid, 6);
-    gtk_widget_set_margin_top (paperGrid, 6);
-    gtk_widget_set_margin_bottom (paperGrid, 0);
-    gtk_frame_set_child (GTK_FRAME (paperFrame), paperGrid);
-    gtk_grid_set_row_spacing (GTK_GRID (paperGrid), 3);
-    gtk_grid_set_column_spacing (GTK_GRID (paperGrid), 12);
-    
-    // Paper size and combobox
-    GtkWidget *paperSizeLabel = gtk_label_new (_("Paper _Size:"));
-    // GTK4: gtk_misc_set_alignment removed
-    gtk_label_set_xalign (GTK_LABEL (paperSizeLabel), 1.0);
-    gtk_label_set_yalign (GTK_LABEL (paperSizeLabel), 0.5);
-    gtk_label_set_use_underline (GTK_LABEL (paperSizeLabel), TRUE);
-    createPageSizeListModel ();
-    m_PageSizeView = gtk_combo_box_new_with_model (GTK_TREE_MODEL (m_PageSize));
-    gtk_label_set_mnemonic_widget (GTK_LABEL (paperSizeLabel), m_PageSizeView);
+    if (selected != GTK_INVALID_LIST_POSITION)
     {
-        GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
-        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (m_PageSizeView),
-                                    renderer, TRUE);
-        gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (m_PageSizeView),
-                                        renderer,
-                                        "text",
-                                        printOptionLabelColumn, NULL);
+        // Use the public interface to notify the presenter
+        view->selectPrinter(selected);
     }
-    gtk_widget_set_hexpand (m_PageSizeView, TRUE);
-    gtk_grid_attach (GTK_GRID (paperGrid), paperSizeLabel, 0, 0, 1, 1);
-    gtk_grid_attach (GTK_GRID (paperGrid), m_PageSizeView, 1, 0, 1, 1);
-    // Page orientation label and combobox
-    GtkWidget *pageOrientationLabel = gtk_label_new (_("Page _orientation:"));
-    gtk_label_set_xalign (GTK_LABEL (pageOrientationLabel), 1.0);
-    gtk_label_set_yalign (GTK_LABEL (pageOrientationLabel), 0.5);
-    gtk_label_set_use_underline (GTK_LABEL (pageOrientationLabel), TRUE);
-
-    createOrientationListModel ();
-    m_OrientationView =
-        gtk_combo_box_new_with_model (GTK_TREE_MODEL (m_Orientation));
-    gtk_label_set_mnemonic_widget (GTK_LABEL (pageOrientationLabel),
-                                   m_OrientationView);
-    {
-        GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
-        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (m_OrientationView),
-                                    renderer, TRUE);
-        gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (m_OrientationView),
-                                        renderer,
-                                        "text",
-                                        printOptionLabelColumn, NULL);
-    }
-    gtk_combo_box_set_active (GTK_COMBO_BOX (m_OrientationView), 0);
-
-    gtk_widget_set_hexpand (m_OrientationView, TRUE);
-    gtk_grid_attach (GTK_GRID (paperGrid), pageOrientationLabel, 0, 1, 1, 1);
-    gtk_grid_attach (GTK_GRID (paperGrid), m_OrientationView, 1, 1, 1, 1);
-    // Layout label and combobox
-    GtkWidget *layoutLabel = gtk_label_new (_("_Layout:"));
-    gtk_label_set_xalign (GTK_LABEL (layoutLabel), 1.0);
-    gtk_label_set_yalign (GTK_LABEL (layoutLabel), 0.5);
-    gtk_label_set_use_underline (GTK_LABEL (layoutLabel), TRUE);
-
-    createLayoutListModel ();
-    m_LayoutView = gtk_combo_box_new_with_model (GTK_TREE_MODEL (m_Layout));
-    gtk_label_set_mnemonic_widget (GTK_LABEL (layoutLabel), m_LayoutView);
-    {
-        GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
-        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (m_LayoutView),
-                                    renderer, TRUE);
-        gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (m_LayoutView),
-                                        renderer,
-                                        "text", printOptionLabelColumn, NULL);
-    }
-    gtk_combo_box_set_active (GTK_COMBO_BOX (m_LayoutView), 0);
-
-    gtk_widget_set_hexpand (m_LayoutView, TRUE);
-    gtk_grid_attach (GTK_GRID (paperGrid), layoutLabel, 0, 2, 1, 1);
-    gtk_grid_attach (GTK_GRID (paperGrid), m_LayoutView, 1, 2, 1, 1);
-
-    // Output frame
-    GtkWidget *outputLabel = gtk_label_new (_("<b>Output</b>"));
-    GtkWidget *outputFrame = gtk_frame_new (NULL);
-    gtk_box_append (GTK_BOX (mainBox), outputFrame);
-    gtk_label_set_use_markup (GTK_LABEL (outputLabel), TRUE);
-    gtk_frame_set_label_widget (GTK_FRAME (outputFrame), outputLabel);
-    // GTK4: gtk_frame_set_shadow_type removed
-    
-    // GTK4: Replace GtkTable with GtkGrid
-    GtkWidget *outputGrid = gtk_grid_new ();
-    gtk_widget_set_margin_start (outputGrid, 12);
-    gtk_widget_set_margin_end (outputGrid, 6);
-    gtk_widget_set_margin_top (outputGrid, 6);
-    gtk_widget_set_margin_bottom (outputGrid, 0);
-    gtk_frame_set_child (GTK_FRAME (outputFrame), outputGrid);
-    gtk_grid_set_row_spacing (GTK_GRID (outputGrid), 3);
-    gtk_grid_set_column_spacing (GTK_GRID (outputGrid), 12);
-    
-    // Color mode
-    GtkWidget *colorModeLabel = gtk_label_new (_("_Mode:"));
-    gtk_label_set_xalign (GTK_LABEL (colorModeLabel), 1.0);
-    gtk_label_set_yalign (GTK_LABEL (colorModeLabel), 0.5);
-    gtk_label_set_use_underline (GTK_LABEL (colorModeLabel), TRUE);
-    createColorModelListModel ();
-    m_ColorModelView =
-        gtk_combo_box_new_with_model (GTK_TREE_MODEL (m_ColorModel));
-    gtk_label_set_mnemonic_widget (GTK_LABEL (colorModeLabel),
-                                   m_ColorModelView);
-    {
-        GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
-        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (m_ColorModelView),
-                                    renderer, TRUE);
-        gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (m_ColorModelView),
-                                        renderer,
-                                        "text",
-                                        printOptionLabelColumn, NULL);
-    }
-    gtk_widget_set_hexpand (m_ColorModelView, TRUE);
-    gtk_grid_attach (GTK_GRID (outputGrid), colorModeLabel, 0, 0, 1, 1);
-    gtk_grid_attach (GTK_GRID (outputGrid), m_ColorModelView, 1, 0, 1, 1);
-    // Resolution
-    GtkWidget *resolutionLabel = gtk_label_new (_("_Resolution:"));
-    gtk_label_set_xalign (GTK_LABEL (resolutionLabel), 1.0);
-    gtk_label_set_yalign (GTK_LABEL (resolutionLabel), 0.5);
-    gtk_label_set_use_underline (GTK_LABEL (resolutionLabel), TRUE);
-
-    createResolutionListModel ();
-    m_ResolutionView =
-        gtk_combo_box_new_with_model (GTK_TREE_MODEL (m_Resolution));
-    gtk_label_set_mnemonic_widget (GTK_LABEL (resolutionLabel),
-                                   m_ResolutionView);
-    {
-        GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
-        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (m_ResolutionView),
-                                    renderer, TRUE);
-        gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (m_ResolutionView),
-                                        renderer,
-                                        "text",
-                                        printOptionLabelColumn, NULL);
-    }
-    gtk_widget_set_hexpand (m_ResolutionView, TRUE);
-    gtk_grid_attach (GTK_GRID (outputGrid), resolutionLabel, 0, 1, 1, 1);
-    gtk_grid_attach (GTK_GRID (outputGrid), m_ResolutionView, 1, 1, 1, 1);
-
-    return mainBox;
 }
 
 GtkWidget *
 PrintView::createPrinterTab ()
 {
-    // GTK4: Use margins instead of gtk_container_set_border_width
-    GtkWidget *mainBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 12);
-    gtk_widget_set_margin_start (mainBox, 3);
-    gtk_widget_set_margin_end (mainBox, 3);
-    gtk_widget_set_margin_top (mainBox, 3);
-    gtk_widget_set_margin_bottom (mainBox, 3);
+    GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
+    
+    // Create a scrolled window for the printer list
+    GtkWidget *scrolledWindow = gtk_scrolled_window_new();
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledWindow),
+                                  GTK_POLICY_AUTOMATIC,
+                                  GTK_POLICY_AUTOMATIC);
+    
+    // Create the list store for printers
+    m_PrinterList = g_list_store_new(PRINTER_DATA_TYPE);
+    
+    // Create a factory to render each item
+    GtkListItemFactory *factory = gtk_signal_list_item_factory_new();
+    
+    // Set up the factory
+    g_signal_connect(factory, "setup",
+                    G_CALLBACK(printer_item_setup), NULL);
+    g_signal_connect(factory, "bind",
+                    G_CALLBACK(printer_item_bind), NULL);
+    
+    // Create the list view
+    m_PrinterListView = gtk_list_view_new(GTK_SELECTION_MODEL(
+        gtk_single_selection_new(G_LIST_MODEL(m_PrinterList))), factory);
+    
+    // Connect the selection changed signal
+    GtkSingleSelection *selection = GTK_SINGLE_SELECTION(gtk_list_view_get_model(GTK_LIST_VIEW(m_PrinterListView)));
+    g_signal_connect(selection, "notify::selected",
+                    G_CALLBACK(print_view_printer_selected), this);
+    
+    // Add the list view to the scrolled window
+    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolledWindow), m_PrinterListView);
+    
+    // Add the scrolled window to the vbox
+    gtk_box_append(GTK_BOX(vbox), scrolledWindow);
+    
+    return vbox;
+}
 
-    createPrinterListModel ();
-    m_PrinterListView =
-        gtk_tree_view_new_with_model (GTK_TREE_MODEL (m_PrinterList));
+GtkWidget*
+PrintView::createJobTab ()
+{
+    // Create a vertical box for the job tab
+    GtkWidget *vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
+    gtk_widget_set_margin_start (vbox, 12);
+    gtk_widget_set_margin_end (vbox, 12);
+    gtk_widget_set_margin_top (vbox, 12);
+    gtk_widget_set_margin_bottom (vbox, 12);
 
-    // Add scrollbars to treeview.
-    // GTK4: gtk_scrolled_window_new takes no parameters
-    scrollBox = gtk_scrolled_window_new ();
-    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrollBox),
-      GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-    // GTK4: gtk_container_add → gtk_scrolled_window_set_child
-    gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (scrollBox), m_PrinterListView);
-    // GTK4: gtk_box_pack_start_defaults → gtk_box_append with expand
-    gtk_widget_set_vexpand (scrollBox, TRUE);
-    gtk_box_append (GTK_BOX (mainBox), scrollBox);
+    // Copies frame
+    GtkWidget *copiesFrame = gtk_frame_new (_("Copies"));
+    GtkWidget *copiesBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
+    gtk_widget_set_margin_start (copiesBox, 6);
+    gtk_widget_set_margin_end (copiesBox, 6);
+    gtk_widget_set_margin_top (copiesBox, 6);
+    gtk_widget_set_margin_bottom (copiesBox, 6);
+    gtk_frame_set_child (GTK_FRAME (copiesFrame), copiesBox);
 
-    {
-        GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
-        GtkTreeViewColumn *column =
-            gtk_tree_view_column_new_with_attributes (_("Printer"), renderer,
-                    "text", printerListNameColumn, NULL);
-        gtk_tree_view_append_column (GTK_TREE_VIEW (m_PrinterListView),
-                                     column);
-    }
+    // Number of copies
+    GtkWidget *copiesLabel = gtk_label_new (_("Number of copies:"));
+    gtk_box_append (GTK_BOX (copiesBox), copiesLabel);
 
-    {
-        GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
-        GtkTreeViewColumn *column =
-            gtk_tree_view_column_new_with_attributes (_("State"), renderer,
-                    "text", printerListStateColumn, NULL);
-        gtk_tree_view_append_column (GTK_TREE_VIEW (m_PrinterListView),
-                                     column);
-    }
+    m_NumberOfCopies = gtk_spin_button_new_with_range (1, 999, 1);
+    gtk_spin_button_set_value (GTK_SPIN_BUTTON (m_NumberOfCopies), 1);
+    g_signal_connect (G_OBJECT (m_NumberOfCopies), "value-changed",
+                     G_CALLBACK (print_view_number_of_copies_changed), this);
+    gtk_box_append (GTK_BOX (copiesBox), m_NumberOfCopies);
 
-    {
-        GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
-        GtkTreeViewColumn *column =
-            gtk_tree_view_column_new_with_attributes (_("Jobs"), renderer,
-                    "text", printerListJobsColumn, NULL);
-        gtk_tree_view_append_column (GTK_TREE_VIEW (m_PrinterListView),
-                                     column);
-    }
+    // Collate checkbox
+    m_Collate = gtk_check_button_new_with_label (_("Collate"));
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (m_Collate), TRUE);
+    gtk_box_append (GTK_BOX (copiesBox), m_Collate);
 
-    {
-        GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
-        GtkTreeViewColumn *column =
-            gtk_tree_view_column_new_with_attributes (_("Location"), renderer,
-                    "text", printerListLocationColumn, NULL);
-        gtk_tree_view_append_column (GTK_TREE_VIEW (m_PrinterListView),
-                                     column);
-    }
+    // Page range frame
+    GtkWidget *rangeFrame = gtk_frame_new (_("Page Range"));
+    GtkWidget *rangeBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
+    gtk_widget_set_margin_start (rangeBox, 6);
+    gtk_widget_set_margin_end (rangeBox, 6);
+    gtk_widget_set_margin_top (rangeBox, 6);
+    gtk_widget_set_margin_bottom (rangeBox, 6);
+    gtk_frame_set_child (GTK_FRAME (rangeFrame), rangeBox);
 
-    return mainBox;
+    // Page range radio buttons
+    m_AllPagesRangeOption = gtk_check_button_new_with_label (_("All"));
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (m_AllPagesRangeOption), TRUE);
+    g_signal_connect (G_OBJECT (m_AllPagesRangeOption), "toggled",
+                     G_CALLBACK (print_view_page_range_option_changed), this);
+    gtk_box_append (GTK_BOX (rangeBox), m_AllPagesRangeOption);
+
+    m_CustomPagesRangeOption = gtk_check_button_new_with_label (_("Pages:"));
+    gtk_box_append (GTK_BOX (rangeBox), m_CustomPagesRangeOption);
+
+    // Page range entry
+    m_PageRange = gtk_entry_new ();
+    gtk_editable_set_width_chars (GTK_EDITABLE (m_PageRange), 20);
+    gtk_widget_set_halign (m_PageRange, GTK_ALIGN_END);
+    gtk_widget_set_margin_start (m_PageRange, 24);
+    gtk_box_append (GTK_BOX (rangeBox), m_PageRange);
+
+    // Page set frame
+    GtkWidget *pageSetFrame = gtk_frame_new (_("Pages"));
+    GtkWidget *pageSetBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
+    gtk_widget_set_margin_start (pageSetBox, 6);
+    gtk_widget_set_margin_end (pageSetBox, 6);
+    gtk_widget_set_margin_top (pageSetBox, 6);
+    gtk_widget_set_margin_bottom (pageSetBox, 6);
+    gtk_frame_set_child (GTK_FRAME (pageSetFrame), pageSetBox);
+
+    // Page set radio buttons
+    m_OddPageSet = gtk_check_button_new_with_label (_("Odd pages"));
+    gtk_box_append (GTK_BOX (pageSetBox), m_OddPageSet);
+
+    m_EvenPageSet = gtk_check_button_new_with_label (_("Even pages"));
+    gtk_box_append (GTK_BOX (pageSetBox), m_EvenPageSet);
+
+    // Pack all frames into the main vbox
+    gtk_box_append (GTK_BOX (vbox), copiesFrame);
+    gtk_box_append (GTK_BOX (vbox), rangeFrame);
+    gtk_box_append (GTK_BOX (vbox), pageSetFrame);
+
+    return vbox;
+}
+
+GtkWidget *
+PrintView::createPaperTab ()
+{
+    GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
+    GtkWidget *frame = gtk_frame_new(_("Paper"));
+    GtkWidget *paperGrid = gtk_grid_new();
+    GtkWidget *pageSizeLabel = gtk_label_new(_("Page _size:"));
+    GtkWidget *orientationLabel = gtk_label_new(_("O_rientation:"));
+    GtkWidget *layoutLabel = gtk_label_new(_("Page _layout:"));
+    GtkWidget *colorModelLabel = gtk_label_new(_("Color _model:"));
+    GtkWidget *resolutionLabel = gtk_label_new(_("_Resolution:"));
+
+    // Set up the paper grid
+    gtk_grid_set_row_spacing(GTK_GRID(paperGrid), 6);
+    gtk_grid_set_column_spacing(GTK_GRID(paperGrid), 12);
+    gtk_grid_attach(GTK_GRID(paperGrid), pageSizeLabel, 0, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(paperGrid), orientationLabel, 0, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(paperGrid), layoutLabel, 0, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(paperGrid), colorModelLabel, 0, 3, 1, 1);
+    gtk_grid_attach(GTK_GRID(paperGrid), resolutionLabel, 0, 4, 1, 1);
+
+    // Create the page size dropdown
+    m_PageSize = g_list_store_new(OPTION_DATA_TYPE);
+    m_PageSizeView = gtk_drop_down_new(G_LIST_MODEL(m_PageSize), NULL);
+    gtk_widget_set_hexpand(m_PageSizeView, TRUE);
+    gtk_grid_attach(GTK_GRID(paperGrid), m_PageSizeView, 1, 0, 1, 1);
+    gtk_label_set_mnemonic_widget(GTK_LABEL(pageSizeLabel), m_PageSizeView);
+
+    // Create the orientation dropdown
+    m_Orientation = g_list_store_new(OPTION_DATA_TYPE);
+    m_OrientationView = gtk_drop_down_new(G_LIST_MODEL(m_Orientation), NULL);
+    gtk_widget_set_hexpand(m_OrientationView, TRUE);
+    gtk_grid_attach(GTK_GRID(paperGrid), m_OrientationView, 1, 1, 1, 1);
+    gtk_label_set_mnemonic_widget(GTK_LABEL(orientationLabel), m_OrientationView);
+
+    // Create the layout dropdown
+    m_Layout = g_list_store_new(OPTION_DATA_TYPE);
+    m_LayoutView = gtk_drop_down_new(G_LIST_MODEL(m_Layout), NULL);
+    gtk_widget_set_hexpand(m_LayoutView, TRUE);
+    gtk_drop_down_set_selected(GTK_DROP_DOWN(m_LayoutView), 0);
+    gtk_grid_attach(GTK_GRID(paperGrid), m_LayoutView, 1, 2, 1, 1);
+    gtk_label_set_mnemonic_widget(GTK_LABEL(layoutLabel), m_LayoutView);
+
+    // Create the color model dropdown
+    m_ColorModel = g_list_store_new(OPTION_DATA_TYPE);
+    m_ColorModelView = gtk_drop_down_new(G_LIST_MODEL(m_ColorModel), NULL);
+    gtk_widget_set_hexpand(m_ColorModelView, TRUE);
+    gtk_grid_attach(GTK_GRID(paperGrid), m_ColorModelView, 1, 3, 1, 1);
+    gtk_label_set_mnemonic_widget(GTK_LABEL(colorModelLabel), m_ColorModelView);
+
+    // Create the resolution dropdown
+    m_Resolution = g_list_store_new(OPTION_DATA_TYPE);
+    m_ResolutionView = gtk_drop_down_new(G_LIST_MODEL(m_Resolution), NULL);
+    gtk_widget_set_hexpand(m_ResolutionView, TRUE);
+    gtk_grid_attach(GTK_GRID(paperGrid), m_ResolutionView, 1, 4, 1, 1);
+    gtk_label_set_mnemonic_widget(GTK_LABEL(resolutionLabel), m_ResolutionView);
+
+    // Add the paper grid to the frame
+    gtk_frame_set_child(GTK_FRAME(frame), paperGrid);
+    gtk_box_append(GTK_BOX(vbox), frame);
+
+    // Create the output options frame
+    GtkWidget *outputFrame = gtk_frame_new(_("Output"));
+    GtkWidget *outputGrid = gtk_grid_new();
+    GtkWidget *colorModeLabel = gtk_label_new(_("Mode:"));
+    
+    // Create a GListStore for the color mode combo
+    GListStore *colorModeList = g_list_store_new(OPTION_DATA_TYPE);
+    GtkWidget *colorModeCombo = gtk_drop_down_new(G_LIST_MODEL(colorModeList), NULL);
+    g_object_unref(colorModeList); // The dropdown takes ownership
+    
+    GtkWidget *collateCheck = gtk_check_button_new_with_label(_("_Collate"));
+
+    // Set up the output grid
+    gtk_grid_set_row_spacing(GTK_GRID(outputGrid), 6);
+    gtk_grid_set_column_spacing(GTK_GRID(outputGrid), 12);
+    gtk_grid_attach(GTK_GRID(outputGrid), colorModeLabel, 0, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(outputGrid), colorModeCombo, 1, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(outputGrid), collateCheck, 1, 1, 1, 1);
+
+    // Add the output grid to the frame
+    gtk_frame_set_child(GTK_FRAME(outputFrame), outputGrid);
+    gtk_box_append(GTK_BOX(vbox), outputFrame);
+
+    return vbox;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -728,91 +746,85 @@ PrintView::createPrinterTab ()
 void
 PrintView::createColorModelListModel ()
 {
-    m_ColorModel = gtk_list_store_new (printOptionNumColumn,
-                                       G_TYPE_STRING,  // Label
-                                       G_TYPE_STRING);    // Value
+    m_ColorModel = g_list_store_new(OPTION_DATA_TYPE);
 }
 
 void
 PrintView::createLayoutListModel ()
 {
-    m_Layout = gtk_list_store_new (printOptionNumColumn,
-                                   G_TYPE_STRING,  // Label
-                                   G_TYPE_INT);    // Value
-
-    GtkTreeIter iter;
-    gtk_list_store_append (m_Layout, &iter);
-    gtk_list_store_set (m_Layout, &iter,
-                        printOptionLabelColumn, _("Plain"),
-                        printOptionValueColumn, PRINT_PAGE_LAYOUT_PLAIN,
-                        -1);
-
-    gtk_list_store_append (m_Layout, &iter);
-    gtk_list_store_set (m_Layout, &iter,
-                        printOptionLabelColumn, _("2 pages in 1"),
-                        printOptionValueColumn, PRINT_PAGE_LAYOUT_2IN1,
-                        -1);
-
-    gtk_list_store_append (m_Layout, &iter);
-    gtk_list_store_set (m_Layout, &iter,
-                        printOptionLabelColumn, _("4 pages in 1"),
-                        printOptionValueColumn, PRINT_PAGE_LAYOUT_4IN1,
-                        -1);
-
-    gtk_list_store_append (m_Layout, &iter);
-    gtk_list_store_set (m_Layout, &iter,
-                        printOptionLabelColumn, _("6 pages in 1"),
-                        printOptionValueColumn, PRINT_PAGE_LAYOUT_6IN1,
-                        -1);
+    m_Layout = g_list_store_new(OPTION_DATA_TYPE);
+    
+    // Add layout options
+    OptionData data = {0};
+    
+    // 1 page per sheet
+    data.name = g_strdup(_("1 page per sheet"));
+    data.value = g_strdup_printf("%d", PRINT_PAGE_LAYOUT_1IN1);
+    g_list_store_append(m_Layout, &data);
+    g_free(data.name);
+    g_free(data.value);
+    
+    // 2 pages in 1
+    data.name = g_strdup(_("2 pages in 1"));
+    data.value = g_strdup_printf("%d", PRINT_PAGE_LAYOUT_2IN1);
+    g_list_store_append(m_Layout, &data);
+    g_free(data.name);
+    g_free(data.value);
+    
+    // 4 pages in 1
+    data.name = g_strdup(_("4 pages in 1"));
+    data.value = g_strdup_printf("%d", PRINT_PAGE_LAYOUT_4IN1);
+    g_list_store_append(m_Layout, &data);
+    g_free(data.name);
+    g_free(data.value);
+    
+    // 6 pages in 1
+    data.name = g_strdup(_("6 pages in 1"));
+    data.value = g_strdup_printf("%d", PRINT_PAGE_LAYOUT_6IN1);
+    g_list_store_append(m_Layout, &data);
+    g_free(data.name);
+    g_free(data.value);
 }
 
 void
 PrintView::createOrientationListModel ()
 {
-    m_Orientation = gtk_list_store_new (printOptionNumColumn,
-                                        G_TYPE_STRING,  // Label
-                                        G_TYPE_INT);    // Value
-
-    GtkTreeIter iter;
-    gtk_list_store_append (m_Orientation, &iter);
-    gtk_list_store_set (m_Orientation, &iter,
-                printOptionLabelColumn, _("Portrait"),
-                printOptionValueColumn, PRINT_PAGE_ORIENTATION_PORTRAIT,
-                -1);
-
-    gtk_list_store_append (m_Orientation, &iter);
-    gtk_list_store_set (m_Orientation, &iter,
-                printOptionLabelColumn, _("Landscape"),
-                printOptionValueColumn, PRINT_PAGE_ORIENTATION_LANDSCAPE,
-                -1);
+    m_Orientation = g_list_store_new(OPTION_DATA_TYPE);
+    
+    // Add orientation options
+    OptionData data = {0};
+    
+    // Portrait
+    data.name = g_strdup(_("Portrait"));
+    data.value = g_strdup_printf("%d", PRINT_PAGE_ORIENTATION_PORTRAIT);
+    g_list_store_append(m_Orientation, &data);
+    g_free(data.name);
+    g_free(data.value);
+    
+    // Landscape
+    data.name = g_strdup(_("Landscape"));
+    data.value = g_strdup_printf("%d", PRINT_PAGE_ORIENTATION_LANDSCAPE);
+    g_list_store_append(m_Orientation, &data);
+    g_free(data.name);
+    g_free(data.value);
 }
 
 void
 PrintView::createPageSizeListModel ()
 {
-    m_PageSize = gtk_list_store_new (printOptionNumColumn,
-                                     G_TYPE_STRING,  // Label
-                                     G_TYPE_STRING); // Value
+    m_PageSize = g_list_store_new(OPTION_DATA_TYPE);
 }
 
 void
 PrintView::createPrinterListModel ()
 {
-    m_PrinterList =
-        gtk_list_store_new (printerListNumColumn,
-                            G_TYPE_STRING,  // Name
-                            G_TYPE_STRING,  // State
-                            G_TYPE_INT,     // Jobs
-                            G_TYPE_STRING); // Location
-
+    m_PrinterList = g_list_store_new(PRINTER_DATA_TYPE);
 }
 
 void
 PrintView::createResolutionListModel ()
 {
-    m_Resolution = gtk_list_store_new (printOptionNumColumn,
-                                       G_TYPE_STRING,  // Label
-                                       G_TYPE_STRING); // Value
+    m_Resolution = g_list_store_new(OPTION_DATA_TYPE);
 }
 
 // Callbacks

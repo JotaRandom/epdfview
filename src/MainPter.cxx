@@ -60,6 +60,10 @@ MainPter::MainPter (IDocument *document)
     m_FindPter = NULL;
     m_PasswordTries = 3;
     m_ReloadPage = 1;
+    oldWidth = 0;
+    oldHeight = 0;
+    scrollX = 0.0;
+    scrollY = 0.0;
 #if defined (DEBUG)
     G_LOCK (fileLoaded);
     fileLoaded = FALSE;
@@ -563,21 +567,30 @@ MainPter::preferencesActivated ()
     // destroy itself.
 }
 
-///
-/// @brief The "Reload" was activated.
-///
-/// Reloading is like opening the same file but the current page, rotation
-/// and zoom are maintained.
-///
+//
+// @brief The "Reload" was activated.
+//
+// Reloading is like opening the same file but the current page, rotation
+// and zoom are maintained.
+//
 void
 MainPter::reloadActivated ()
 {
-	if(m_Document->isLoaded ()==TRUE) {
-		// Reload
-		m_ReloadPage = m_Document->getCurrentPageNum();
-		setOpenState (m_Document->getFileName (), TRUE);
-		m_Document->reload ();
-	}
+    if (m_Document != NULL && m_Document->isLoaded()) {
+        // Store the current file path and page number
+        const gchar *fileName = m_Document->getFileName();
+        gint currentPage = m_Document->getCurrentPageNum();
+        
+        // Set the open state to reloading
+        setOpenState(fileName, TRUE);
+        
+        // Reload the document
+        m_ReloadPage = currentPage;
+        m_Document->load(fileName, NULL);
+        
+        // The document will be reloaded asynchronously, and notifyLoad()
+        // will be called when it's done, which will handle going to the stored page
+    }
 }
 
 ///
@@ -586,24 +599,28 @@ MainPter::reloadActivated ()
 void
 MainPter::rotateLeftActivated ()
 {
-        gint newWidth = oldHeight;
-        gint newHeight = oldWidth;
-        
-        // Calculate the new scroll position based on the new dimensions
-        gdouble newX = (scrollX / oldWidth) * newWidth;
-        gdouble newY = (scrollY / oldHeight) * newHeight;
-        
-        // Use idle to ensure the view has been updated
-        g_idle_add ([] (gpointer data) -> gboolean {
-            MainPter *self = static_cast<MainPter*>(data);
-            
-            // Restore zoom level
-            self->m_MainView.getPageView ().setZoom (self->m_MainView.getPageView ().getZoom ());
-            
-            // Restore scroll position
-            self->m_MainView.getPageView ().scrollTo (self->m_MainView.getPageView ().getHorizontalScroll (), 
-                                                    self->m_MainView.getPageView ().getVerticalScroll ());
-            
+    g_assert (NULL != m_Document && "Tried to rotate a NULL document.");
+
+    // Store current zoom settings
+    gboolean wasZoomFit = Config::getConfig().zoomToFit();
+    gboolean wasZoomWidth = Config::getConfig().zoomToWidth();
+    
+    // Disable auto-zoom during rotation
+    if (wasZoomFit || wasZoomWidth) {
+        Config::getConfig().setZoomToFit(FALSE);
+        Config::getConfig().setZoomToWidth(FALSE);
+    }
+
+    m_Document->rotateLeft();
+    
+    // Restore zoom settings if needed
+    if (wasZoomFit || wasZoomWidth) {
+        g_idle_add([](gpointer data) -> gboolean {
+            MainPter* self = static_cast<MainPter*>(data);
+            Config& config = Config::getConfig();
+            if (config.zoomToFit() || config.zoomToWidth()) {
+                self->checkZoomSettings();
+            }
             return G_SOURCE_REMOVE;
         }, this);
     }
@@ -615,7 +632,7 @@ MainPter::rotateLeftActivated ()
 void
 MainPter::rotateRightActivated ()
 {
-    g_assert ( NULL != m_Document && "Tried to rotate a NULL document.");
+    g_assert (NULL != m_Document && "Tried to rotate a NULL document.");
 
     // Store current zoom settings
     gboolean wasZoomFit = Config::getConfig().zoomToFit();
@@ -640,6 +657,7 @@ MainPter::rotateRightActivated ()
             return G_SOURCE_REMOVE;
         }, this);
     }
+}
 
 ///
 /// @brief The Save File action was activated.
