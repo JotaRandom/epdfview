@@ -121,7 +121,7 @@ PDFDocument::createDocumentLink (const PopplerLinkMapping *link,
             PopplerActionGotoDest *actionGoTo = (PopplerActionGotoDest *)action;
             PopplerDest *destination = actionGoTo->dest;
             int pageNum = destination->page_num;
-#if defined (HAVE_POPPLER_0_5_2)
+#if POPPLER_CHECK_VERSION(0, 5, 2)
             if ( POPPLER_DEST_NAMED == destination->type )
             {
                 destination =
@@ -346,7 +346,7 @@ PDFDocument::loadMetadata (void)
     gchar *format = NULL;
     gchar *keywords = NULL;
     PopplerPageLayout layout = POPPLER_PAGE_LAYOUT_UNSET;
-#if defined (HAVE_POPPLER_0_15_1)
+#if POPPLER_CHECK_VERSION(0, 15, 1)
     gboolean *linearized = NULL;
 #else
     gchar *linearized = NULL;
@@ -484,7 +484,7 @@ PDFDocument::setOutline (DocumentOutline *outline,
                 child->setTitle (actionGoTo->title);
                 PopplerDest *destination = actionGoTo->dest;
                 child->setDestination (destination->page_num);
-#if defined (HAVE_POPPLER_0_5_2)
+#if POPPLER_CHECK_VERSION(0, 5, 2)
                 if ( POPPLER_DEST_NAMED == destination->type )
                 {
                     destination =
@@ -648,27 +648,49 @@ PDFDocument::renderPage (gint pageNum)
     PopplerPage *page = poppler_document_get_page (m_Document, pageNum - 1);
     if ( NULL != page )
     {
-#if defined (HAVE_POPPLER_0_17_0)
         cairo_surface_t *surface = cairo_image_surface_create_for_data (
-                renderedPage->getData (), 
-                CAIRO_FORMAT_ARGB32, width, height,
-                renderedPage->getRowStride ());
-        cairo_t *context = cairo_create (surface);
+                renderedPage->getData(), 
+                CAIRO_FORMAT_ARGB32, 
+                width, 
+                height,
+                renderedPage->getRowStride());
+                
+        cairo_t *context = cairo_create(surface);
         
-        // Set high-quality rendering options
+        // Clear with white background
+        cairo_set_source_rgb(context, 1.0, 1.0, 1.0);
+        cairo_paint(context);
+        
+        // Set up high-quality rendering
         cairo_set_antialias(context, CAIRO_ANTIALIAS_BEST);
-        cairo_set_operator(context, CAIRO_OPERATOR_OVER);
+        cairo_set_hairline(context, 1.0);
         
-        // Fill with white background
-        cairo_save(context);
-        cairo_set_source_rgb (context, 1.0, 1.0, 1.0);
-        cairo_rectangle (context, 0, 0, width, height);
-        cairo_fill(context);
-        cairo_restore(context);
+        // Calculate the scale factors
+        double x_scale = (double)width / pageWidth;
+        double y_scale = (double)height / pageHeight;
+        double scale = MIN(x_scale, y_scale);
         
-        // Save the context state before transformations
-        cairo_save(context);
-
+        // Center the page
+        double x_offset = (width - (pageWidth * scale)) / 2.0;
+        double y_offset = (height - (pageHeight * scale)) / 2.0;
+        
+        // Apply transformations
+        cairo_translate(context, x_offset, y_offset);
+        cairo_scale(context, scale, scale);
+        
+        // Set render hints
+        PopplerPrintFlags flags = POPPLER_PRINT_HIGH_RESOLUTION;
+        
+        // Render the page
+        poppler_page_render_for_printing_with_options(page, context, flags);
+        
+        // Clean up
+        cairo_destroy(context);
+        cairo_surface_destroy(surface);
+        
+        // Convert from BGRA to RGBA if needed
+        convert_bgra_to_rgba(renderedPage->getData(), width, height);
+        
         // Apply rotation transformations
         switch(getRotation())
         {
