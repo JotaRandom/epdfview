@@ -55,7 +55,6 @@ static void main_window_find_cb (GtkWidget *, gpointer);
 static void main_window_fullscreen_cb (GSimpleAction *, GVariant *, gpointer);
 // GTK4: Window configure events removed
 // static gboolean main_window_moved_or_resized_cb (GtkWidget *, gpointer);
-static void main_window_size_changed_cb (GtkWidget *, GtkAllocation *, gpointer);
 static void main_window_go_to_first_page_cb (GtkWidget *, gpointer);
 static void main_window_go_to_last_page_cb (GtkWidget *, gpointer);
 static void main_window_go_to_next_page_cb (GtkWidget *, gpointer);
@@ -83,10 +82,9 @@ static void main_window_show_menubar_cb (GSimpleAction *, GVariant *, gpointer);
 static void main_window_invert_color_cb (GSimpleAction *, GVariant *, gpointer);
 static void main_window_show_statusbar_cb (GSimpleAction *, GVariant *, gpointer);
 static void main_window_show_toolbar_cb (GSimpleAction *, GVariant *, gpointer);
-static void main_window_zoom_cb (GtkWidget *, gpointer);
 static void main_window_zoom_fit_cb (GSimpleAction *, GVariant *, gpointer);
-static void main_window_zoom_in_cb (GtkWidget *, gpointer);
-static void main_window_zoom_out_cb (GtkWidget *, gpointer);
+static void main_window_zoom_in_cb (GSimpleAction *, GVariant *, gpointer);
+static void main_window_zoom_out_cb (GSimpleAction *, GVariant *, gpointer);
 static void main_window_zoom_width_cb (GSimpleAction *, GVariant *, gpointer);
 static void main_window_set_page_mode (GSimpleAction *, GVariant *, gpointer);
 // GTK4: Scroll events handled by PageView event controllers, not needed here
@@ -106,8 +104,6 @@ ACTION_CALLBACK(main_window_print_action_cb, main_window_print_cb)
 ACTION_CALLBACK(main_window_quit_action_cb, main_window_quit_cb)
 ACTION_CALLBACK(main_window_find_action_cb, main_window_find_cb)
 ACTION_CALLBACK(main_window_preferences_action_cb, main_window_preferences_cb)
-ACTION_CALLBACK(main_window_zoom_in_action_cb, main_window_zoom_in_cb)
-ACTION_CALLBACK(main_window_zoom_out_action_cb, main_window_zoom_out_cb)
 ACTION_CALLBACK(main_window_rotate_right_action_cb, main_window_rotate_right_cb)
 ACTION_CALLBACK(main_window_rotate_left_action_cb, main_window_rotate_left_cb)
 ACTION_CALLBACK(main_window_go_to_first_page_action_cb, main_window_go_to_first_page_cb)
@@ -154,13 +150,19 @@ static const struct {
       N_("Change the application's preferences"),
       G_CALLBACK (main_window_preferences_action_cb) },
 
-    { "zoom-in", "zoom-in", N_("Zoom _In"), "<Control>plus",
+    { "zoom-in", "zoom-in", N_("Zoom _In"), "<control>plus",
       N_("Enlarge the document"),
-      G_CALLBACK (main_window_zoom_in_action_cb) },
+      G_CALLBACK (main_window_zoom_in_cb) },
 
-    { "zoom-out", "zoom-out", N_("Zoom _Out"), "<Control>minus",
+    { "zoom-out", "zoom-out", N_("Zoom _Out"), "<control>minus",
       N_("Shrink the document"),
-      G_CALLBACK (main_window_zoom_out_action_cb) },
+      G_CALLBACK (main_window_zoom_out_cb) },
+
+    { "zoom-in-kp", NULL, NULL, "<control>KP_Add", NULL,
+      G_CALLBACK (main_window_zoom_in_cb) },
+      
+    { "zoom-out-kp", NULL, NULL, "<control>KP_Subtract", NULL,
+      G_CALLBACK (main_window_zoom_out_cb) },
 
     { "rotate-right", "object-rotate-right", N_("Rotate _Right"), "<control>bracketright",
       N_("Rotate the document 90 degrees clockwise"),
@@ -284,10 +286,6 @@ MainView::MainView (MainPter *pter):
     // Connect signals
     g_signal_connect (G_OBJECT (m_MainWindow), "destroy",
                      G_CALLBACK (main_window_quit_cb), NULL);
-    
-    // Connect size-allocate for window size changes
-    g_signal_connect (G_OBJECT (m_MainWindow), "size-allocate",
-                     G_CALLBACK (main_window_size_changed_cb), this);
     // Create the main vertical box.
     m_MainBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
     gtk_window_set_child (GTK_WINDOW (m_MainWindow), m_MainBox);
@@ -1118,7 +1116,7 @@ MainView::createCurrentZoom ()
 /// Creates the image widget inside the scrolled window, but also creates
 /// the side bar.
 ///
-/// Put both the side bar and the image to a HPaned container.
+/// Put both the side bar and the scrolled window to a HPaned container.
 ///
 /// @return The HPaned where the side bar and the scrolled window are.
 ///
@@ -1591,34 +1589,33 @@ main_window_fullscreen_cb (GSimpleAction *action, GVariant *parameter, gpointer 
     g_variant_unref (state);
 }
 
-////////////////////////////////////////////////////////////////
-/// \brief Callback for window size changes
 ///
-/// Handles window size changes to ensure proper window management in Wayland.
+/// @brief The user tries to expand the document.
 ///
-/// @param widget The widget that received the signal
-/// @param allocation The new allocation (unused)
-/// @param user_data User data (MainView instance)
-////////////////////////////////////////////////////////////////
-static void
-main_window_size_changed_cb (GtkWidget *widget,
-                            GtkAllocation *allocation,
-                            gpointer user_data)
+void
+main_window_zoom_in_cb (GSimpleAction *action,
+                       GVariant      *parameter,
+                       gpointer       data)
 {
-    MainView *view = static_cast<MainView*>(user_data);
-    GtkWindow *window = GTK_WINDOW(widget);
-    
-    // Ensure the window is properly managed by the window manager
-    if (gtk_widget_get_realized(widget)) {
-        // In GTK4, we don't need to set these properties on every size change
-        // as they're already set in the constructor. Just ensure the window
-        // is properly configured.
-        
-        // Force a window redraw if needed
-        gtk_widget_queue_draw(widget);
-    }
+    g_assert (NULL != data && "The data parameter is NULL.");
+
+    MainPter *pter = (MainPter *)data;
+    pter->zoomInActivated();
 }
 
+///
+/// @brief The user tries to shrink the document.
+///
+void
+main_window_zoom_out_cb (GSimpleAction *action,
+                        GVariant      *parameter,
+                        gpointer       data)
+{
+    g_assert (NULL != data && "The data parameter is NULL.");
+
+    MainPter *pter = (MainPter *)data;
+    pter->zoomOutActivated();
+}
 
 ///
 /// @brief The user tries to go to the first page.
@@ -1934,36 +1931,12 @@ main_window_zoom_fit_cb (GSimpleAction *action, GVariant *parameter, gpointer da
 }
 
 ///
-/// @brief The user tries to expand the document.
-///
-void
-main_window_zoom_in_cb (GSimpleAction *action, GVariant *parameter, gpointer data)
-{
-    g_assert (NULL != data && "The data parameter is NULL.");
-
-    MainPter *pter = (MainPter *)data;
-    pter->zoomInActivated();
-}
-
-///
-/// @brief The user tries to shrink the document.
-///
-void
-main_window_zoom_out_cb (GSimpleAction *action, GVariant *parameter, gpointer data)
-{
-    g_assert (NULL != data && "The data parameter is NULL.");
-
-    MainPter *pter = (MainPter *)data;
-    pter->zoomOutActivated();
-}
-
-///
-/// @brief The user tries to fit the document in the window's width.
+/// @brief The user tries to fit the document width to the window width.
 ///
 void
 main_window_zoom_width_cb (GSimpleAction *action, GVariant *parameter, gpointer data)
 {
-    g_assert ( NULL != data && "The data parameter is NULL.");
+    g_assert (NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
     GVariant *state = g_action_get_state (G_ACTION (action));
@@ -1974,6 +1947,9 @@ main_window_zoom_width_cb (GSimpleAction *action, GVariant *parameter, gpointer 
     g_variant_unref (state);
 }
 
+///
+/// @brief The user tries to set a page mode.
+///
 void
 main_window_set_page_mode (GSimpleAction *action, GVariant *parameter, gpointer data)
 {
