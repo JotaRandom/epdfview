@@ -154,11 +154,11 @@ static const struct {
       N_("Change the application's preferences"),
       G_CALLBACK (main_window_preferences_action_cb) },
 
-    { "zoom-in", "zoom-in", N_("Zoom _In"), "<control>plus",
+    { "zoom-in", "zoom-in", N_("Zoom _In"), "<Control>plus",
       N_("Enlarge the document"),
       G_CALLBACK (main_window_zoom_in_action_cb) },
 
-    { "zoom-out", "zoom-out", N_("Zoom _Out"), "<control>minus",
+    { "zoom-out", "zoom-out", N_("Zoom _Out"), "<Control>minus",
       N_("Shrink the document"),
       G_CALLBACK (main_window_zoom_out_action_cb) },
 
@@ -1483,8 +1483,7 @@ main_window_about_box_cb (GtkWidget *widget, gpointer data)
     const gchar *license[] = {
         N_("ePDFView is free software; you can redistribute it and/or modify\n"
            "it under the terms of the GNU General Public License as published "
-           "by\nthe Free Software Foundation; either version 2 of the "
-           "License, or\n(at your option) any later version.\n"),
+           "by\nthe Free Software Foundation; either version 2 of the License, or\n(at your option) any later version.\n"),
         N_("ePDFView is distributed in the hope that it will be useful,\n"
            "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
            "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
@@ -1938,24 +1937,24 @@ main_window_zoom_fit_cb (GSimpleAction *action, GVariant *parameter, gpointer da
 /// @brief The user tries to expand the document.
 ///
 void
-main_window_zoom_in_cb (GtkWidget *widget, gpointer data)
+main_window_zoom_in_cb (GSimpleAction *action, GVariant *parameter, gpointer data)
 {
-    g_assert ( NULL != data && "The data parameter is NULL.");
+    g_assert (NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
-    pter->zoomInActivated ();
+    pter->zoomInActivated();
 }
 
 ///
 /// @brief The user tries to shrink the document.
 ///
 void
-main_window_zoom_out_cb (GtkWidget *widget, gpointer data)
+main_window_zoom_out_cb (GSimpleAction *action, GVariant *parameter, gpointer data)
 {
-    g_assert ( NULL != data && "The data parameter is NULL.");
+    g_assert (NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
-    pter->zoomOutActivated ();
+    pter->zoomOutActivated();
 }
 
 ///

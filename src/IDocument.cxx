@@ -1298,8 +1298,8 @@ IDocument::zoomOut (void)
 ///
 /// @brief Zooms the document to fit the width and the height.
 ///
-/// It tries to get the best zoom / scale level that will let the 
-/// document fit into @a width and @a height.
+/// It tries to get the best zoom / scale level that will let the document
+/// fit into @a width and @a height, maintaining the aspect ratio.
 ///
 /// @param width The width to fit the document to.
 /// @param height The height to fit the document to.
@@ -1307,7 +1307,6 @@ IDocument::zoomOut (void)
 void
 IDocument::zoomToFit (gint width, gint height)
 {
-    // Guard against early calls with zero-sized view or invalid dimensions
     if (width <= 0 || height <= 0)
     {
         return;
@@ -1317,8 +1316,9 @@ IDocument::zoomToFit (gint width, gint height)
     gdouble pageHeight;
     getPageSize(&pageWidth, &pageHeight);
     
-    if (pageWidth <= 0 || pageHeight <= 0) {
-        return;  // Invalid page size
+    if (pageWidth <= 0 || pageHeight <= 0)
+    {
+        return;
     }
     
     // Calculate scale factors for width and height
@@ -1331,22 +1331,20 @@ IDocument::zoomToFit (gint width, gint height)
     // Apply zoom constraints
     scale = CLAMP(scale, ZOOM_OUT_MAX, ZOOM_IN_MAX);
     
-    // Set the zoom level (this will trigger a redraw via notifyPageZoomed)
     setZoom(scale);
 }
 
 ///
 /// @brief Zooms the document to fit the width.
 ///
-/// It tries to get the best zooms / scale level that will let the document
-/// fit into @a width, without looking into any height.
+/// It tries to get the best zoom / scale level that will let the document
+/// fit into @a width, maintaining the aspect ratio.
 ///
 /// @param width The width to fit the document to.
 ///
 void
 IDocument::zoomToWidth (gint width)
 {
-    // Guard against early calls with zero-sized view
     if (width <= 0)
     {
         return;
@@ -1356,8 +1354,9 @@ IDocument::zoomToWidth (gint width)
     gdouble pageHeight;
     getPageSize(&pageWidth, &pageHeight);
     
-    if (pageWidth <= 0) {
-        return;  // Invalid page size
+    if (pageWidth <= 0)
+    {
+        return;
     }
     
     // Calculate scale based on width while maintaining aspect ratio

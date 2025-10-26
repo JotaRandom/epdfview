@@ -681,10 +681,12 @@ PDFDocument::renderPage (gint pageNum)
         // Render the page
         poppler_page_render(page, context);
         
-        // Copy the rendered data to our buffer
+        // Get the rendered data
         cairo_surface_flush(surface);
         unsigned char *data = cairo_image_surface_get_data(surface);
         int stride = cairo_image_surface_get_stride(surface);
+        
+        // Copy the rendered data to our buffer
         unsigned char *dest = renderedPage->getData();
         
         for (int y = 0; y < height; y++) {
