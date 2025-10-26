@@ -1331,13 +1331,8 @@ IDocument::zoomToFit (gint width, gint height)
     // Apply zoom constraints
     scale = CLAMP(scale, ZOOM_OUT_MAX, ZOOM_IN_MAX);
     
-    // Set the zoom level
+    // Set the zoom level (this will trigger a redraw via notifyPageZoomed)
     setZoom(scale);
-    
-    // Force a redraw
-    if (m_View != NULL) {
-        m_View->queueDraw();
-    }
 }
 
 ///
@@ -1371,13 +1366,8 @@ IDocument::zoomToWidth (gint width)
     // Apply zoom constraints
     scale = CLAMP(scale, ZOOM_OUT_MAX, ZOOM_IN_MAX);
     
-    // Set the zoom level
+    // Set the zoom level (this will trigger a redraw via notifyPageZoomed)
     setZoom(scale);
-    
-    // Force a redraw
-    if (m_View != NULL) {
-        m_View->queueDraw();
-    }
 }
 
 ///
