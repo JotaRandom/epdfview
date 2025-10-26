@@ -1,4 +1,4 @@
-﻿// ePDFView - A lightweight PDF Viewer.
+// ePDFView - A lightweight PDF Viewer.
 // Copyright (C) 2006-2011 Emma's Software.
 // Copyright (C) 2014-2025 Pablo Lezaeta
 // Copyright (C) 2014 Pedro A. Aranda GutiÃ©rrez
@@ -67,6 +67,7 @@ namespace ePDFView
             void viewResized (gint width, gint height);
             void setMode(PagePterMode mode);
 			void setInvertColorToggle(char on);//krogan
+            void refreshPage (PageScroll pageScroll, gboolean wasZoomed);
 
         protected:
             /// The document whose page is shown.
@@ -81,8 +82,6 @@ namespace ePDFView
             cairo_region_t *m_LastSelection;
             /// What page presenter must do when user move mouse with button pressed.
             PagePterMode m_ScrollMode;
-
-            void refreshPage (PageScroll pageScroll, gboolean wasZoomed);
     };
 }
 

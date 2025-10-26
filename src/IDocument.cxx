@@ -1,4 +1,4 @@
-﻿// ePDFView - A lightweight PDF Viewer.
+// ePDFView - A lightweight PDF Viewer.
 // Copyright (C) 2006-2011 Emma's Software.
 // Copyright (C) 2014-2025 Pablo Lezaeta
 // Copyright (C) 2014 Pedro A. Aranda GutiÃ©rrez
@@ -31,10 +31,11 @@ G_LOCK_DEFINE_STATIC (pageImage);
 G_LOCK_DEFINE_STATIC (pageSearch);
 
 // Constants.
-static const gdouble ZOOM_IN_FACTOR = 1.2;
-static const gdouble ZOOM_IN_MAX = 4.0;
+static const gdouble ZOOM_IN_FACTOR = 1.1;  // Smoother zoom steps
+static const gdouble ZOOM_IN_MAX = 8.0;     // Increased max zoom
 static const gdouble ZOOM_OUT_FACTOR = (1.0 / ZOOM_IN_FACTOR);
-static const gdouble ZOOM_OUT_MAX = 0.05409;
+static const gdouble ZOOM_OUT_MIN = 0.1;    // More reasonable min zoom
+static const gdouble ZOOM_OUT_MAX = 0.1;    // Same as ZOOM_OUT_MIN for consistency
 static const guint CACHE_SIZE = 3;
 
 /// This is the error domain that will be used to report Document's errors.
@@ -1114,35 +1115,54 @@ IDocument::goToNextPage ()
     goToPage (getCurrentPageNum() + 1);
 }
 
+// Structure to hold data for async page loading
+typedef struct {
+    IDocument* document;
+    gint pageNum;
+} AsyncPageLoadData;
+
+static gboolean async_go_to_page(gpointer user_data) {
+    AsyncPageLoadData* data = static_cast<AsyncPageLoadData*>(user_data);
+    IDocument* doc = data->document;
+    gint pageNum = data->pageNum;
+    
+    // Only proceed if the page number is valid and different from current
+    if (pageNum != doc->getCurrentPageNum() && 1 <= pageNum && pageNum <= doc->getNumPages()) {
+        // Go to the target page using the public method
+        doc->goToPage(pageNum);
+        
+        // The document will handle caching of pages automatically through its internal logic
+        // We don't need to manually call addPageToCache as it's handled by the document class
+        
+        // Trigger a refresh of the view to show the new page
+        if (doc->getCurrentPage() != NULL) {
+            doc->notifyPageChanged();
+        }
+    }
+    
+    // Free the data structure
+    delete data;
+    
+    // Return FALSE to remove this idle function
+    return G_SOURCE_REMOVE;
+}
+
 ///
 /// @brief Goes to a document page.
 ///
 /// Changes the current page to be the page @a pageNum. If @a pageNum is
 /// greater than the document's last page, then the current page becomes
-/// the last page. If @a pageNum is instead less then the first page (i.e., 
+/// the last page. If @a pageNum is instead less than the first page (i.e., 
 /// <= 0) then the current page becomes the first (i.e., 1).
 ///
 /// @param pageNum The page index to go to.
 ///
 void
-IDocument::goToPage (gint pageNum)
+IDocument::goToPage(gint pageNum)
 {
-    if ( pageNum != m_CurrentPage && 1 <= pageNum && pageNum <= getNumPages ())
-    {
-        m_CurrentPage = pageNum;
-
-        addPageToCache (m_CurrentPage);
-        if ( 1 < m_CurrentPage )
-        {
-            addPageToCache (m_CurrentPage - 1);
-        }
-        if ( m_CurrentPage < getNumPages () )
-        {
-            addPageToCache (m_CurrentPage + 1);
-        }
-
-        notifyPageChanged ();
-    }
+    // Schedule the page load asynchronously to prevent UI freezing
+    AsyncPageLoadData* data = new AsyncPageLoadData{this, pageNum};
+    g_idle_add(async_go_to_page, data);
 }
 
 ///

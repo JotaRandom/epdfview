@@ -26,7 +26,80 @@
 
 // GTK4 direct API usage - no compatibility layer needed
 
-using namespace ePDFView;
+namespace ePDFView {
+
+// Cache management implementation
+void PageView::clearZoomCache() {
+    m_ZoomCache.clear();
+}
+
+GdkPixbuf* PageView::getFromZoomCache(gdouble zoom, gint width, gint height) {
+    // Find the best matching cache entry
+    auto bestIt = m_ZoomCache.end();
+    gdouble bestDiff = G_MAXDOUBLE;
+    
+    for (auto it = m_ZoomCache.begin(); it != m_ZoomCache.end(); ++it) {
+        // Calculate difference in zoom level
+        gdouble zoomDiff = fabs(it->zoomLevel - zoom);
+        
+        // If we find an exact match, use it immediately
+        if (zoomDiff < 0.001 && it->width == width && it->height == height) {
+            it->lastAccess = ++m_CacheAccessCounter;
+            return it->pixbuf ? static_cast<GdkPixbuf*>(g_object_ref(it->pixbuf)) : nullptr;
+        }
+        
+        // Otherwise track the closest match
+        if (zoomDiff < bestDiff) {
+            bestDiff = zoomDiff;
+            bestIt = it;
+        }
+    }
+    
+    // If we found a close enough match, use it
+    if (bestIt != m_ZoomCache.end() && bestDiff < 0.1) { // Within 10% zoom difference
+        bestIt->lastAccess = ++m_CacheAccessCounter;
+        return bestIt->pixbuf ? static_cast<GdkPixbuf*>(g_object_ref(bestIt->pixbuf)) : nullptr;
+    }
+    
+    return nullptr; // No suitable cache entry found
+}
+
+void PageView::addToZoomCache(GdkPixbuf *pixbuf, gdouble zoom, gint width, gint height) {
+    if (!pixbuf) return;
+    
+    // Check if we already have this zoom level in cache
+    for (auto& entry : m_ZoomCache) {
+        if (fabs(entry.zoomLevel - zoom) < 0.001 && 
+            entry.width == width && 
+            entry.height == height) {
+            // Update existing entry
+            if (entry.pixbuf) g_object_unref(entry.pixbuf);
+            entry.pixbuf = static_cast<GdkPixbuf*>(g_object_ref(pixbuf));
+            entry.lastAccess = ++m_CacheAccessCounter;
+            return;
+        }
+    }
+    
+    // If cache is full, remove the least recently used entry
+    if (m_ZoomCache.size() >= MAX_ZOOM_CACHE_ENTRIES) {
+        auto lruIt = m_ZoomCache.begin();
+        gint64 minAccess = lruIt->lastAccess;
+        
+        for (auto it = m_ZoomCache.begin(); it != m_ZoomCache.end(); ++it) {
+            if (it->lastAccess < minAccess) {
+                minAccess = it->lastAccess;
+                lruIt = it;
+            }
+        }
+        
+        // Remove the LRU entry
+        m_ZoomCache.erase(lruIt);
+    }
+    
+    // Add new entry to cache
+    m_ZoomCache.emplace_back(static_cast<GdkPixbuf*>(g_object_ref(pixbuf)), 
+                            zoom, width, height, ++m_CacheAccessCounter);
+}
 
 // Constants
 static gint PAGE_VIEW_PADDING = 12;
@@ -384,15 +457,15 @@ PageView::setZoom (gdouble zoom)
     // Only update if the zoom level has actually changed
     if (ABS(zoom - m_ZoomLevel) > 0.001 && zoom > 0.05)  // Minimum zoom level of 5%
     {
-        // Store the old zoom level for calculations
-        gdouble oldZoom = m_ZoomLevel;
-        
-        // Update the zoom level
-        m_ZoomLevel = zoom;
+        // Update the zoom level with bounds checking
+        m_ZoomLevel = CLAMP(zoom, 0.1, 8.0);  // Clamp zoom between 10% and 800%
         
         // If we have a current pixbuf, resize the page to apply the new zoom
         if (m_CurrentPixbuf != NULL)
         {
+            // Freeze the scrolled window to prevent flickering
+            g_object_freeze_notify(G_OBJECT(m_PageScroll));
+            
             // Get the original dimensions of the pixbuf (without any zoom)
             gint origWidth = gdk_pixbuf_get_width(m_CurrentPixbuf);
             gint origHeight = gdk_pixbuf_get_height(m_CurrentPixbuf);
@@ -400,10 +473,16 @@ PageView::setZoom (gdouble zoom)
             // Resize the page with the new zoom level
             resizePage(origWidth, origHeight);
             
+            // Thaw the scrolled window
+            g_object_thaw_notify(G_OBJECT(m_PageScroll));
+            
             // Notify any listeners about the zoom change
             if (m_Pter != NULL) {
                 m_Pter->notifyPageZoomed(m_ZoomLevel);
             }
+            
+            // Force a redraw of the scrolled window
+            gtk_widget_queue_draw(m_PageScroll);
         }
     }
 }
@@ -833,14 +912,32 @@ page_view_scrolled_cb (GtkEventControllerScroll *controller,
     gdouble page_size = gtk_adjustment_get_page_size(vadjustment);
     gdouble epsilon = 1.0; // Small threshold for floating point comparison
     
+    // Add a small delay to prevent rapid page transitions
+    static guint32 last_scroll_time = 0;
+    guint32 current_time = g_get_monotonic_time() / 1000; // Convert to milliseconds
+    
+    // Only process scroll events that are at least 200ms apart
+    if (current_time - last_scroll_time < 200) {
+        return TRUE; // Ignore rapid scroll events
+    }
+    last_scroll_time = current_time;
+    
     // Check for page up (scrolling up at the top)
     if (dy < -0.1 && position <= lower + epsilon) {
-        pter->scrollToPreviousPage();
+        g_idle_add([](gpointer data) -> gboolean {
+            PagePter* pter = (PagePter*)data;
+            pter->scrollToPreviousPage();
+            return G_SOURCE_REMOVE;
+        }, pter);
         return TRUE;
     }
     // Check for page down (scrolling down at the bottom)
     else if (dy > 0.1 && position >= (upper - page_size - epsilon)) {
-        pter->scrollToNextPage();
+        g_idle_add([](gpointer data) -> gboolean {
+            PagePter* pter = (PagePter*)data;
+            pter->scrollToNextPage();
+            return G_SOURCE_REMOVE;
+        }, pter);
         return TRUE;
     }
 
@@ -980,3 +1077,6 @@ page_view_keypress_cb(GtkEventControllerKey *controller, guint keyval, guint key
                           direction, horizontal, &returnValue);
     return returnValue;
 }
+
+} // namespace ePDFView
+

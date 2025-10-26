@@ -1,4 +1,4 @@
-﻿// ePDFView - A lightweight PDF Viewer.
+// ePDFView - A lightweight PDF Viewer.
 // Copyright (C) 2006-2011 Emma's Software.
 // Copyright (C) 2014-2025 Pablo Lezaeta
 // Copyright (C) 2014 Pedro A. Aranda GutiÃ©rrez
@@ -395,60 +395,59 @@ PagePter::pageNotAvailable (gpointer user)
     return FALSE;
 }
 
+// Structure to hold data for async page refresh
+typedef struct {
+    PagePter* pter;
+    PageScroll scroll;
+    gboolean wasZoomed;
+} AsyncRefreshData;
+
+static gboolean async_refresh_page(gpointer user_data) {
+    AsyncRefreshData* data = static_cast<AsyncRefreshData*>(user_data);
+    PagePter* pter = data->pter;
+    PageScroll pageScroll = data->scroll;
+    gboolean wasZoomed = data->wasZoomed;
+    
+    g_assert(pter != NULL && "PagePter is NULL in async_refresh_page");
+    
+    // Get the view through public method
+    IPageView &view = pter->getView();;
+    
+    // Schedule the refresh on the main thread
+    g_idle_add([](gpointer data) -> gboolean {
+        auto* refreshData = static_cast<AsyncRefreshData*>(data);
+        PagePter* pter = refreshData->pter;
+        
+        // Call refreshPage which is a protected method of PagePter
+        pter->refreshPage(refreshData->scroll, refreshData->wasZoomed);
+        
+        delete refreshData;
+        return G_SOURCE_REMOVE;
+    }, data);
+    
+    return G_SOURCE_REMOVE;
+}
+
 ///
 /// @brief Refreshes the current page.
 ///
 /// This function is called when the presenter needs to show a document's
-/// page. It only gets the rendered page from the document and then
-/// pass the resultant DocumentPage to the view.
+/// page. It gets the rendered page from the document asynchronously and
+/// then passes the resultant DocumentPage to the view.
 ///
 /// @param pageScroll This will be passed to the main view to let it know how
 ///                   to show the scroll this new page.
 /// @param wasZoomed If this is set to TRUE then it means that the page
-///                  has been refreshed because its scaled has changed.
+///                  has been refreshed because its scale has changed.
 ///
 void
-PagePter::refreshPage (PageScroll pageScroll, gboolean wasZoomed)
+PagePter::refreshPage(PageScroll pageScroll, gboolean wasZoomed)
 {
-    g_assert (NULL != m_Document && 
-              "Tried to show a page from a NULL document.");
+    g_assert(m_Document != NULL && "Tried to show a page from a NULL document.");
     
-    if ( m_Document->isLoaded () )
-    {
-        IPageView &view = getView ();
-        DocumentPage *documentPage = m_Document->getCurrentPage ();
-        if ( NULL != documentPage )
-        {
-            g_WaitingForPage = FALSE;
-            if ( NULL != m_LastSelection )
-                documentPage->setSelection(m_LastSelection);
-            view.showPage (documentPage, pageScroll);
-        }
-        else
-        {
-            if ( !g_WaitingForPage )
-            {
-                documentPage = m_Document->getEmptyPage ();
-                if ( wasZoomed )
-                {
-                    view.resizePage (documentPage->getWidth (),
-                                     documentPage->getHeight ());
-                }
-                else
-                {
-                    view.showPage (documentPage, pageScroll);
-                    delete documentPage;
-                    view.showText (_("Loading..."));
-                }
-
-                g_WaitingForPage = TRUE;
-                PageNotAvailableData *data = new PageNotAvailableData;
-                data->pter = this;
-                data->scroll = pageScroll;
-                g_idle_add (PagePter::pageNotAvailable, data);
-            }
-        }
-    }
+    // Schedule the page refresh asynchronously
+    AsyncRefreshData* data = new AsyncRefreshData{this, pageScroll, wasZoomed};
+    g_idle_add(async_refresh_page, data);
 }
 
 ///
