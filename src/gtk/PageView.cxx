@@ -391,7 +391,7 @@ PageView::setZoom (gdouble zoom)
             
             // Notify any listeners about the zoom change
             if (m_Pter != NULL) {
-                m_Pter->zoomChanged(m_ZoomLevel);
+                m_Pter->notifyPageZoomed(m_ZoomLevel);
             }
         }
     }
