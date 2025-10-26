@@ -369,8 +369,8 @@ PageView::setZoom (gdouble zoom)
             resizePage(origWidth, origHeight);
             
             // Notify any listeners about the zoom change
-            if (m_Presenter != NULL) {
-                m_Presenter->zoomChanged(m_ZoomLevel);
+            if (m_pter != NULL) {
+                m_pter->zoomChanged(m_ZoomLevel);
             }
         }
     }
@@ -754,15 +754,18 @@ page_view_resized_cb (GtkWidget *widget, GtkAllocation *allocation,
         last_height = height;
         
         PagePter *pter = (PagePter *)data;
-        pter->viewResized(width, height);
+        if (pter != NULL) {
+            pter->viewResized(width, height);
+        }
         
         // Force an update of the scrollbars
-        if (view->m_CurrentPixbuf != NULL) {
+        if (view != NULL && view->m_CurrentPixbuf != NULL) {
             gint pixbuf_width = gdk_pixbuf_get_width(view->m_CurrentPixbuf);
             gint pixbuf_height = gdk_pixbuf_get_height(view->m_CurrentPixbuf);
             view->resizePage(pixbuf_width, pixbuf_height);
         }
     }
+}
 
 ///
 /// @brief The page view has been scrolled.
