@@ -94,23 +94,17 @@ PageView::PageView ():
     gtk_widget_set_margin_top (m_PageImage, PAGE_VIEW_PADDING);
     gtk_widget_set_margin_bottom (m_PageImage, PAGE_VIEW_PADDING);
     
-    // GTK4: Configure picture to display at natural size
-    gtk_widget_set_hexpand (m_PageImage, FALSE);
-    gtk_widget_set_vexpand (m_PageImage, FALSE);
-    gtk_widget_set_halign (m_PageImage, GTK_ALIGN_CENTER);
-    gtk_widget_set_valign (m_PageImage, GTK_ALIGN_CENTER);
+    // Configure the image to expand and be scrollable
+    gtk_widget_set_hexpand (m_PageImage, TRUE);
+    gtk_widget_set_vexpand (m_PageImage, TRUE);
+    gtk_widget_set_halign (m_PageImage, GTK_ALIGN_FILL);
+    gtk_widget_set_valign (m_PageImage, GTK_ALIGN_FILL);
     
-    // GTK4: Configure GtkPicture to display at natural size
-    gtk_picture_set_content_fit (GTK_PICTURE (m_PageImage), GTK_CONTENT_FIT_FILL);
-
-    // I want to be able to drag the page with the left mouse
-    // button, because that will make possible to move the page
-    // with an stylus on a PDA. Later I'll need this to implement the
-    // document's links. The GtkImage widget doesn't have a
-    // GdkWindow, so I have to add the event box that will receive
-    // the mouse events.
-    // In GTK4, we don't need GtkEventBox, we can add event controllers directly to widgets
+    // Set the image as the child of the scrolled window
     gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (m_PageScroll), m_PageImage);
+    
+    // Set minimum size to ensure the scrolled window has some space
+    gtk_widget_set_size_request (m_PageScroll, 100, 100);
 
     // In GTK4, widgets are visible by default - no need for gtk_widget_show_all
     
@@ -231,13 +225,46 @@ PageView::resizePage (gint width, gint height)
     // GTK4: Use stored pixbuf since gtk_image_get_pixbuf is removed
     if ( NULL != m_CurrentPixbuf )
     {
+        // Get the current scroll position
+        GtkAdjustment *hAdjustment = gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(m_PageScroll));
+        GtkAdjustment *vAdjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(m_PageScroll));
+        gdouble hscroll = gtk_adjustment_get_value(hAdjustment);
+        gdouble vscroll = gtk_adjustment_get_value(vAdjustment);
+        
+        // Get the viewport size
+        gint viewportWidth = gtk_widget_get_allocated_width(GTK_WIDGET(m_PageScroll));
+        gint viewportHeight = gtk_widget_get_allocated_height(GTK_WIDGET(m_PageScroll));
+        
+        // Calculate the new size with padding
+        gint newWidth = width + (2 * PAGE_VIEW_PADDING);
+        gint newHeight = height + (2 * PAGE_VIEW_PADDING);
+        
+        // Update the scrolled window's adjustments
+        gtk_adjustment_set_upper(hAdjustment, MAX(newWidth, viewportWidth));
+        gtk_adjustment_set_page_size(hAdjustment, viewportWidth);
+        gtk_adjustment_set_step_increment(hAdjustment, viewportWidth * 0.1);
+        gtk_adjustment_set_page_increment(hAdjustment, viewportWidth * 0.9);
+        
+        gtk_adjustment_set_upper(vAdjustment, MAX(newHeight, viewportHeight));
+        gtk_adjustment_set_page_size(vAdjustment, viewportHeight);
+        gtk_adjustment_set_step_increment(vAdjustment, viewportHeight * 0.1);
+        gtk_adjustment_set_page_increment(vAdjustment, viewportHeight * 0.9);
+        
+        // Scale the pixbuf
         GdkPixbuf *scaledPage = gdk_pixbuf_scale_simple (m_CurrentPixbuf,
                                                          width, height,
-                                                         GDK_INTERP_NEAREST);
+                                                         GDK_INTERP_BILINEAR);
         if ( NULL != scaledPage )
         {
             GdkTexture *texture = gdk_texture_new_for_pixbuf (scaledPage);
             gtk_picture_set_paintable (GTK_PICTURE (m_PageImage), GDK_PAINTABLE (texture));
+            
+            // Restore scroll position
+            hscroll = CLAMP(hscroll, 0, newWidth - viewportWidth);
+            vscroll = CLAMP(vscroll, 0, newHeight - viewportHeight);
+            gtk_adjustment_set_value(hAdjustment, hscroll);
+            gtk_adjustment_set_value(vAdjustment, vscroll);
+            
             g_object_unref (texture);
             g_object_unref (scaledPage);
         }
@@ -362,8 +389,8 @@ PageView::scrollPage (gdouble scrollX, gdouble scrollY, gint dx, gint dy)
 void 
 PageView::showPage (DocumentPage *page, PageScroll scroll)
 {
-	hasShownAPage = 1;
-	lastPageShown = page;
+    hasShownAPage = 1;
+    lastPageShown = page;
 	lastScroll = scroll;
 	
     // Clear current image
