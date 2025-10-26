@@ -783,9 +783,9 @@ page_view_resized_cb (GtkWidget *widget, GtkAllocation *allocation,
         }
         
         // Force an update of the scrollbars
-        if (view != NULL && view->m_CurrentPixbuf != NULL) {
-            gint pixbuf_width = gdk_pixbuf_get_width(view->m_CurrentPixbuf);
-            gint pixbuf_height = gdk_pixbuf_get_height(view->m_CurrentPixbuf);
+        if (view != NULL) {
+            gint pixbuf_width, pixbuf_height;
+            view->getSize(&pixbuf_width, &pixbuf_height);
             view->resizePage(pixbuf_width, pixbuf_height);
         }
     }
