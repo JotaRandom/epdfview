@@ -4,6 +4,7 @@ builddir_clean/
 builddir_new/
 build/
 .build/
+.idea
 
 # Meson generated files
 config.h

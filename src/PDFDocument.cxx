@@ -624,8 +624,11 @@ PDFDocument::renderPage (gint pageNum)
     gdouble pageWidth;
     gdouble pageHeight;
     getPageSizeForPage (pageNum, &pageWidth, &pageHeight);
+    
+    // Calculate dimensions with zoom applied only once
     gint width = MAX((gint) ((pageWidth * getZoom ()) + 0.5), 1);
     gint height = MAX((gint) ((pageHeight * getZoom ()) + 0.5), 1);
+    
     DocumentPage *renderedPage = new DocumentPage ();
     renderedPage->newPage (width, height);
 
@@ -634,17 +637,26 @@ PDFDocument::renderPage (gint pageNum)
     {
 #if defined (HAVE_POPPLER_0_17_0)
         cairo_surface_t *surface = cairo_image_surface_create_for_data (
-                renderedPage->getData (),
+                renderedPage->getData (), 
                 CAIRO_FORMAT_ARGB32, width, height,
                 renderedPage->getRowStride ());
         cairo_t *context = cairo_create (surface);
+        
+        // Set high-quality rendering options
+        cairo_set_antialias(context, CAIRO_ANTIALIAS_BEST);
+        cairo_set_operator(context, CAIRO_OPERATOR_OVER);
+        
+        // Fill with white background
         cairo_save(context);
         cairo_set_source_rgb (context, 1.0, 1.0, 1.0);
         cairo_rectangle (context, 0, 0, width, height);
         cairo_fill(context);
         cairo_restore(context);
+        
+        // Save the context state before transformations
         cairo_save(context);
 
+        // Apply rotation transformations
         switch(getRotation())
         {
             case 90:
@@ -664,8 +676,14 @@ PDFDocument::renderPage (gint pageNum)
                 break;
         }
 
-        cairo_scale(context, getZoom(), getZoom());
+        // Apply rotation (in radians)
         cairo_rotate(context, getRotation() * G_PI / 180.0);
+        
+        // Set high-quality scaling
+        cairo_pattern_t *pattern = cairo_get_source(context);
+        cairo_pattern_set_filter(pattern, CAIRO_FILTER_BEST);
+        
+        // Render the page (zoom is already applied in the width/height)
         poppler_page_render (page, context);
         cairo_destroy(context);
         cairo_surface_destroy (surface);

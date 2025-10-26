@@ -1,105 +1,171 @@
-ePDFView - A Lightweight PDF Viewer
-====================================
+# ePDFView
 
-ePDFView is a free and lightweight PDF document viewer using the Poppler
-rendering library and GTK4. It aims to be simple to use and provide just the
-essential features for viewing and navigating PDF documents.
+A free and lightweight PDF document viewer written in C++ (C++11) using GTK4 and the Poppler rendering library. It focuses on simplicity and the essential features for viewing and navigating PDF documents.
 
-Features
---------
-  * Page navigation (next, previous, first, last, jump to page)
-  * Zoom controls (in, out, fit page, fit width, custom)
-  * Page rotation (left, right)
-  * Find text in document with highlighting
-  * Document outline/index sidebar
-  * Full screen presentation mode
-  * Invert colors for night reading
-  * Print support (requires CUPS)
-  * 22 language translations
-  * Keyboard shortcuts for all operations
+Version: 0.3.0  
+License: GPL-2.0-or-later
 
-Requirements
-------------
-  * GTK4 >= 4.0.0
-  * Poppler-glib >= 0.5.0
-  * GLib >= 2.8.0
-  * Meson >= 0.50.0 (for building)
-  * CUPS (optional, for printing)
+## Overview
 
-Installation
-------------
-See the INSTALL file for detailed build and installation instructions.
+ePDFView provides a fast, minimal PDF reading experience with a modern GTK4 UI and broad translation support. It was historically a GTK2/GTK3 app and has been migrated to GTK4 (see docs).
 
-Quick start:
-  $ meson setup builddir
-  $ meson compile -C builddir
-  $ sudo meson install -C builddir
+Key features:
+- Page navigation (next, previous, first, last, jump to page)
+- Zoom controls (in, out, fit page, fit width, custom)
+- Page rotation (left, right)
+- Text search with highlighting
+- Document outline/index sidebar
+- Full screen presentation mode
+- Invert colors for night reading
+- Print support (optional, via CUPS)
+- 22 language translations
+- Keyboard shortcuts for all operations
 
-Usage
------
-  $ epdfview [file.pdf]
+## Stack and Tooling
+- Language: C++ (C++11)
+- GUI Framework: GTK4 (>= 4.0.0)
+- PDF Rendering: Poppler-glib (>= 0.5.0)
+- Core libs: GLib (gthread-2.0), Pango
+- Build system: Meson (>= 0.50.0) with Ninja backend
+- Internationalization: Meson i18n with `po/`
+- Optional: CUPS for printing (feature auto-detected; disabled on Windows)
 
-Open a file from the command line or use File → Open from the menu.
+Entry point
+- Binary target: `epdfview` (defined in `src/meson.build`)
 
-Keyboard Shortcuts
-------------------
-  Navigation:
-    Page Down / Space     Next page
-    Page Up / Backspace   Previous page
-    Home                  First page
-    End                   Last page
-    
-  Zoom:
-    +                     Zoom in
-    -                     Zoom out
-    1                     Fit page
-    2                     Fit width
-    
-  View:
-    F11                   Full screen
-    I                     Invert colors
-    R                     Rotate right
-    Ctrl+R                Rotate left
-    
-  Other:
-    Ctrl+F                Find
-    Ctrl+P                Print
-    Ctrl+Q                Quit
+Meson options (from `meson_options.txt`):
+- `-Dtests=true|false` — Build test suite (default: false)
+- `-Dcups=enabled|disabled|auto` — Enable CUPS printing support (default: auto)
 
-Configuration
--------------
-Settings are stored in: ~/.config/epdfview/main.conf
+## Requirements
+Build-time dependencies:
+- GTK4 >= 4.0.0
+- Poppler-glib >= 0.5.0
+- GLib (gthread-2.0) >= 2.8.0
+- Pango
+- Meson >= 0.50.0
+- A C++ compiler with C++11 support
+- Optional: CUPS (printing; disabled on Windows even if found)
 
-This file is automatically created with defaults on first run.
+## Setup and Build
+Standard Meson build:
 
-Translations
-------------
-See the TRANSLATION file for information about contributing translations.
+```bash
+meson setup builddir
+meson compile -C builddir
+```
 
-Contributing
-------------
-See the CONTRIBUTING file for guidelines on contributing to ePDFView.
+Install (system-wide):
 
-Support
--------
-  Home page:    https://github.com/JotaRandom/epdfview
-  Bug reports:  https://github.com/JotaRandom/epdfview/issues
-  
-Documentation
--------------
-Additional documentation can be found in the docs/ directory:
-  * docs/GTK4_MIGRATION_SUMMARY.md - GTK4 migration details
-  * docs/INSTALLATION.md - Comprehensive installation guide
+```bash
+sudo meson install -C builddir
+```
 
-License
--------
-ePDFView is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
-version.
+Run without installing (from the build tree, platform permitting):
 
-See the COPYING file for the full license text.
+```bash
+./builddir/src/epdfview [file.pdf]
+```
 
-Authors
--------
-See the AUTHORS and THANKS files for a complete list of contributors.
+Run after install:
+
+```bash
+epdfview [file.pdf]
+```
+
+Windows/WSL:
+- See `RUN_EPDFVIEW_WSL.md` for guidance on running under Windows Subsystem for Linux.
+
+## Scripts
+Convenience/testing scripts in the repository root:
+- `test_index.sh` — automated index/navigation test harness (POSIX shell)
+- `test_index_manual.sh` — manual test aid (POSIX shell)
+
+On Windows, use WSL/MSYS2 to run these shell scripts.
+
+## Configuration and Environment
+- User settings are stored at: `~/.config/epdfview/main.conf` (created on first run).
+- Known environment variables: none specific to ePDFView.
+  - TODO: Document any runtime environment variables or flags if/when they are introduced.
+
+## Tests
+Meson option `tests` controls inclusion of the test suite. Tests depend on `cppunit` if available.
+
+To configure and run tests:
+
+```bash
+meson setup builddir -Dtests=true
+meson test -C builddir
+```
+
+If `cppunit` is not found, the unit tests will be skipped at build time (a warning will be shown).
+
+The repository also includes simple test scripts (`test_index.sh` and `test_index_manual.sh`).
+
+## Keyboard Shortcuts
+Navigation:
+- Page Down / Space — Next page
+- Page Up / Backspace — Previous page
+- Home — First page
+- End — Last page
+
+Zoom:
+- `+` — Zoom in
+- `-` — Zoom out
+- `1` — Fit page
+- `2` — Fit width
+
+View:
+- F11 — Full screen
+- `I` — Invert colors
+- `R` — Rotate right
+- `Ctrl+R` — Rotate left
+
+Other:
+- `Ctrl+F` — Find
+- `Ctrl+P` — Print
+- `Ctrl+Q` — Quit
+
+## Project Structure
+```
+.
+├─ src/                 # Application source (GTK4 UI, core logic)
+├─ src/gtk/             # GTK4 views and UI components
+├─ data/                # App data/resources (icons, desktop files, etc.)
+├─ po/                  # Translations (i18n)
+├─ docs/                # Additional documentation (migration, install)
+├─ tests/               # Meson tests (enabled with -Dtests=true)
+├─ snap/                # Packaging assets for Snap (if applicable)
+├─ meson.build          # Project definition (version, deps, options)
+├─ meson_options.txt    # Build options (e.g., cups, tests)
+└─ README               # This file
+```
+
+Refer to `meson.build` and `src/meson.build` for build targets and dependencies.
+
+## Documentation
+Additional documentation is available in `docs/`:
+- `GTK4_MIGRATION_SUMMARY.md` — Technical migration summary
+- `COMPLETE_GTK4_MIGRATION.md` — Migration milestone and features
+- `INSTALLATION.md` — Comprehensive installation guide
+- `BUILD_STATUS.md`, `COMPILATION_SUCCESS.md` — Build notes
+- `MENU_SYSTEM_COMPLETE.md`, `TRANSLATIONS_AND_DOCS.md`, `FINAL_FIXES.md`, `PRINT_MIGRATION_TODO.md`
+
+User-facing root docs:
+- `INSTALL` — Installation instructions
+- `TRANSLATION` — Translation guide
+- `CONTRIBUTING` — Contribution guidelines
+
+## License
+GPL-2.0-or-later. See `COPYING` for the full text.
+
+## Support and Links
+- Homepage: https://github.com/JotaRandom/epdfview
+- Issues:   https://github.com/JotaRandom/epdfview/issues
+
+## Changelog and Status
+- See `ChangeLog`, `NEWS`, `CURRENT_STATUS.md`, and `PROJECT_STATUS.md` for ongoing updates.
+
+## TODOs
+- Document any additional environment variables or runtime flags if introduced.
+- Expand Windows-specific notes beyond WSL if native builds are supported in the future.
