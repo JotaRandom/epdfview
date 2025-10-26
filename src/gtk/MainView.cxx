@@ -278,9 +278,8 @@ MainView::MainView (MainPter *pter):
     gtk_window_set_resizable (GTK_WINDOW (m_MainWindow), TRUE);
     gtk_window_set_decorated (GTK_WINDOW (m_MainWindow), TRUE);
     
-    // Set application ID for Wayland
-    gtk_window_set_application (GTK_WINDOW (m_MainWindow), 
-                               g_application_get_default ());
+    // The application will be set by gtk_application_add_window in main.cxx
+    // No need to set it here as it's already handled by the application
     
     // Connect signals
     g_signal_connect (G_OBJECT (m_MainWindow), "destroy",
@@ -1599,7 +1598,7 @@ main_window_fullscreen_cb (GSimpleAction *action, GVariant *parameter, gpointer 
 /// Handles window size changes to ensure proper window management in Wayland.
 ///
 /// @param widget The widget that received the signal
-/// @param allocation The new allocation
+/// @param allocation The new allocation (unused)
 /// @param user_data User data (MainView instance)
 ////////////////////////////////////////////////////////////////
 static void
@@ -1607,17 +1606,16 @@ main_window_size_changed_cb (GtkWidget *widget,
                             GtkAllocation *allocation,
                             gpointer user_data)
 {
-    MainView *view = (MainView *)user_data;
+    MainView *view = static_cast<MainView*>(user_data);
+    GtkWindow *window = GTK_WINDOW(widget);
     
     // Ensure the window is properly managed by the window manager
     if (gtk_widget_get_realized(widget)) {
-        // Request the window manager to allow resizing
-        gtk_window_set_resizable(GTK_WINDOW(widget), TRUE);
+        // In GTK4, we don't need to set these properties on every size change
+        // as they're already set in the constructor. Just ensure the window
+        // is properly configured.
         
-        // Ensure the window can be maximized
-        gtk_window_set_decorated(GTK_WINDOW(widget), TRUE);
-        
-        // Force a window redraw
+        // Force a window redraw if needed
         gtk_widget_queue_draw(widget);
     }
 }
