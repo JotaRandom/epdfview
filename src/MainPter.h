@@ -97,13 +97,16 @@ namespace ePDFView
             void waitForFileSaved (void);
 #endif // DEBUG
 
+        public:
+            /// The presenter of the view that shows the current page.
+            PagePter *m_PagePter;
+            void checkZoomSettings (void);
+
         protected:
             /// The document that it's showing.
             IDocument *m_Document;
             /// The presenter of the find bar.
             FindPter *m_FindPter;
-            /// The presenter of the view that shows the current page.
-            PagePter *m_PagePter;
             /// The number of times the password has been tried for a document.
             gint m_PasswordTries;
             /// The page to move once the document is reloaded.
@@ -111,7 +114,6 @@ namespace ePDFView
             /// The main view.
             IMainView *m_View;
 
-            void checkZoomSettings (void);
             void setZoomText (gdouble zoom);
             void zoomFit (void);
             void zoomWidth (void);
