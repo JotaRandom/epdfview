@@ -245,73 +245,99 @@ PageView::makeRectangleVisible (DocumentRectangle &rect, gdouble scale)
 void
 PageView::resizePage (gint width, gint height)
 {
-    if (m_CurrentPixbuf != NULL)
-    {
-        // Freeze the scrolled window to prevent flickering
-        g_object_freeze_notify(G_OBJECT(m_PageScroll));
+    if (m_CurrentPixbuf == NULL) {
+        return;
+    }
+
+    // Freeze the scrolled window to prevent flickering
+    g_object_freeze_notify(G_OBJECT(m_PageScroll));
+    
+    // Get current adjustments before any changes
+    GtkAdjustment *hAdjustment = gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(m_PageScroll));
+    GtkAdjustment *vAdjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(m_PageScroll));
+    
+    // Get current scroll positions as ratios (0.0 to 1.0)
+    gdouble hratio = 0.0, vratio = 0.0;
+    gdouble hpage_size = gtk_adjustment_get_page_size(hAdjustment);
+    gdouble vpage_size = gtk_adjustment_get_page_size(vAdjustment);
+    gdouble hadj_upper = gtk_adjustment_get_upper(hAdjustment);
+    gdouble vadj_upper = gtk_adjustment_get_upper(vAdjustment);
+    
+    // Calculate scroll position ratios if we have scrollable content
+    if (hadj_upper > hpage_size) {
+        hratio = gtk_adjustment_get_value(hAdjustment) / (hadj_upper - hpage_size);
+    }
+    if (vadj_upper > vpage_size) {
+        vratio = gtk_adjustment_get_value(vAdjustment) / (vadj_upper - vpage_size);
+    }
+    
+    // Calculate new dimensions with zoom and padding
+    gint newWidth = (gint)(width * m_ZoomLevel) + (2 * PAGE_VIEW_PADDING);
+    gint newHeight = (gint)(height * m_ZoomLevel) + (2 * PAGE_VIEW_PADDING);
+    
+    // Ensure minimum size to prevent rendering issues
+    newWidth = MAX(newWidth, 10);
+    newHeight = MAX(newHeight, 10);
+    
+    // Scale the pixbuf to the new size
+    GdkPixbuf *scaledPage = gdk_pixbuf_scale_simple(m_CurrentPixbuf,
+                                                   (gint)(width * m_ZoomLevel),
+                                                   (gint)(height * m_ZoomLevel),
+                                                   GDK_INTERP_BILINEAR);
+    
+    if (scaledPage != NULL) {
+        // Create a texture from the scaled pixbuf
+        GdkTexture *texture = gdk_texture_new_for_pixbuf(scaledPage);
         
-        // Get the current scroll position before resizing
-        GtkAdjustment *hAdjustment = gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(m_PageScroll));
-        GtkAdjustment *vAdjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(m_PageScroll));
+        // Set the texture to the picture
+        gtk_picture_set_paintable(GTK_PICTURE(m_PageImage), GDK_PAINTABLE(texture));
         
-        // Store current scroll positions as absolute values
-        gdouble hadj_value = gtk_adjustment_get_value(hAdjustment);
-        gdouble vadj_value = gtk_adjustment_get_value(vAdjustment);
+        // Set the size request to the scaled size
+        gtk_widget_set_size_request(m_PageImage, newWidth, newHeight);
         
-        // Calculate new dimensions with zoom and padding
-        gint newWidth = (gint)(width * m_ZoomLevel) + (2 * PAGE_VIEW_PADDING);
-        gint newHeight = (gint)(height * m_ZoomLevel) + (2 * PAGE_VIEW_PADDING);
+        // Get the viewport size
+        gint viewport_width = gtk_widget_get_allocated_width(GTK_WIDGET(m_PageScroll));
+        gint viewport_height = gtk_widget_get_allocated_height(GTK_WIDGET(m_PageScroll));
         
-        // Ensure minimum size to prevent rendering issues
-        newWidth = MAX(newWidth, 10);
-        newHeight = MAX(newHeight, 10);
+        // Update the adjustments to match the new content size
+        gtk_adjustment_set_upper(hAdjustment, newWidth);
+        gtk_adjustment_set_page_size(hAdjustment, MIN(viewport_width, newWidth));
+        gtk_adjustment_set_page_increment(hAdjustment, viewport_width * 0.9);
+        gtk_adjustment_set_step_increment(hAdjustment, viewport_width * 0.1);
         
-        // Scale the pixbuf to the new size
-        GdkPixbuf *scaledPage = gdk_pixbuf_scale_simple(m_CurrentPixbuf,
-                                                       (gint)(width * m_ZoomLevel),
-                                                       (gint)(height * m_ZoomLevel),
-                                                       GDK_INTERP_BILINEAR);
+        gtk_adjustment_set_upper(vAdjustment, newHeight);
+        gtk_adjustment_set_page_size(vAdjustment, MIN(viewport_height, newHeight));
+        gtk_adjustment_set_page_increment(vAdjustment, viewport_height * 0.9);
+        gtk_adjustment_set_step_increment(vAdjustment, viewport_height * 0.1);
         
-        if (scaledPage != NULL)
-        {
-            // Create a texture from the scaled pixbuf
-            GdkTexture *texture = gdk_texture_new_for_pixbuf(scaledPage);
-            
-            // Set the texture to the picture
-            gtk_picture_set_paintable(GTK_PICTURE(m_PageImage), GDK_PAINTABLE(texture));
-            
-            // Set the size request to the scaled size
-            gtk_widget_set_size_request(m_PageImage, newWidth, newHeight);
-            
-            // Get the viewport size
-            gint viewport_width = gtk_widget_get_allocated_width(GTK_WIDGET(m_PageScroll));
-            gint viewport_height = gtk_widget_get_allocated_height(GTK_WIDGET(m_PageScroll));
-            
-            // Update the adjustments to match the new content size
-            gtk_adjustment_set_upper(hAdjustment, newWidth);
-            gtk_adjustment_set_page_size(hAdjustment, MIN(viewport_width, newWidth));
-            
-            gtk_adjustment_set_upper(vAdjustment, newHeight);
-            gtk_adjustment_set_page_size(vAdjustment, MIN(viewport_height, newHeight));
-            
-            // Calculate the new scroll positions
-            gdouble new_hvalue = hadj_value * (newWidth / (gdouble)gtk_adjustment_get_upper(hAdjustment));
-            gdouble new_vvalue = vadj_value * (newHeight / (gdouble)gtk_adjustment_get_upper(vAdjustment));
-            
-            // Apply the new scroll positions
+        // Calculate and set the new scroll positions
+        if (newWidth > viewport_width) {
+            gdouble new_hvalue = hratio * (newWidth - viewport_width);
             gtk_adjustment_set_value(hAdjustment, CLAMP(new_hvalue, 0, newWidth - viewport_width));
-            gtk_adjustment_set_value(vAdjustment, CLAMP(new_vvalue, 0, newHeight - viewport_height));
-            
-            // Thaw the scrolled window
-            g_object_thaw_notify(G_OBJECT(m_PageScroll));
-            
-            // Force a redraw of the scrolled window
-            gtk_widget_queue_draw(m_PageScroll);
-            
-            // Clean up
-            g_object_unref(texture);
-            g_object_unref(scaledPage);
+        } else {
+            gtk_adjustment_set_value(hAdjustment, 0);
         }
+        
+        if (newHeight > viewport_height) {
+            gdouble new_vvalue = vratio * (newHeight - viewport_height);
+            gtk_adjustment_set_value(vAdjustment, CLAMP(new_vvalue, 0, newHeight - viewport_height));
+        } else {
+            gtk_adjustment_set_value(vAdjustment, 0);
+        }
+        
+        // Force the scrolled window to update its scrollbars
+        gtk_widget_queue_allocate(GTK_WIDGET(m_PageScroll));
+        
+        // Thaw the scrolled window
+        g_object_thaw_notify(G_OBJECT(m_PageScroll));
+        
+        // Force a redraw of the scrolled window
+        gtk_widget_queue_draw(m_PageScroll);
+        
+        // Clean up
+        g_object_unref(texture);
+        g_object_unref(scaledPage);
+    }
         else
         {
             // If scaling failed, thaw the scrolled window anyway
@@ -324,17 +350,28 @@ void
 PageView::setZoom (gdouble zoom)
 {
     // Only update if the zoom level has actually changed
-    if (ABS(zoom - m_ZoomLevel) > 0.001)
+    if (ABS(zoom - m_ZoomLevel) > 0.001 && zoom > 0.05)  // Minimum zoom level of 5%
     {
+        // Store the old zoom level for calculations
+        gdouble oldZoom = m_ZoomLevel;
+        
         // Update the zoom level
         m_ZoomLevel = zoom;
         
         // If we have a current pixbuf, resize the page to apply the new zoom
         if (m_CurrentPixbuf != NULL)
         {
-            gint width = gdk_pixbuf_get_width(m_CurrentPixbuf);
-            gint height = gdk_pixbuf_get_height(m_CurrentPixbuf);
-            resizePage(width, height);
+            // Get the original dimensions of the pixbuf (without any zoom)
+            gint origWidth = gdk_pixbuf_get_width(m_CurrentPixbuf);
+            gint origHeight = gdk_pixbuf_get_height(m_CurrentPixbuf);
+            
+            // Resize the page with the new zoom level
+            resizePage(origWidth, origHeight);
+            
+            // Notify any listeners about the zoom change
+            if (m_Presenter != NULL) {
+                m_Presenter->zoomChanged(m_ZoomLevel);
+            }
         }
     }
 }
@@ -687,17 +724,45 @@ page_view_resized_cb (GtkWidget *widget, GtkAllocation *allocation,
                                   gpointer data)
 {
     g_assert ( NULL != data && "The data parameter is NULL.");
+    
+    // Only handle size changes if the allocation is valid
+    if (allocation->width <= 1 || allocation->height <= 1) {
+        return;
+    }
 
+    // Get the page view instance
+    PageView *view = (PageView *)g_object_get_data(G_OBJECT(widget), "page-view-instance");
+    if (view == NULL) {
+        return;
+    }
+
+    // Get scrollbar sizes
     gint vScrollSize = 0;
     gint hScrollSize = 0;
-    page_view_get_scrollbars_size (widget, &vScrollSize, &hScrollSize);
+    page_view_get_scrollbars_size(widget, &vScrollSize, &hScrollSize);
 
-    gint width = allocation->width - vScrollSize;
-    gint height = allocation->height - hScrollSize;
+    // Calculate available size for the page
+    gint width = MAX(1, allocation->width - vScrollSize);
+    gint height = MAX(1, allocation->height - hScrollSize);
 
-    PagePter *pter = (PagePter *)data;
-    pter->viewResized (width, height);
-}
+    // Only notify the presenter if we have a significant size change
+    static gint last_width = 0;
+    static gint last_height = 0;
+    
+    if (abs(width - last_width) > 5 || abs(height - last_height) > 5) {
+        last_width = width;
+        last_height = height;
+        
+        PagePter *pter = (PagePter *)data;
+        pter->viewResized(width, height);
+        
+        // Force an update of the scrollbars
+        if (view->m_CurrentPixbuf != NULL) {
+            gint pixbuf_width = gdk_pixbuf_get_width(view->m_CurrentPixbuf);
+            gint pixbuf_height = gdk_pixbuf_get_height(view->m_CurrentPixbuf);
+            view->resizePage(pixbuf_width, pixbuf_height);
+        }
+    }
 
 ///
 /// @brief The page view has been scrolled.
