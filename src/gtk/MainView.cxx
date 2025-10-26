@@ -1099,8 +1099,12 @@ MainView::createCurrentZoom ()
     m_CurrentZoom = gtk_entry_new ();
     gtk_editable_set_alignment (GTK_EDITABLE (m_CurrentZoom), 1.0f);
     gtk_editable_set_width_chars (GTK_EDITABLE (m_CurrentZoom), CURRENT_ZOOM_WIDTH);
-    g_signal_connect (G_OBJECT (m_CurrentZoom), "activate",
-                      G_CALLBACK (main_window_zoom_cb), m_Pter);
+    // Connect the activate signal to a lambda that calls the zoom action
+    g_signal_connect_data (G_OBJECT (m_CurrentZoom), "activate",
+                         G_CALLBACK ([] (GtkEntry *entry, gpointer data) {
+                             MainPter *pter = (MainPter *)data;
+                             pter->zoomActivated();
+                         }), m_Pter, NULL, GConnectFlags(0));
 
     GtkWidget *zoomBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 3);
     gtk_box_append (GTK_BOX (zoomBox), m_CurrentZoom);
@@ -1904,14 +1908,8 @@ main_window_show_toolbar_cb (GSimpleAction *action, GVariant *parameter, gpointe
 ///
 /// @brief The user tries to set a zoom.
 ///
-void
-main_window_zoom_cb (GtkWidget *widget, gpointer data)
-{
-    g_assert ( NULL != data && "The data parameter is NULL.");
-
-    MainPter *pter = (MainPter *)data;
-    pter->zoomActivated ();
-}
+/// This is now handled by a lambda in createCurrentZoom()
+/// to maintain consistency with GTK4's GAction pattern.
 
 ///
 /// @brief The user tries to fit the document into the window.
