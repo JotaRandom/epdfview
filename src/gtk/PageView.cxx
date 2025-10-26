@@ -379,6 +379,7 @@ PageView::resizePage (gint width, gint height)
 }
 
 void
+void
 PageView::setZoom (gdouble zoom)
 {
     // Only update if the zoom level has actually changed
@@ -409,7 +410,7 @@ PageView::setZoom (gdouble zoom)
 }
 
 void
-PageView::setCursor (PageCursor cursorType)
+PageView::setCursor (PageView::PageCursor cursorType)
 {
     if ( cursorType != m_CurrentCursor )
     {

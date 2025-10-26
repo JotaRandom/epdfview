@@ -586,28 +586,24 @@ MainPter::reloadActivated ()
 void
 MainPter::rotateLeftActivated ()
 {
-    g_assert ( NULL != m_Document && "Tried to rotate a NULL document.");
-
-    // Store current zoom settings
-    gboolean wasZoomFit = Config::getConfig().zoomToFit();
-    gboolean wasZoomWidth = Config::getConfig().zoomToWidth();
-    
-    // Disable auto-zoom during rotation
-    if (wasZoomFit || wasZoomWidth) {
-        Config::getConfig().setZoomToFit(FALSE);
-        Config::getConfig().setZoomToWidth(FALSE);
-    }
-
-    m_Document->rotateLeft();
-    
-    // Restore zoom settings if needed
-    if (wasZoomFit || wasZoomWidth) {
-        g_idle_add([](gpointer data) -> gboolean {
-            MainPter* self = static_cast<MainPter*>(data);
-            Config& config = Config::getConfig();
-            if (config.zoomToFit() || config.zoomToWidth()) {
-                self->checkZoomSettings();
-            }
+        gint newWidth = oldHeight;
+        gint newHeight = oldWidth;
+        
+        // Calculate the new scroll position based on the new dimensions
+        gdouble newX = (scrollX / oldWidth) * newWidth;
+        gdouble newY = (scrollY / oldHeight) * newHeight;
+        
+        // Use idle to ensure the view has been updated
+        g_idle_add ([] (gpointer data) -> gboolean {
+            MainPter *self = static_cast<MainPter*>(data);
+            
+            // Restore zoom level
+            self->m_MainView.getPageView ().setZoom (self->m_MainView.getPageView ().getZoom ());
+            
+            // Restore scroll position
+            self->m_MainView.getPageView ().scrollTo (self->m_MainView.getPageView ().getHorizontalScroll (), 
+                                                    self->m_MainView.getPageView ().getVerticalScroll ());
+            
             return G_SOURCE_REMOVE;
         }, this);
     }
