@@ -87,6 +87,7 @@ static void main_window_zoom_in_cb (GSimpleAction *, GVariant *, gpointer);
 static void main_window_zoom_out_cb (GSimpleAction *, GVariant *, gpointer);
 static void main_window_zoom_width_cb (GSimpleAction *, GVariant *, gpointer);
 static void main_window_set_page_mode (GSimpleAction *, GVariant *, gpointer);
+static void on_zoom_entry_activate (GtkEntry *, gpointer);
 // GTK4: Scroll events handled by PageView event controllers, not needed here
 
 #if defined (HAVE_CUPS)
@@ -1099,12 +1100,10 @@ MainView::createCurrentZoom ()
     m_CurrentZoom = gtk_entry_new ();
     gtk_editable_set_alignment (GTK_EDITABLE (m_CurrentZoom), 1.0f);
     gtk_editable_set_width_chars (GTK_EDITABLE (m_CurrentZoom), CURRENT_ZOOM_WIDTH);
-    // Connect the activate signal to a lambda that calls the zoom action
-    g_signal_connect_data (G_OBJECT (m_CurrentZoom), "activate",
-                         G_CALLBACK ([] (GtkEntry *entry, gpointer data) {
-                             MainPter *pter = (MainPter *)data;
-                             pter->zoomActivated();
-                         }), m_Pter, NULL, GConnectFlags(0));
+    // Connect the activate signal to handle zoom changes
+    g_signal_connect (G_OBJECT (m_CurrentZoom), "activate",
+                     G_CALLBACK (on_zoom_entry_activate),
+                     m_Pter);
 
     GtkWidget *zoomBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 3);
     gtk_box_append (GTK_BOX (zoomBox), m_CurrentZoom);
@@ -1906,10 +1905,17 @@ main_window_show_toolbar_cb (GSimpleAction *action, GVariant *parameter, gpointe
 }
 
 ///
-/// @brief The user tries to set a zoom.
+/// @brief Callback when the zoom entry is activated (user presses Enter)
 ///
-/// This is now handled by a lambda in createCurrentZoom()
-/// to maintain consistency with GTK4's GAction pattern.
+static void
+on_zoom_entry_activate (GtkEntry *entry, gpointer data)
+{
+    g_assert (data != NULL && "The data parameter is NULL.");
+    
+    MainPter *pter = (MainPter *)data;
+    pter->zoomActivated();
+}
+
 
 ///
 /// @brief The user tries to fit the document into the window.
