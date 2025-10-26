@@ -359,11 +359,10 @@ PageView::resizePage (gint width, gint height)
         g_object_unref(texture);
         g_object_unref(scaledPage);
     }
-        else
-        {
-            // If scaling failed, thaw the scrolled window anyway
-            g_object_thaw_notify(G_OBJECT(m_PageScroll));
-        }
+    else
+    {
+        // If scaling failed, thaw the scrolled window anyway
+        g_object_thaw_notify(G_OBJECT(m_PageScroll));
     }
 }
 
