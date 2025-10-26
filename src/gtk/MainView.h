@@ -113,6 +113,8 @@ namespace ePDFView
             GSimpleActionGroup *m_ActionGroup;
             GtkWidget *m_MenuBar;
             GtkWidget *m_ToolBar;
+            /// The page view widget for focus management
+            GtkWidget *m_PageViewWidget;
 
             void createCurrentPage (void);
             void createCurrentZoom (void);

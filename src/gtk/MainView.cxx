@@ -267,13 +267,29 @@ MainView::MainView (MainPter *pter):
 {
     // Initialise the stock items.
     epdfview_stock_icons_init ();
-    // Create the main window.
+    // Create the main window with proper Wayland support
     m_MainWindow = gtk_window_new ();
     setMainWindowIcon ();
-    // Connect already the destroy and delete signal.
+    
+    // Enable window resizing and state management
+    gtk_window_set_resizable (GTK_WINDOW (m_MainWindow), TRUE);
+    gtk_window_set_default_size (GTK_WINDOW (m_MainWindow), 800, 600);
+    
+    // Set window class for Wayland
+    gtk_widget_add_css_class (m_MainWindow, "epdfview-window");
+    
+    // Connect signals
     g_signal_connect (G_OBJECT (m_MainWindow), "destroy",
                       G_CALLBACK (main_window_quit_cb), NULL);
-    // GTK4: configure-event removed - window sizing/positioning handled differently
+    
+    // Handle window state changes for proper Wayland support
+    g_signal_connect (m_MainWindow, "notify::default-width",
+                     G_CALLBACK (main_window_size_changed_cb), this);
+    g_signal_connect (m_MainWindow, "notify::default-height",
+                     G_CALLBACK (main_window_size_changed_cb), this);
+    
+    // Enable window controls for Wayland
+    gtk_window_set_decorated (GTK_WINDOW (m_MainWindow), TRUE);
     // Create the main vertical box.
     m_MainBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
     gtk_window_set_child (GTK_WINDOW (m_MainWindow), m_MainBox);
@@ -302,13 +318,25 @@ MainView::MainView (MainPter *pter):
     // Add the current zoom control
     createCurrentZoom ();
     gtk_box_append (GTK_BOX (toolBar), m_CurrentZoomToolItem);
-    // Create the page view
+    /// The status bar of the main window.
+    GtkWidget *m_StatusBar;
+    /// The page view widget for focus management
+    GtkWidget *m_PageViewWidget;
     GtkWidget *pageViewPaned = createPageView ();
     gtk_box_append (GTK_BOX (m_MainBox), pageViewPaned);
     gtk_widget_set_vexpand (pageViewPaned, TRUE);
-    // By default set focus to page view so user can navigate pdf document with
-    // keyboard right away without need to click to page view first
-    gtk_widget_grab_focus (m_PageView->getTopWidget ());
+    // Store the page view widget for later focus management
+    m_PageViewWidget = m_PageView->getTopWidget();
+    
+    // Set initial focus to page view for keyboard navigation
+    gtk_widget_grab_focus (m_PageViewWidget);
+    
+    // Connect to the map signal to handle focus when the window is shown
+    g_signal_connect_swapped(m_MainWindow, "map", 
+                           G_CALLBACK(+[](GtkWidget* widget, gpointer user_data) {
+                               gtk_widget_grab_focus(GTK_WIDGET(user_data));
+                           }), 
+                           m_PageViewWidget);
     // Add the find bar.
     m_FindView = new FindView ();
     gtk_box_append (GTK_BOX (m_MainBox), m_FindView->getTopWidget ());
@@ -1566,8 +1594,36 @@ main_window_fullscreen_cb (GSimpleAction *action, GVariant *parameter, gpointer 
     g_variant_unref (state);
 }
 
-// GTK4: Window configure event callback removed
-// Window sizing/positioning not saved in GTK4 (Wayland compatibility)
+////////////////////////////////////////////////////////////////
+/// \brief Callback for window size changes
+///
+/// Handles window size changes to ensure proper window management in Wayland.
+///
+/// @param widget The widget that received the signal
+/// @param pspec The GParamSpec of the property that changed
+/// @param user_data User data (MainView instance)
+////////////////////////////////////////////////////////////////
+static void
+main_window_size_changed_cb (GtkWidget *widget,
+                            GParamSpec *pspec,
+                            gpointer user_data)
+{
+    MainView *view = (MainView *)user_data;
+    GtkWidget *window = GTK_WIDGET(widget);
+    
+    // Ensure the window is properly managed by the window manager
+    if (gtk_widget_get_realized(window)) {
+        // Request the window manager to allow resizing
+        gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
+        
+        // Ensure the window can be maximized
+        gtk_window_set_decorated(GTK_WINDOW(window), TRUE);
+        
+        // Force a window redraw
+        gtk_widget_queue_draw(window);
+    }
+}
+
 
 ///
 /// @brief The user tries to go to the first page.
