@@ -625,9 +625,10 @@ PDFDocument::renderPage (gint pageNum)
     gdouble pageHeight;
     getPageSizeForPage (pageNum, &pageWidth, &pageHeight);
     
-    // Calculate dimensions with zoom applied only once
-    gint width = MAX((gint) ((pageWidth * getZoom ()) + 0.5), 1);
-    gint height = MAX((gint) ((pageHeight * getZoom ()) + 0.5), 1);
+    // Calculate dimensions with zoom applied while maintaining aspect ratio
+    gdouble scale = getZoom();
+    gint width = MAX((gint)(pageWidth * scale + 0.5), 1);
+    gint height = MAX((gint)(pageHeight * scale + 0.5), 1);
     
     DocumentPage *renderedPage = new DocumentPage ();
     renderedPage->newPage (width, height);

@@ -541,12 +541,16 @@ PagePter::viewResized (gint width, gint height)
     
     Config &config = Config::getConfig ();
 
-    if ( config.zoomToFit () )
-    {
-        m_Document->zoomToFit (width, height);
-    }
-    else if ( config.zoomToWidth () )
-    {
-        m_Document->zoomToWidth (width);
+    if (config.zoomToFit()) {
+        // Fit to page
+        m_Document->zoomToFit(width, height);
+    } else if (config.zoomToWidth()) {
+        // Fit to width while maintaining aspect ratio
+        gdouble pageWidth, pageHeight;
+        m_Document->getPageSize(&pageWidth, &pageHeight);
+        if (pageWidth > 0) {
+            gdouble scale = (gdouble)width / pageWidth;
+            m_Document->setZoom(scale);
+        }
     }
 }

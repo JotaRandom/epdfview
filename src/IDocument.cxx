@@ -1344,8 +1344,12 @@ IDocument::zoomToWidth (gint width)
     gdouble pageWidth;
     gdouble pageHeight;
 
-    getPageSize (&pageWidth, &pageHeight);
-    setZoom ((gdouble)width / pageWidth);
+    getPageSize(&pageWidth, &pageHeight);
+    if (pageWidth > 0) {
+        // Calculate scale based on width while maintaining aspect ratio
+        gdouble scale = (gdouble)width / pageWidth;
+        setZoom(scale);
+    }
 }
 
 ///
