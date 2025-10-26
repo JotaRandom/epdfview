@@ -390,8 +390,8 @@ PageView::setZoom (gdouble zoom)
             resizePage(origWidth, origHeight);
             
             // Notify any listeners about the zoom change
-            if (m_pter != NULL) {
-                m_pter->zoomChanged(m_ZoomLevel);
+            if (m_Pter != NULL) {
+                m_Pter->zoomChanged(m_ZoomLevel);
             }
         }
     }
