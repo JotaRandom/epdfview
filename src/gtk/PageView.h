@@ -167,6 +167,7 @@ namespace ePDFView {
             GtkWidget *m_PageImage;
             GtkWidget *m_PageScroll;
             GdkPixbuf *m_CurrentPixbuf; // GTK4: Store current pixbuf separately
+            GdkPixbuf *m_CurrentScaledPixbuf; // GTK4: Store scaled pixbuf for drawing
             gdouble m_ZoomLevel;
             
             char invertColorToggle; // krogan edit

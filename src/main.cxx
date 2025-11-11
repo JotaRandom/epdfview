@@ -103,13 +103,11 @@ on_activate (GtkApplication *app, gpointer user_data)
     {
         g_idle_add (loadFileFromCommandLine, appData);
     }
-    
+
 #ifndef _WIN32
     g_unix_signal_add(SIGHUP, handleReloadSignal, appData->mainPter);
 #endif
-}
-
-static void
+}static void
 on_shutdown (GtkApplication *app, gpointer user_data)
 {
     AppData *appData = static_cast<AppData *> (user_data);

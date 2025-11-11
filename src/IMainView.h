@@ -45,6 +45,14 @@ namespace ePDFView
     };
 
     ///
+    /// @brief Callback type for file chooser dialogs.
+    ///
+    /// @param fileName The selected file name, or NULL if cancelled. Caller must free.
+    /// @param userData User data passed to the dialog function.
+    ///
+    typedef void (*FileChooserCallback)(gchar *fileName, gpointer userData);
+
+    ///
     /// @class IMainView
     /// @brief Interface class for the main view.
     ///
@@ -89,6 +97,20 @@ namespace ePDFView
             ///         otherwise.
             ///
             virtual gboolean isIndexVisible() const = 0;
+
+            ///
+            /// @brief Shows the open file dialog (async version for GTK4).
+            ///
+            /// GTK4 version: This function returns immediately and calls the
+            /// callback when the user selects a file or cancels.
+            ///
+            /// @param lastFolder The folder that was used the last time.
+            /// @param callback Function to call with the result.
+            /// @param userData User data to pass to the callback.
+            ///
+            virtual void openFileDialogAsync (const gchar *lastFolder,
+                                             FileChooserCallback callback,
+                                             gpointer userData) = 0;
 
             ///
             /// @brief Shows the open file dialog.

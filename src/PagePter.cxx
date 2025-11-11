@@ -417,6 +417,32 @@ typedef struct {
 void
 PagePter::refreshPage(PageScroll pageScroll, gboolean wasZoomed)
 {
+    static int refreshCount = 0;
+    static gint64 lastRefreshTime = 0;
+    static PageScroll lastScroll = (PageScroll)-1;
+    static gboolean lastWasZoomed = FALSE;
+    
+    gint64 currentTime = g_get_monotonic_time();
+    
+    // Check if this is a duplicate call with same parameters
+    if (pageScroll == lastScroll && wasZoomed == lastWasZoomed &&
+        currentTime - lastRefreshTime < 16666) { // 16.666ms = 60fps
+        refreshCount++;
+        if (refreshCount % 100 == 0) {
+            fprintf(stderr, "WARNING: refreshPage called too frequently! Count=%d scroll=%d wasZoomed=%d\n", 
+                    refreshCount, pageScroll, wasZoomed);
+        }
+        // Skip this refresh if it's a duplicate within 16ms
+        return;
+    }
+    
+    lastRefreshTime = currentTime;
+    lastScroll = pageScroll;
+    lastWasZoomed = wasZoomed;
+    refreshCount = 0;
+    
+    fprintf(stderr, "=== PagePter::refreshPage: scroll=%d, wasZoomed=%d ===\n", pageScroll, wasZoomed);
+    
     g_assert(m_Document != NULL && "Tried to show a page from a NULL document.");
     
     if ( m_Document->isLoaded () )

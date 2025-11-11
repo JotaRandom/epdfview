@@ -174,6 +174,7 @@ PageView::PageView ():
     
     // GTK4: Store current pixbuf separately since gtk_image_get_pixbuf is removed
     m_CurrentPixbuf = NULL;
+    m_CurrentScaledPixbuf = NULL;
 
     // The current zoom level
     m_ZoomLevel = 1.0;
@@ -243,6 +244,12 @@ PageView::~PageView ()
     {
         g_object_unref (m_CurrentPixbuf);
         m_CurrentPixbuf = NULL;
+    }
+    
+    if (m_CurrentScaledPixbuf != NULL)
+    {
+        g_object_unref (m_CurrentScaledPixbuf);
+        m_CurrentScaledPixbuf = NULL;
     }
 }
 
@@ -400,11 +407,16 @@ PageView::resizePage (gint width, gint height)
                                                    GDK_INTERP_BILINEAR);
     
     if (scaledPage != NULL) {
-        // Create a texture from the scaled pixbuf
-        GdkTexture *texture = gdk_texture_new_for_pixbuf(scaledPage);
+        // GTK4: Using GtkDrawingArea instead of GtkPicture
+        // Update the current scaled pixbuf
+        if (m_CurrentScaledPixbuf) {
+            g_object_unref(m_CurrentScaledPixbuf);
+        }
+        m_CurrentScaledPixbuf = scaledPage; // Keep the reference
         
-        // Set the texture to the picture
-        gtk_picture_set_paintable(GTK_PICTURE(m_PageImage), GDK_PAINTABLE(texture));
+        // Set the size of the drawing area
+        gtk_drawing_area_set_content_width(GTK_DRAWING_AREA(m_PageImage), newWidth);
+        gtk_drawing_area_set_content_height(GTK_DRAWING_AREA(m_PageImage), newHeight);
         
         // Set the size request to the scaled size
         gtk_widget_set_size_request(m_PageImage, newWidth, newHeight);
@@ -444,12 +456,9 @@ PageView::resizePage (gint width, gint height)
         // Force the scrolled window to update its scrollbars
         gtk_widget_queue_resize(GTK_WIDGET(m_PageScroll));
         
-        // Force a redraw of the scrolled window
+        // Queue a redraw of the drawing area
+        gtk_widget_queue_draw(m_PageImage);
         gtk_widget_queue_draw(m_PageScroll);
-        
-        // Clean up
-        g_object_unref(texture);
-        g_object_unref(scaledPage);
     } else {
         // If scaling failed, log the error
         g_warning("Failed to scale pixbuf for resizing");
@@ -498,6 +507,9 @@ PageView::setZoom (gdouble zoom)
 void
 PageView::setCursor (PageCursor cursorType)
 {
+    fprintf(stderr, "=== setCursor: type=%d, current pixbuf=%p ===\n", 
+            cursorType, (void*)m_CurrentPixbuf);
+    
     if (cursorType != m_CurrentCursor)
     {
         const char *cursor_name = NULL;
@@ -519,6 +531,8 @@ PageView::setCursor (PageCursor cursorType)
                 cursor_name = "default";
         }
         
+        fprintf(stderr, "=== setCursor: setting cursor to '%s' ===\n", cursor_name);
+        
         // In GTK4, use gtk_widget_set_cursor_from_name
         if (cursor_name)
         {
@@ -526,6 +540,9 @@ PageView::setCursor (PageCursor cursorType)
         }
         
         m_CurrentCursor = cursorType;
+        
+        fprintf(stderr, "=== setCursor: after setting, pixbuf=%p ===\n", 
+                (void*)m_CurrentPixbuf);
     }
 }
 
@@ -621,8 +638,8 @@ PageView::showPage (DocumentPage *page, PageScroll scroll)
     lastPageShown = page;
 	lastScroll = scroll;
 	
-    // Clear current image
-    gtk_picture_set_paintable (GTK_PICTURE (m_PageImage), NULL);
+    // GTK4: Clear current drawing area by clearing the pixbuf
+    // No need to call gtk_picture_set_paintable since we're using GtkDrawingArea
     
     // Release old pixbuf if any
     if (m_CurrentPixbuf != NULL)
@@ -658,21 +675,34 @@ PageView::showPage (DocumentPage *page, PageScroll scroll)
     g_message("PageView::showPage: Setting drawing area size to %dx%d", 
               pixbuf_width, pixbuf_height);
     
-    // Set the size of the drawing area to match the pixbuf
-    gtk_drawing_area_set_content_width(GTK_DRAWING_AREA(m_PageImage), pixbuf_width);
-    gtk_drawing_area_set_content_height(GTK_DRAWING_AREA(m_PageImage), pixbuf_height);
+    // Check current size to avoid unnecessary updates that cause loops
+    gint current_width = gtk_widget_get_width(m_PageImage);
+    gint current_height = gtk_widget_get_height(m_PageImage);
     
-    // Set explicit size request to ensure the widget takes the correct size
-    gtk_widget_set_size_request(m_PageImage, pixbuf_width, pixbuf_height);
+    // Only update size if it actually changed (with tolerance for rounding)
+    if (abs(current_width - pixbuf_width) > 2 || abs(current_height - pixbuf_height) > 2) {
+        fprintf(stderr, "=== PageView::showPage: Updating size from %dx%d to %dx%d ===\n",
+                current_width, current_height, pixbuf_width, pixbuf_height);
+        
+        // Set the size of the drawing area to match the pixbuf
+        gtk_drawing_area_set_content_width(GTK_DRAWING_AREA(m_PageImage), pixbuf_width);
+        gtk_drawing_area_set_content_height(GTK_DRAWING_AREA(m_PageImage), pixbuf_height);
+        
+        // Set explicit size request to ensure the widget takes the correct size
+        gtk_widget_set_size_request(m_PageImage, pixbuf_width, pixbuf_height);
+    } else {
+        fprintf(stderr, "=== PageView::showPage: Size unchanged, skipping resize ===\n");
+    }
     
     // GTK4: Force widget visibility
     gtk_widget_set_visible(m_PageImage, TRUE);
     gtk_widget_set_visible(m_PageScroll, TRUE);
     
-    // Force widget update - this will trigger page_view_draw_cb
-    gtk_widget_queue_draw(m_PageImage);
+    // NOTE: Do NOT call gtk_widget_queue_draw here!
+    // In GTK4, gtk_drawing_area_set_content_width/height automatically triggers a redraw
+    // Calling queue_draw here causes an infinite loop with refresh events
     
-    g_message("PageView::showPage: Drawing area configured, queued draw");
+    g_message("PageView::showPage: Drawing area configured (auto-redraw triggered)");
     
     // Debug: Check widget state
     g_message("PageView::showPage: Image widget visible=%d, width=%d, height=%d, mapped=%d",
@@ -762,18 +792,30 @@ PageView::getPixbufFromPage (DocumentPage *page)
     g_message("PageView::getPixbufFromPage: Creating pixbuf from page %dx%d", 
               page->getWidth(), page->getHeight());
     
+    // Verify page data is valid
+    if (!page->getData()) {
+        g_warning("PageView::getPixbufFromPage: Page data is NULL!");
+        return NULL;
+    }
+    
     GdkPixbuf *pixbuf = gdk_pixbuf_new_from_data (page->getData (),
             GDK_COLORSPACE_RGB, page->hasAlpha(), PIXBUF_BITS_PER_SAMPLE,
             page->getWidth (), page->getHeight (),
             page->getRowStride (), NULL, NULL);
     
     if (!pixbuf) {
-        g_warning("PageView::getPixbufFromPage: Failed to create pixbuf!");
+        g_warning("PageView::getPixbufFromPage: Failed to create pixbuf from data!");
         return NULL;
     }
     
+    // Create a real copy so we own the data
     GdkPixbuf *finalPixbuf = gdk_pixbuf_copy (pixbuf);
     g_object_unref (pixbuf);
+    
+    if (!finalPixbuf) {
+        g_warning("PageView::getPixbufFromPage: Failed to copy pixbuf!");
+        return NULL;
+    }
     
     g_message("PageView::getPixbufFromPage: Created pixbuf copy successfully");
     return finalPixbuf;
@@ -799,6 +841,8 @@ page_view_draw_cb (GtkDrawingArea *area, cairo_t *cr, int width, int height, gpo
     }
     
     GdkPixbuf *pixbuf = view->getCurrentPixbuf();
+    fprintf(stderr, "=== page_view_draw_cb: pixbuf pointer = %p ===\n", (void*)pixbuf);
+    
     if (!pixbuf) {
         fprintf(stderr, "=== page_view_draw_cb: No pixbuf, drawing white ===\n");
         // No pixbuf to draw, fill with white
@@ -807,18 +851,18 @@ page_view_draw_cb (GtkDrawingArea *area, cairo_t *cr, int width, int height, gpo
         return;
     }
     
-    fprintf(stderr, "=== page_view_draw_cb: Drawing pixbuf %dx%d ===\n",
-            gdk_pixbuf_get_width(pixbuf),
-            gdk_pixbuf_get_height(pixbuf));
+    // Get dimensions safely
+    gint pixbuf_width = gdk_pixbuf_get_width(pixbuf);
+    gint pixbuf_height = gdk_pixbuf_get_height(pixbuf);
+    
+    fprintf(stderr, "=== page_view_draw_cb: Drawing pixbuf %p %dx%d (widget is %dx%d) ===\n",
+            (void*)pixbuf, pixbuf_width, pixbuf_height, width, height);
     
     // Draw the pixbuf
     gdk_cairo_set_source_pixbuf(cr, pixbuf, 0, 0);
     cairo_paint(cr);
     
-    g_message("page_view_draw_cb: Drew pixbuf %dx%d to cairo context %dx%d",
-              gdk_pixbuf_get_width(pixbuf),
-              gdk_pixbuf_get_height(pixbuf),
-              width, height);
+    fprintf(stderr, "=== page_view_draw_cb: Successfully drew pixbuf ===\n");
 }
 
 ///
@@ -863,10 +907,16 @@ page_view_mouse_motion_cb (GtkEventControllerMotion *controller, gdouble x, gdou
     g_assert ( NULL != data && "The data is NULL.");
     PageView *view = (PageView *)data;
 
+    fprintf(stderr, "=== mouse_motion_cb: pos=(%.0f, %.0f) pixbuf=%p ===\n", 
+            x, y, (void*)view->getCurrentPixbuf());
+
     gint page_x;
     gint page_y;
     view->getPagePosition ((gint)x, (gint)y, &page_x, &page_y);
     view->getPresenter ()->mouseMoved (page_x, page_y);
+    
+    fprintf(stderr, "=== mouse_motion_cb: after mouseMoved, pixbuf=%p ===\n", 
+            (void*)view->getCurrentPixbuf());
 }
 
 

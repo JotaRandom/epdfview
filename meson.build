@@ -21,6 +21,10 @@ add_project_arguments([
   '-Wno-deprecated-declarations',
   '-Wno-deprecated',
   '-Wno-error=deprecated-declarations',
+  # GTK4 migration debugging flags - DISABLED for now as they may cause issues
+  # '-DGDK_DISABLE_DEPRECATED',
+  # '-DGTK_DISABLE_DEPRECATED',
+  # '-DG_ENABLE_DIAGNOSTIC=1',
 ], language : 'cpp')
 
 # Dependencies with version requirements

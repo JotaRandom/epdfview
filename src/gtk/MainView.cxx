@@ -417,18 +417,23 @@ MainView::isIndexVisible () const
     return FALSE;
 }
 
-gchar *
-MainView::openFileDialog (const gchar *lastFolder)
+///
+/// @brief Async version of openFileDialog for GTK4.
+///
+void
+MainView::openFileDialogAsync (const gchar *lastFolder,
+                               FileChooserCallback callback,
+                               gpointer userData)
 {
-    gchar *result = NULL;
-    
-    // GTK4: Create file chooser dialog - keep it simple
-    GtkWidget *dialog = gtk_file_chooser_dialog_new (_("Open PDF File"),
+    // GTK4: Use GtkFileChooserNative for proper native modal dialogs
+    GtkFileChooserNative *native = gtk_file_chooser_native_new (
+            _("Open PDF File"),
             GTK_WINDOW (m_MainWindow),
             GTK_FILE_CHOOSER_ACTION_OPEN,
-            _("_Cancel"), GTK_RESPONSE_CANCEL,
-            _("_Open"), GTK_RESPONSE_ACCEPT,
-            NULL);
+            _("_Open"),
+            _("_Cancel"));
+    
+    GtkFileChooser *chooser = GTK_FILE_CHOOSER (native);
     
     // Set up PDF filter
     GtkFileFilter *pdfFilter = gtk_file_filter_new ();
@@ -436,64 +441,136 @@ MainView::openFileDialog (const gchar *lastFolder)
     gtk_file_filter_add_mime_type (pdfFilter, "application/pdf");
     gtk_file_filter_add_pattern (pdfFilter, "*.pdf");
     gtk_file_filter_add_pattern (pdfFilter, "*.PDF");
-    gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), pdfFilter);
-    gtk_file_chooser_set_filter (GTK_FILE_CHOOSER (dialog), pdfFilter);
+    gtk_file_chooser_add_filter (chooser, pdfFilter);
     
     // Add "All Files" filter
     GtkFileFilter *anyFilter = gtk_file_filter_new ();
     gtk_file_filter_set_name (anyFilter, _("All Files"));
     gtk_file_filter_add_pattern (anyFilter, "*");
-    gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), anyFilter);
+    gtk_file_chooser_add_filter (chooser, anyFilter);
+    
+    // Set PDF filter as default
+    gtk_file_chooser_set_filter (chooser, pdfFilter);
     
     // Set initial folder if provided
     if (lastFolder) {
         GFile *folder = g_file_new_for_path (lastFolder);
-        gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), folder, NULL);
+        gtk_file_chooser_set_current_folder (chooser, folder, NULL);
         g_object_unref (folder);
     }
     
-    // Set modal
-    gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
+    // Store callback data
+    struct CallbackData {
+        FileChooserCallback callback;
+        gpointer userData;
+        GtkFileChooser *chooser;
+    };
     
-    // Show dialog
-    gtk_widget_set_visible (dialog, TRUE);
+    CallbackData *data = g_new0 (CallbackData, 1);
+    data->callback = callback;
+    data->userData = userData;
+    data->chooser = chooser;
     
-    // Simple blocking wait for response
-    gint response = GTK_RESPONSE_CANCEL;
-    gboolean done = FALSE;
+    // GTK4: Pure async approach - no blocking at all
+    auto response_cb = +[](GtkNativeDialog *dialog, gint response, gpointer user_data) {
+        CallbackData *data = (CallbackData*)user_data;
+        gchar *result = NULL;
+        
+        if (response == GTK_RESPONSE_ACCEPT) {
+            GFile *file = gtk_file_chooser_get_file (data->chooser);
+            if (file) {
+                result = g_file_get_path (file);
+                g_object_unref (file);
+            }
+        }
+        
+        // Call the user's callback
+        data->callback (result, data->userData);
+        
+        // Clean up
+        g_object_unref (dialog);
+        g_free (data);
+    };
     
-    gulong signal_id = g_signal_connect (dialog, "response", 
-        G_CALLBACK (+[](GtkDialog *d, gint r, gpointer data) {
-            gint *resp = (gint *)data;
-            *resp = r;
-            gboolean *done_ptr = (gboolean *)g_object_get_data(G_OBJECT(d), "done");
-            *done_ptr = TRUE;
-        }), &response);
+    g_signal_connect (native, "response", G_CALLBACK (response_cb), data);
+    gtk_native_dialog_show (GTK_NATIVE_DIALOG (native));
+}
+
+gchar *
+MainView::openFileDialog (const gchar *lastFolder)
+{
+    gchar *result = NULL;
     
-    g_object_set_data (G_OBJECT (dialog), "done", &done);
+    // GTK4: Use GtkFileChooserNative for proper native modal dialogs
+    GtkFileChooserNative *native = gtk_file_chooser_native_new (
+            _("Open PDF File"),
+            GTK_WINDOW (m_MainWindow),
+            GTK_FILE_CHOOSER_ACTION_OPEN,
+            _("_Open"),
+            _("_Cancel"));
     
-    // Process events until done
-    while (!done) {
-        g_main_context_iteration (NULL, TRUE);
+    GtkFileChooser *chooser = GTK_FILE_CHOOSER (native);
+    
+    // Set up PDF filter
+    GtkFileFilter *pdfFilter = gtk_file_filter_new ();
+    gtk_file_filter_set_name (pdfFilter, _("Portable Document Format (PDF) Files"));
+    gtk_file_filter_add_mime_type (pdfFilter, "application/pdf");
+    gtk_file_filter_add_pattern (pdfFilter, "*.pdf");
+    gtk_file_filter_add_pattern (pdfFilter, "*.PDF");
+    gtk_file_chooser_add_filter (chooser, pdfFilter);
+    
+    // Add "All Files" filter
+    GtkFileFilter *anyFilter = gtk_file_filter_new ();
+    gtk_file_filter_set_name (anyFilter, _("All Files"));
+    gtk_file_filter_add_pattern (anyFilter, "*");
+    gtk_file_chooser_add_filter (chooser, anyFilter);
+    
+    // Set PDF filter as default
+    gtk_file_chooser_set_filter (chooser, pdfFilter);
+    
+    // Set initial folder if provided
+    if (lastFolder) {
+        GFile *folder = g_file_new_for_path (lastFolder);
+        gtk_file_chooser_set_current_folder (chooser, folder, NULL);
+        g_object_unref (folder);
     }
     
-    g_signal_handler_disconnect (dialog, signal_id);
+    // GTK4: Use a local GMainLoop for modal behavior
+    // This is better than g_main_context_iteration as it doesn't block rendering
+    GMainLoop *loop = g_main_loop_new (NULL, FALSE);
+    gint response = GTK_RESPONSE_CANCEL;
+    
+    auto response_cb = +[](GtkNativeDialog *dialog, gint resp, gpointer user_data) {
+        gpointer *data = (gpointer*)user_data;
+        gint *response_ptr = (gint*)data[0];
+        GMainLoop *loop = (GMainLoop*)data[1];
+        *response_ptr = resp;
+        g_main_loop_quit (loop);
+    };
+    
+    gpointer cb_data[] = {&response, loop};
+    g_signal_connect (native, "response", G_CALLBACK (response_cb), cb_data);
+    
+    gtk_native_dialog_show (GTK_NATIVE_DIALOG (native));
+    
+    // GTK4: Instead of g_main_loop_run which blocks events, manually iterate
+    // This allows GTK to process UI updates (menus, rendering, etc.)
+    while (g_main_loop_is_running(loop)) {
+        g_main_context_iteration(NULL, TRUE);
+    }
+    g_main_loop_unref (loop);
     
     // Get the selected file if accepted
     if (response == GTK_RESPONSE_ACCEPT) {
-        GFile *file = gtk_file_chooser_get_file (GTK_FILE_CHOOSER (dialog));
+        GFile *file = gtk_file_chooser_get_file (chooser);
         if (file) {
             result = g_file_get_path (file);
             g_object_unref (file);
         }
     }
     
-    gtk_window_destroy (GTK_WINDOW (dialog));
-    
-    // Process remaining events to ensure cleanup
-    while (g_main_context_pending(NULL)) {
-        g_main_context_iteration(NULL, FALSE);
-    }
+    // Clean up
+    g_object_unref (native);
     
     return result;
 }
@@ -564,7 +641,11 @@ MainView::promptPasswordDialog ()
     
     g_signal_connect (passwordDialog, "response", G_CALLBACK (response_cb), &response_id);
     g_signal_connect_swapped (passwordDialog, "response", G_CALLBACK (g_main_loop_quit), loop);
-    g_main_loop_run (loop);
+    
+    // GTK4: Instead of g_main_loop_run which blocks events, manually iterate
+    while (g_main_loop_is_running(loop)) {
+        g_main_context_iteration(NULL, TRUE);
+    }
     
     gchar *password = NULL;
     if (response_id == GTK_RESPONSE_ACCEPT)
@@ -581,83 +662,82 @@ MainView::promptPasswordDialog ()
 gchar *
 MainView::saveFileDialog (const gchar *lastFolder, const gchar *fileName)
 {
-    // GTK4: Use text labels instead of stock IDs for buttons
-    GtkWidget *saveDialog = gtk_file_chooser_dialog_new (_("Save PDF File"),
+    gchar *result = NULL;
+    
+    // GTK4: Use GtkFileChooserNative for proper native modal dialogs
+    GtkFileChooserNative *native = gtk_file_chooser_native_new (
+            _("Save PDF File"),
             GTK_WINDOW (m_MainWindow),
             GTK_FILE_CHOOSER_ACTION_SAVE,
-            _("_Cancel"), GTK_RESPONSE_CANCEL,
-            _("_Save"), GTK_RESPONSE_ACCEPT,
-            NULL);
-    // GTK4: gtk_file_chooser_set_do_overwrite_confirmation removed (always enabled)
-
+            _("_Save"),
+            _("_Cancel"));
+    
+    GtkFileChooser *chooser = GTK_FILE_CHOOSER (native);
+    
     // Select the last used folder as the initial folder, if any.
     if ( NULL != lastFolder )
     {
-        // GTK4: gtk_file_chooser_set_current_folder takes GFile*
         GFile *folder = g_file_new_for_path (lastFolder);
-        gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (saveDialog),
-                                             folder, NULL);
+        gtk_file_chooser_set_current_folder (chooser, folder, NULL);
         g_object_unref (folder);
     }
+    
     // Set the original file name to use as initial save name, if any.
     if ( NULL != fileName )
     {
-        gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (saveDialog),
-                                           fileName);
+        gtk_file_chooser_set_current_name (chooser, fileName);
     }
 
     // Add the file type filters.
-    {
-        GtkFileFilter *pdfFilter = gtk_file_filter_new ();
-        gtk_file_filter_set_name (pdfFilter, 
-                                  _("Portable Document Format (PDF) Files"));
-        gtk_file_filter_add_mime_type (pdfFilter, "application/pdf");
-        gtk_file_filter_add_pattern (pdfFilter, "*.pdf");
-        gtk_file_filter_add_pattern (pdfFilter, "*.PDF");
-
-        gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (saveDialog), pdfFilter);
-        // Set this filter as the default.
-        gtk_file_chooser_set_filter (GTK_FILE_CHOOSER (saveDialog), pdfFilter);
-    }
-
-    {
-        GtkFileFilter *anyFilter = gtk_file_filter_new ();
-        gtk_file_filter_set_name (anyFilter, _("All Files"));
-        gtk_file_filter_add_pattern (anyFilter, "*");
-
-        gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (saveDialog), anyFilter);
-    }
-
-    // GTK4: Use modal dialog with response callback
-    gtk_window_set_modal (GTK_WINDOW (saveDialog), TRUE);
-    gtk_window_present (GTK_WINDOW (saveDialog));
+    GtkFileFilter *pdfFilter = gtk_file_filter_new ();
+    gtk_file_filter_set_name (pdfFilter, 
+                              _("Portable Document Format (PDF) Files"));
+    gtk_file_filter_add_mime_type (pdfFilter, "application/pdf");
+    gtk_file_filter_add_pattern (pdfFilter, "*.pdf");
+    gtk_file_filter_add_pattern (pdfFilter, "*.PDF");
+    gtk_file_chooser_add_filter (chooser, pdfFilter);
     
+    GtkFileFilter *anyFilter = gtk_file_filter_new ();
+    gtk_file_filter_set_name (anyFilter, _("All Files"));
+    gtk_file_filter_add_pattern (anyFilter, "*");
+    gtk_file_chooser_add_filter (chooser, anyFilter);
+    
+    // Set PDF filter as the default.
+    gtk_file_chooser_set_filter (chooser, pdfFilter);
+
+    // GTK4: Use a local GMainLoop for modal behavior
     GMainLoop *loop = g_main_loop_new (NULL, FALSE);
-    gchar *result = NULL;
-    gint response_id = GTK_RESPONSE_CANCEL;
+    gint response = GTK_RESPONSE_CANCEL;
     
-    // Store response ID in a callback
-    auto response_cb = +[](GtkDialog *dialog, gint response, gpointer user_data) {
-        gint *response_ptr = (gint *)user_data;
-        *response_ptr = response;
+    auto response_cb = +[](GtkNativeDialog *dialog, gint resp, gpointer user_data) {
+        gpointer *data = (gpointer*)user_data;
+        gint *response_ptr = (gint*)data[0];
+        GMainLoop *loop = (GMainLoop*)data[1];
+        *response_ptr = resp;
+        g_main_loop_quit (loop);
     };
     
-    g_signal_connect (saveDialog, "response", G_CALLBACK (response_cb), &response_id);
-    g_signal_connect_swapped (saveDialog, "response", G_CALLBACK (g_main_loop_quit), loop);
-    g_main_loop_run (loop);
+    gpointer cb_data[] = {&response, loop};
+    g_signal_connect (native, "response", G_CALLBACK (response_cb), cb_data);
     
-    if (response_id == GTK_RESPONSE_ACCEPT)
+    gtk_native_dialog_show (GTK_NATIVE_DIALOG (native));
+    
+    // GTK4: Instead of g_main_loop_run which blocks events, manually iterate
+    while (g_main_loop_is_running(loop)) {
+        g_main_context_iteration(NULL, TRUE);
+    }
+    g_main_loop_unref (loop);
+    
+    if (response == GTK_RESPONSE_ACCEPT)
     {
-        // GTK4: gtk_file_chooser_get_filename replaced
-        GFile *file = gtk_file_chooser_get_file (GTK_FILE_CHOOSER (saveDialog));
+        GFile *file = gtk_file_chooser_get_file (chooser);
         if (file) {
             result = g_file_get_path (file);
             g_object_unref (file);
         }
     }
     
-    g_main_loop_unref (loop);
-    gtk_window_destroy (GTK_WINDOW (saveDialog));
+    g_object_unref (native);
     return result;
 }
 
@@ -849,17 +929,17 @@ MainView::showErrorMessage (const gchar *title, const gchar *body)
             title);
     gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG(errorDialog), "%s",
                                               body);
-    // GTK4: gtk_dialog_run deprecated
+    // GTK4: Use async modal dialog - NO nested loops!
     gtk_window_set_modal (GTK_WINDOW (errorDialog), TRUE);
+    
+    // Connect response to auto-destroy
+    g_signal_connect (errorDialog, "response",
+                     G_CALLBACK(+[](GtkDialog *dialog, int response, gpointer) {
+                         gtk_window_destroy(GTK_WINDOW(dialog));
+                     }), NULL);
+    
     gtk_window_present (GTK_WINDOW (errorDialog));
-    
-    GMainLoop *loop = g_main_loop_new (NULL, FALSE);
-    g_signal_connect_swapped (errorDialog, "response",
-                             G_CALLBACK (g_main_loop_quit), loop);
-    g_main_loop_run (loop);
-    g_main_loop_unref (loop);
-    
-    gtk_window_destroy (GTK_WINDOW (errorDialog));
+    // Do NOT wait for response - let it be async
 }
 
 void

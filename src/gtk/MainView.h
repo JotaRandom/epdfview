@@ -43,6 +43,9 @@ namespace ePDFView
             void activePageModeScroll (gboolean active);
             void activePageModeText (gboolean active);
             gboolean isIndexVisible () const;
+            void openFileDialogAsync (const gchar *lastFolder,
+                                     FileChooserCallback callback,
+                                     gpointer userData);
             gchar *openFileDialog (const gchar *lastFolder);
             gchar *promptPasswordDialog (void);
             gchar *saveFileDialog (const gchar *lastFolder,

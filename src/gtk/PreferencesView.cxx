@@ -83,23 +83,28 @@ PreferencesView::setPresenter (PreferencesPter *pter)
                       G_CALLBACK (preferences_view_backsearch_command_changed),
                       pter);
     // Run the dialog.
-    // GTK4: Use modal presentation with response signal
-    gtk_window_present (GTK_WINDOW (m_PreferencesDialog));
+    // GTK4: Use modal presentation with async callback - NO nested loops!
+    gtk_window_set_modal(GTK_WINDOW(m_PreferencesDialog), TRUE);
     
-    // Wait for dialog response using event loop
-    GMainLoop *loop = g_main_loop_new (NULL, FALSE);
+    // Connect response signal to handle closure asynchronously
+    g_signal_connect(m_PreferencesDialog, "response",
+                    G_CALLBACK(+[](GtkDialog *dialog, int response, gpointer user_data) {
+                        PreferencesPter *pter = static_cast<PreferencesPter*>(user_data);
+                        gtk_window_destroy(GTK_WINDOW(dialog));
+                        pter->closeActivated();
+                    }), pter);
     
-    // Connect both response signal (for buttons) and close-request (for X button)
-    g_signal_connect_swapped (m_PreferencesDialog, "response",
-                             G_CALLBACK (g_main_loop_quit), loop);
-    g_signal_connect_swapped (m_PreferencesDialog, "close-request",
-                             G_CALLBACK (g_main_loop_quit), loop);
+    g_signal_connect(m_PreferencesDialog, "close-request",
+                    G_CALLBACK(+[](GtkWindow *window, gpointer user_data) -> gboolean {
+                        PreferencesPter *pter = static_cast<PreferencesPter*>(user_data);
+                        pter->closeActivated();
+                        return FALSE; // Allow window to close
+                    }), pter);
     
-    g_main_loop_run (loop);
-    g_main_loop_unref (loop);
+    gtk_window_present(GTK_WINDOW(m_PreferencesDialog));
     
-    // The close must have been activated.
-    pter->closeActivated ();
+    // Do NOT run a nested main loop - let GTK4 handle events naturally
+    // The callbacks above will be called when the user interacts with the dialog
 }
 
 const gchar *

@@ -182,7 +182,10 @@ PrintView::setPresenter (PrintPter *pter)
     g_signal_connect (m_PrintDialog, "response",
                      G_CALLBACK (print_view_dialog_response), NULL);
     
-    g_main_loop_run (loop);
+    // GTK4: Instead of g_main_loop_run which blocks events, manually iterate
+    while (g_main_loop_is_running(loop)) {
+        g_main_context_iteration(NULL, TRUE);
+    }
     g_main_loop_unref (loop);
     
     if ( GTK_RESPONSE_ACCEPT == response )

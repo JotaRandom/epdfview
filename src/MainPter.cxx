@@ -493,18 +493,24 @@ MainPter::openFileActivated ()
     Config &config = Config::getConfig ();
     gchar *lastFolder = config.getOpenFileFolder ();
     IMainView &view = getView ();
-    gchar *fileName = view.openFileDialog (lastFolder);
+    
+    // GTK4: Use async version - callback will handle the result
+    view.openFileDialogAsync (lastFolder, 
+        +[](gchar *fileName, gpointer userData) {
+            MainPter *pter = (MainPter*)userData;
+            if (fileName != NULL) {
+                Config &config = Config::getConfig ();
+                gchar *dirName = g_path_get_dirname (fileName);
+                config.setOpenFileFolder (dirName);
+                g_free (dirName);
+                // Open the file.
+                pter->setOpenState (fileName, FALSE);
+                pter->m_Document->load (fileName, NULL);
+                g_free (fileName);
+            }
+        }, this);
+    
     g_free (lastFolder);
-    if ( NULL != fileName )
-    {
-        gchar *dirName = g_path_get_dirname (fileName);
-        config.setOpenFileFolder (dirName);
-        g_free (dirName);
-        // Open the file.
-        setOpenState (fileName, FALSE);
-        m_Document->load (fileName, NULL);
-        g_free (fileName);
-    }
 }
 
 ///
