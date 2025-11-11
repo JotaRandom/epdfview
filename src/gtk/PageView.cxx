@@ -679,8 +679,10 @@ PageView::showPage (DocumentPage *page, PageScroll scroll)
     gint current_width = gtk_widget_get_width(m_PageImage);
     gint current_height = gtk_widget_get_height(m_PageImage);
     
+    gboolean size_changed = (abs(current_width - pixbuf_width) > 2 || abs(current_height - pixbuf_height) > 2);
+    
     // Only update size if it actually changed (with tolerance for rounding)
-    if (abs(current_width - pixbuf_width) > 2 || abs(current_height - pixbuf_height) > 2) {
+    if (size_changed) {
         fprintf(stderr, "=== PageView::showPage: Updating size from %dx%d to %dx%d ===\n",
                 current_width, current_height, pixbuf_width, pixbuf_height);
         
@@ -698,11 +700,13 @@ PageView::showPage (DocumentPage *page, PageScroll scroll)
     gtk_widget_set_visible(m_PageImage, TRUE);
     gtk_widget_set_visible(m_PageScroll, TRUE);
     
-    // NOTE: Do NOT call gtk_widget_queue_draw here!
-    // In GTK4, gtk_drawing_area_set_content_width/height automatically triggers a redraw
-    // Calling queue_draw here causes an infinite loop with refresh events
+    // GTK4: Force redraw when pixbuf changes
+    // Even if size didn't change, the pixbuf content changed, so we need to redraw
+    // This is safe because we only call showPage when we actually have new content
+    fprintf(stderr, "=== PageView::showPage: Forcing redraw for new pixbuf ===\n");
+    gtk_widget_queue_draw(m_PageImage);
     
-    g_message("PageView::showPage: Drawing area configured (auto-redraw triggered)");
+    g_message("PageView::showPage: Drawing area configured (redraw triggered)");
     
     // Debug: Check widget state
     g_message("PageView::showPage: Image widget visible=%d, width=%d, height=%d, mapped=%d",
@@ -789,8 +793,23 @@ PageView::getPagePosition (gint widgetX, gint widgetY, gint *pageX, gint *pageY)
 GdkPixbuf *
 PageView::getPixbufFromPage (DocumentPage *page)
 {
+    if (!page) {
+        g_warning("PageView::getPixbufFromPage: page is NULL!");
+        return NULL;
+    }
+    
+    gint page_width = page->getWidth();
+    gint page_height = page->getHeight();
+    
+    // Validate dimensions before creating pixbuf
+    if (page_width <= 0 || page_height <= 0 || page_width > 100000 || page_height > 100000) {
+        g_warning("PageView::getPixbufFromPage: Invalid page dimensions %dx%d!", 
+                  page_width, page_height);
+        return NULL;
+    }
+    
     g_message("PageView::getPixbufFromPage: Creating pixbuf from page %dx%d", 
-              page->getWidth(), page->getHeight());
+              page_width, page_height);
     
     // Verify page data is valid
     if (!page->getData()) {
@@ -800,7 +819,7 @@ PageView::getPixbufFromPage (DocumentPage *page)
     
     GdkPixbuf *pixbuf = gdk_pixbuf_new_from_data (page->getData (),
             GDK_COLORSPACE_RGB, page->hasAlpha(), PIXBUF_BITS_PER_SAMPLE,
-            page->getWidth (), page->getHeight (),
+            page_width, page_height,
             page->getRowStride (), NULL, NULL);
     
     if (!pixbuf) {

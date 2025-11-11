@@ -356,7 +356,10 @@ void
 PagePter::notifyPageChanged (gint pageNum)
 {
     g_WaitingForPage = FALSE;
-    refreshPage (m_NextPageScroll, FALSE);
+    // Use the stored scroll value then reset it to avoid loops
+    PageScroll scrollToUse = m_NextPageScroll;
+    m_NextPageScroll = PAGE_SCROLL_NONE;
+    refreshPage (scrollToUse, FALSE);
 }
 
 void

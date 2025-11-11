@@ -353,6 +353,33 @@ MainView::MainView (MainPter *pter):
     gtk_box_append (GTK_BOX (m_MainBox), m_StatusBar);
 
     // GTK4: Scroll events handled by PageView event controllers
+    
+    // Sync initial widget visibility with action states
+    // Actions are created with default_state in createActions()
+    // Now we need to apply those states to the widgets
+    GAction *show_toolbar_action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "show-toolbar");
+    if (show_toolbar_action) {
+        GVariant *state = g_action_get_state (show_toolbar_action);
+        gboolean show = g_variant_get_boolean (state);
+        gtk_widget_set_visible (m_ToolBar, show);
+        g_variant_unref (state);
+    }
+    
+    GAction *show_statusbar_action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "show-statusbar");
+    if (show_statusbar_action) {
+        GVariant *state = g_action_get_state (show_statusbar_action);
+        gboolean show = g_variant_get_boolean (state);
+        gtk_widget_set_visible (m_StatusBar, show);
+        g_variant_unref (state);
+    }
+    
+    GAction *show_menubar_action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "show-menubar");
+    if (show_menubar_action) {
+        GVariant *state = g_action_get_state (show_menubar_action);
+        gboolean show = g_variant_get_boolean (state);
+        gtk_widget_set_visible (m_MenuBar, show);
+        g_variant_unref (state);
+    }
 }
 
 MainView::~MainView ()
@@ -1313,11 +1340,12 @@ MainView::createActions ()
     }
     
     // Add toggle actions
+    // GTK4: Stateful actions must connect to "change-state" signal, not "activate"
     for (guint i = 0; i < G_N_ELEMENTS (g_ToggleEntries); i++) {
         GSimpleAction *action = g_simple_action_new_stateful (
             g_ToggleEntries[i].name, NULL, 
             g_variant_new_boolean (g_ToggleEntries[i].default_state));
-        g_signal_connect (action, "activate", g_ToggleEntries[i].callback, m_Pter);
+        g_signal_connect (action, "change-state", g_ToggleEntries[i].callback, m_Pter);
         g_action_map_add_action (G_ACTION_MAP (m_ActionGroup), G_ACTION (action));
         g_object_unref (action);
     }
@@ -1697,16 +1725,13 @@ main_window_fullscreen_cb (GSimpleAction *action, GVariant *parameter, gpointer 
     g_assert ( NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
-    GVariant *state = g_action_get_state (G_ACTION (action));
-    gboolean current_state = g_variant_get_boolean (state);
-    gboolean new_state = !current_state;
+    // GTK4 change-state: parameter contains the new state
+    gboolean new_state = g_variant_get_boolean (parameter);
     
     if (pter->isDocumentLoaded()) {
-        g_simple_action_set_state (action, g_variant_new_boolean (new_state));
+        g_simple_action_set_state (action, parameter);
         pter->fullScreenActivated (new_state);
     }
-    
-    g_variant_unref (state);
 }
 
 ///
@@ -1767,6 +1792,7 @@ main_window_go_to_last_page_cb (GtkWidget *widget, gpointer data)
 void
 main_window_go_to_next_page_cb (GtkWidget *widget, gpointer data)
 {
+    fprintf(stderr, "DEBUG: main_window_go_to_next_page_cb called, widget=%p, data=%p\n", (void*)widget, data);
     g_assert ( NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
@@ -1791,6 +1817,7 @@ main_window_go_to_page_cb (GtkWidget *widget, gpointer data)
 void
 main_window_go_to_previous_page_cb (GtkWidget *widget, gpointer data)
 {
+    fprintf(stderr, "DEBUG: main_window_go_to_previous_page_cb called, widget=%p, data=%p\n", (void*)widget, data);
     g_assert ( NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
@@ -1916,13 +1943,11 @@ main_window_show_index_cb (GSimpleAction *action, GVariant *parameter, gpointer 
     g_assert ( NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
-    if (action) {
-        GVariant *state = g_action_get_state (G_ACTION (action));
-        gboolean current_state = g_variant_get_boolean (state);
-        gboolean new_state = !current_state;
-        g_simple_action_set_state (action, g_variant_new_boolean (new_state));
+    if (action && parameter) {
+        // GTK4 change-state: parameter contains the new state
+        gboolean new_state = g_variant_get_boolean (parameter);
+        g_simple_action_set_state (action, parameter);
         pter->showIndexActivated (new_state);
-        g_variant_unref (state);
     } else {
         // Called from setFullScreen - use current state
         pter->showIndexActivated (TRUE);
@@ -1950,13 +1975,11 @@ main_window_show_menubar_cb (GSimpleAction *action, GVariant *parameter, gpointe
     g_assert ( NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
-    if (action) {
-        GVariant *state = g_action_get_state (G_ACTION (action));
-        gboolean current_state = g_variant_get_boolean (state);
-        gboolean new_state = !current_state;
-        g_simple_action_set_state (action, g_variant_new_boolean (new_state));
+    if (action && parameter) {
+        // GTK4 change-state: parameter contains the new state
+        gboolean new_state = g_variant_get_boolean (parameter);
+        g_simple_action_set_state (action, parameter);
         pter->showMenubarActivated (new_state);
-        g_variant_unref (state);
     }
 }
 
@@ -1969,12 +1992,10 @@ main_window_invert_color_cb (GSimpleAction *action, GVariant *parameter, gpointe
     g_assert ( NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
-    GVariant *state = g_action_get_state (G_ACTION (action));
-    gboolean current_state = g_variant_get_boolean (state);
-    gboolean new_state = !current_state;
-    g_simple_action_set_state (action, g_variant_new_boolean (new_state));
+    // GTK4 change-state: parameter contains the new state
+    gboolean new_state = g_variant_get_boolean (parameter);
+    g_simple_action_set_state (action, parameter);
     pter->invertToggleActivated (new_state);
-    g_variant_unref (state);
 }
 
 ///
@@ -1986,13 +2007,11 @@ main_window_show_statusbar_cb (GSimpleAction *action, GVariant *parameter, gpoin
     g_assert ( NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
-    if (action) {
-        GVariant *state = g_action_get_state (G_ACTION (action));
-        gboolean current_state = g_variant_get_boolean (state);
-        gboolean new_state = !current_state;
-        g_simple_action_set_state (action, g_variant_new_boolean (new_state));
+    if (action && parameter) {
+        // GTK4 change-state: parameter contains the new state
+        gboolean new_state = g_variant_get_boolean (parameter);
+        g_simple_action_set_state (action, parameter);
         pter->showStatusbarActivated (new_state);
-        g_variant_unref (state);
     } else {
         // Called from setFullScreen - use current state
         pter->showStatusbarActivated (TRUE);
@@ -2008,13 +2027,11 @@ main_window_show_toolbar_cb (GSimpleAction *action, GVariant *parameter, gpointe
     g_assert ( NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
-    if (action) {
-        GVariant *state = g_action_get_state (G_ACTION (action));
-        gboolean current_state = g_variant_get_boolean (state);
-        gboolean new_state = !current_state;
-        g_simple_action_set_state (action, g_variant_new_boolean (new_state));
+    if (action && parameter) {
+        // GTK4 change-state: parameter contains the new state
+        gboolean new_state = g_variant_get_boolean (parameter);
+        g_simple_action_set_state (action, parameter);
         pter->showToolbarActivated (new_state);
-        g_variant_unref (state);
     } else {
         // Called from setFullScreen - use current state
         pter->showToolbarActivated (TRUE);
@@ -2043,12 +2060,10 @@ main_window_zoom_fit_cb (GSimpleAction *action, GVariant *parameter, gpointer da
     g_assert ( NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
-    GVariant *state = g_action_get_state (G_ACTION (action));
-    gboolean current_state = g_variant_get_boolean (state);
-    gboolean new_state = !current_state;
-    g_simple_action_set_state (action, g_variant_new_boolean (new_state));
+    // GTK4 change-state: parameter contains the new state
+    gboolean new_state = g_variant_get_boolean (parameter);
+    g_simple_action_set_state (action, parameter);
     pter->zoomFitActivated (new_state);
-    g_variant_unref (state);
 }
 
 ///
@@ -2060,12 +2075,10 @@ main_window_zoom_width_cb (GSimpleAction *action, GVariant *parameter, gpointer 
     g_assert (NULL != data && "The data parameter is NULL.");
 
     MainPter *pter = (MainPter *)data;
-    GVariant *state = g_action_get_state (G_ACTION (action));
-    gboolean current_state = g_variant_get_boolean (state);
-    gboolean new_state = !current_state;
-    g_simple_action_set_state (action, g_variant_new_boolean (new_state));
+    // GTK4 change-state: parameter contains the new state
+    gboolean new_state = g_variant_get_boolean (parameter);
+    g_simple_action_set_state (action, parameter);
     pter->zoomWidthActivated (new_state);
-    g_variant_unref (state);
 }
 
 ///
