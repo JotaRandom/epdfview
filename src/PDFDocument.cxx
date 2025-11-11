@@ -42,16 +42,18 @@ static gchar *getAbsoluteFileName (const gchar *fileName);
 namespace
 {
     void
-    convert_bgra_to_rgba (guint8 *data, int width, int height)
+    convert_bgra_to_rgba (guint8 *data, int width, int height, int stride)
     {
         using std::swap;
 
         for (int y = 0; y < height; y++)
         {
+            guint8 *row = data + (y * stride);
             for (int x = 0; x < width; x++)
             {
-                swap(data[0], data[2]);
-                data += 4;
+                // Swap B and R channels (BGRA -> RGBA)
+                swap(row[0], row[2]);
+                row += 4;
             }
         }
     }
@@ -620,8 +622,11 @@ PDFDocument::outputPostscriptPage (guint pageNum)
 DocumentPage *
 PDFDocument::renderPage (gint pageNum)
 {
+    g_message("PDFDocument::renderPage: Rendering page %d", pageNum);
+    
     if ( NULL == m_Document )
     {
+        g_warning("PDFDocument::renderPage: m_Document is NULL!");
         return NULL;
     }
 
@@ -630,8 +635,12 @@ PDFDocument::renderPage (gint pageNum)
     gdouble pageHeight;
     getPageSizeForPage (pageNum, &pageWidth, &pageHeight);
     
+    g_message("PDFDocument::renderPage: Page size: %.2f x %.2f", pageWidth, pageHeight);
+    
     // Get the current zoom level
     gdouble scale = getZoom();
+    
+    g_message("PDFDocument::renderPage: Zoom scale: %.2f", scale);
     
     // Calculate dimensions with zoom applied while maintaining aspect ratio
     gint width = MAX((gint)(pageWidth * scale + 0.5), 1);
@@ -649,10 +658,13 @@ PDFDocument::renderPage (gint pageNum)
     
     DocumentPage *renderedPage = new DocumentPage ();
     renderedPage->newPage (width, height);
+    
+    g_message("PDFDocument::renderPage: Created DocumentPage %dx%d", width, height);
 
     PopplerPage *page = poppler_document_get_page (m_Document, pageNum - 1);
     if ( NULL != page )
     {
+        g_message("PDFDocument::renderPage: Got PopplerPage, creating cairo surface");
         cairo_surface_t *surface = cairo_image_surface_create (
             CAIRO_FORMAT_ARGB32, width, height);
         
@@ -686,18 +698,25 @@ PDFDocument::renderPage (gint pageNum)
         // Render the page
         poppler_page_render(page, context);
         
+        g_message("PDFDocument::renderPage: Rendered page to cairo context");
+        
         // Get the rendered data
         cairo_surface_flush(surface);
         unsigned char *data = cairo_image_surface_get_data(surface);
         int stride = cairo_image_surface_get_stride(surface);
         
+        g_message("PDFDocument::renderPage: Cairo surface stride=%d, expected=%d", 
+                  stride, width * 4);
+        
         // Copy the rendered data to our buffer
         unsigned char *dest = renderedPage->getData();
+        int dest_stride = renderedPage->getRowStride();
         
+        // Copy row by row, using the correct stride for both source and destination
         for (int y = 0; y < height; y++) {
             memcpy(dest, data, width * 4); // 4 bytes per pixel (ARGB)
             data += stride;
-            dest += renderedPage->getRowStride();
+            dest += dest_stride;
         }
         
         // Clean up
@@ -705,11 +724,19 @@ PDFDocument::renderPage (gint pageNum)
         cairo_surface_destroy(surface);
         
         // Convert from BGRA to RGBA if needed
-        convert_bgra_to_rgba(renderedPage->getData(), width, height);
+        convert_bgra_to_rgba(renderedPage->getData(), width, height, renderedPage->getRowStride());
+        
+        g_message("PDFDocument::renderPage: Converted BGRA to RGBA");
         
         // Set up links and clean up
         setLinks(renderedPage, page);
         g_object_unref(G_OBJECT(page));
+        
+        g_message("PDFDocument::renderPage: Page rendered successfully!");
+    }
+    else
+    {
+        g_warning("PDFDocument::renderPage: Failed to get PopplerPage for page %d", pageNum);
     }
 
     return (renderedPage);

@@ -420,67 +420,81 @@ MainView::isIndexVisible () const
 gchar *
 MainView::openFileDialog (const gchar *lastFolder)
 {
-    // GTK4: Use deprecated API for now to maintain compatibility
     gchar *result = NULL;
     
-    // Create a simple modal dialog using the old API for now
-    // TODO: Migrate to full async API
-    GtkWidget *oldDialog = gtk_file_chooser_dialog_new (_("Open PDF File"),
+    // GTK4: Create file chooser dialog - keep it simple
+    GtkWidget *dialog = gtk_file_chooser_dialog_new (_("Open PDF File"),
             GTK_WINDOW (m_MainWindow),
             GTK_FILE_CHOOSER_ACTION_OPEN,
             _("_Cancel"), GTK_RESPONSE_CANCEL,
             _("_Open"), GTK_RESPONSE_ACCEPT,
             NULL);
     
-    // Set up filters for the old dialog
+    // Set up PDF filter
     GtkFileFilter *pdfFilter = gtk_file_filter_new ();
     gtk_file_filter_set_name (pdfFilter, _("Portable Document Format (PDF) Files"));
     gtk_file_filter_add_mime_type (pdfFilter, "application/pdf");
     gtk_file_filter_add_pattern (pdfFilter, "*.pdf");
     gtk_file_filter_add_pattern (pdfFilter, "*.PDF");
-    gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (oldDialog), pdfFilter);
-    gtk_file_chooser_set_filter (GTK_FILE_CHOOSER (oldDialog), pdfFilter);
+    gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), pdfFilter);
+    gtk_file_chooser_set_filter (GTK_FILE_CHOOSER (dialog), pdfFilter);
     
+    // Add "All Files" filter
     GtkFileFilter *anyFilter = gtk_file_filter_new ();
     gtk_file_filter_set_name (anyFilter, _("All Files"));
     gtk_file_filter_add_pattern (anyFilter, "*");
-    gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (oldDialog), anyFilter);
+    gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), anyFilter);
     
+    // Set initial folder if provided
     if (lastFolder) {
         GFile *folder = g_file_new_for_path (lastFolder);
-        gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (oldDialog), folder, NULL);
+        gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), folder, NULL);
         g_object_unref (folder);
     }
     
-    // Use a simple modal approach
-    gtk_window_set_modal (GTK_WINDOW (oldDialog), TRUE);
-    gtk_window_present (GTK_WINDOW (oldDialog));
+    // Set modal
+    gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
     
-    // Simple modal loop
-    GMainLoop *loop = g_main_loop_new (NULL, FALSE);
-    gint response_id = GTK_RESPONSE_CANCEL;
+    // Show dialog
+    gtk_widget_set_visible (dialog, TRUE);
     
-    auto response_cb = +[](GtkDialog *dialog, gint response, gpointer user_data) {
-        gint *response_ptr = (gint *)user_data;
-        *response_ptr = response;
-        g_main_loop_quit ((GMainLoop *)g_object_get_data (G_OBJECT (dialog), "loop"));
-    };
+    // Simple blocking wait for response
+    gint response = GTK_RESPONSE_CANCEL;
+    gboolean done = FALSE;
     
-    g_object_set_data (G_OBJECT (oldDialog), "loop", loop);
-    g_signal_connect (oldDialog, "response", G_CALLBACK (response_cb), &response_id);
+    gulong signal_id = g_signal_connect (dialog, "response", 
+        G_CALLBACK (+[](GtkDialog *d, gint r, gpointer data) {
+            gint *resp = (gint *)data;
+            *resp = r;
+            gboolean *done_ptr = (gboolean *)g_object_get_data(G_OBJECT(d), "done");
+            *done_ptr = TRUE;
+        }), &response);
     
-    g_main_loop_run (loop);
+    g_object_set_data (G_OBJECT (dialog), "done", &done);
     
-    if (response_id == GTK_RESPONSE_ACCEPT) {
-        GFile *file = gtk_file_chooser_get_file (GTK_FILE_CHOOSER (oldDialog));
+    // Process events until done
+    while (!done) {
+        g_main_context_iteration (NULL, TRUE);
+    }
+    
+    g_signal_handler_disconnect (dialog, signal_id);
+    
+    // Get the selected file if accepted
+    if (response == GTK_RESPONSE_ACCEPT) {
+        GFile *file = gtk_file_chooser_get_file (GTK_FILE_CHOOSER (dialog));
         if (file) {
             result = g_file_get_path (file);
             g_object_unref (file);
         }
     }
     
-    g_main_loop_unref (loop);
-    gtk_window_destroy (GTK_WINDOW (oldDialog));
+    gtk_window_destroy (GTK_WINDOW (dialog));
+    
+    // Process remaining events to ensure cleanup
+    while (g_main_context_pending(NULL)) {
+        g_main_context_iteration(NULL, FALSE);
+    }
+    
     return result;
 }
 
@@ -851,13 +865,16 @@ MainView::showErrorMessage (const gchar *title, const gchar *body)
 void
 MainView::showIndex (gboolean show)
 {
-    if ( show )
+    if (m_Sidebar && GTK_IS_WIDGET(m_Sidebar))
     {
-        gtk_widget_set_visible (m_Sidebar, TRUE);
-    }
-    else
-    {
-        gtk_widget_set_visible (m_Sidebar, FALSE);
+        if ( show )
+        {
+            gtk_widget_set_visible (m_Sidebar, TRUE);
+        }
+        else
+        {
+            gtk_widget_set_visible (m_Sidebar, FALSE);
+        }
     }
     GAction *action = g_action_map_lookup_action (G_ACTION_MAP (m_ActionGroup), "show-index");
     if (action) {
@@ -896,16 +913,21 @@ MainView::setFullScreen (gboolean fullScreen)
         gtk_window_fullscreen (GTK_WINDOW (m_MainWindow));
         // Hide the menu bar, tool bar, status bar and the index bar. Then
         // zoom to fit.
-        gtk_widget_set_visible (m_MenuBar, FALSE);
-        gtk_widget_set_visible (m_ToolBar, FALSE);
-        gtk_widget_set_visible (m_StatusBar, FALSE);
-        gtk_widget_set_visible (m_Sidebar, FALSE);
+        if (m_MenuBar && GTK_IS_WIDGET(m_MenuBar))
+            gtk_widget_set_visible (m_MenuBar, FALSE);
+        if (m_ToolBar && GTK_IS_WIDGET(m_ToolBar))
+            gtk_widget_set_visible (m_ToolBar, FALSE);
+        if (m_StatusBar && GTK_IS_WIDGET(m_StatusBar))
+            gtk_widget_set_visible (m_StatusBar, FALSE);
+        if (m_Sidebar && GTK_IS_WIDGET(m_Sidebar))
+            gtk_widget_set_visible (m_Sidebar, FALSE);
         activeZoomFit (TRUE);
     }
     else
     {
         gtk_window_unfullscreen (GTK_WINDOW (m_MainWindow));
-        gtk_widget_set_visible (m_MenuBar, TRUE);
+        if (m_MenuBar && GTK_IS_WIDGET(m_MenuBar))
+            gtk_widget_set_visible (m_MenuBar, TRUE);
         // Show again the toolbar, status bar and index, only if it was
         // enabled.
         // GTK4: GSimpleAction callbacks require 3 parameters
@@ -918,7 +940,9 @@ MainView::setFullScreen (gboolean fullScreen)
 void
 MainView::setNumberOfPagesText (const gchar *text)
 {
-    gtk_label_set_text (GTK_LABEL (m_NumberOfPages), text);
+    if (m_NumberOfPages && GTK_IS_LABEL(m_NumberOfPages)) {
+        gtk_label_set_text (GTK_LABEL (m_NumberOfPages), text);
+    }
 }
 
 void
@@ -943,13 +967,15 @@ void
 MainView::setStatusBarText (const gchar *text)
 {
     // GTK4: m_StatusBar is now a GtkLabel, not GtkStatusbar
-    if ( NULL != text )
-    {
-        gtk_label_set_text (GTK_LABEL (m_StatusBar), text);
-    }
-    else
-    {
-        gtk_label_set_text (GTK_LABEL (m_StatusBar), "");
+    if (m_StatusBar && GTK_IS_LABEL(m_StatusBar)) {
+        if ( NULL != text )
+        {
+            gtk_label_set_text (GTK_LABEL (m_StatusBar), text);
+        }
+        else
+        {
+            gtk_label_set_text (GTK_LABEL (m_StatusBar), "");
+        }
     }
 }
 
@@ -1036,13 +1062,16 @@ MainView::showStatusbar (gboolean show)
     if (action) {
         g_simple_action_set_state (G_SIMPLE_ACTION (action), g_variant_new_boolean (show));
     }
-    if ( show )
+    if (m_StatusBar && GTK_IS_WIDGET(m_StatusBar))
     {
-        gtk_widget_set_visible (m_StatusBar, TRUE);
-    }
-    else
-    {
-        gtk_widget_set_visible (m_StatusBar, FALSE);
+        if ( show )
+        {
+            gtk_widget_set_visible (m_StatusBar, TRUE);
+        }
+        else
+        {
+            gtk_widget_set_visible (m_StatusBar, FALSE);
+        }
     }
 }
 
@@ -1053,13 +1082,16 @@ MainView::showToolbar (gboolean show)
     if (action) {
         g_simple_action_set_state (G_SIMPLE_ACTION (action), g_variant_new_boolean (show));
     }
-    if ( show )
+    if (m_ToolBar && GTK_IS_WIDGET(m_ToolBar))
     {
-        gtk_widget_set_visible (m_ToolBar, TRUE);
-    }
-    else
-    {
-        gtk_widget_set_visible (m_ToolBar, FALSE);
+        if ( show )
+        {
+            gtk_widget_set_visible (m_ToolBar, TRUE);
+        }
+        else
+        {
+            gtk_widget_set_visible (m_ToolBar, FALSE);
+        }
     }
 }
 

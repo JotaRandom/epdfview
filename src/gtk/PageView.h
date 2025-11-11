@@ -155,6 +155,7 @@ namespace ePDFView {
             
             void setInvertColorToggle(char on); // krogan edit
             void setZoom(gdouble zoom);
+            GdkPixbuf *getCurrentPixbuf(void) { return m_CurrentPixbuf; }
 
         protected:
 			DocumentPage *lastPageShown;
