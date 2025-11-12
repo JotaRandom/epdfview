@@ -95,6 +95,45 @@ on_activate (GtkApplication *app, gpointer user_data)
     // GTK4: Register the window with the application (prevents immediate exit)
     gtk_application_add_window (app, GTK_WINDOW (appData->mainView->getMainWindow()));
     
+    // Setup keyboard shortcuts
+    const char *quit_accels[] = { "<Control>Q", NULL };
+    gtk_application_set_accels_for_action (app, "win.quit", quit_accels);
+    
+    const char *open_accels[] = { "<Control>O", NULL };
+    gtk_application_set_accels_for_action (app, "win.open-file", open_accels);
+    
+    const char *find_accels[] = { "<Control>F", NULL };
+    gtk_application_set_accels_for_action (app, "win.find", find_accels);
+    
+    const char *reload_accels[] = { "<Control>R", NULL };
+    gtk_application_set_accels_for_action (app, "win.reload-file", reload_accels);
+    
+    const char *print_accels[] = { "<Control>P", NULL };
+    gtk_application_set_accels_for_action (app, "win.print", print_accels);
+    
+    const char *fullscreen_accels[] = { "F11", NULL };
+    gtk_application_set_accels_for_action (app, "win.fullscreen", fullscreen_accels);
+    
+    // Navigation shortcuts
+    const char *next_page_accels[] = { "Page_Down", "<Control>Page_Down", NULL };
+    gtk_application_set_accels_for_action (app, "win.go-next", next_page_accels);
+    
+    const char *prev_page_accels[] = { "Page_Up", "<Control>Page_Up", NULL };
+    gtk_application_set_accels_for_action (app, "win.go-previous", prev_page_accels);
+    
+    const char *first_page_accels[] = { "Home", "<Control>Home", NULL };
+    gtk_application_set_accels_for_action (app, "win.go-first", first_page_accels);
+    
+    const char *last_page_accels[] = { "End", "<Control>End", NULL };
+    gtk_application_set_accels_for_action (app, "win.go-last", last_page_accels);
+    
+    // Zoom shortcuts
+    const char *zoom_in_accels[] = { "<Control>plus", "<Control>equal", "<Control>KP_Add", NULL };
+    gtk_application_set_accels_for_action (app, "win.zoom-in", zoom_in_accels);
+    
+    const char *zoom_out_accels[] = { "<Control>minus", "<Control>KP_Subtract", NULL };
+    gtk_application_set_accels_for_action (app, "win.zoom-out", zoom_out_accels);
+    
     // Show the main window (GTK4: windows are hidden by default)
     appData->mainView->show ();
     
@@ -153,9 +192,9 @@ main (int argc, char **argv)
 
     // Enable NLS.
     setlocale (LC_ALL, "");
-    bindtextdomain (PACKAGE, LOCALEDIR);
-    bind_textdomain_codeset (PACKAGE, "UTF-8");
-    textdomain (PACKAGE);
+    (void)bindtextdomain (PACKAGE, LOCALEDIR);
+    (void)bind_textdomain_codeset (PACKAGE, "UTF-8");
+    (void)textdomain (PACKAGE);
     
     // Initialise the working thread.
     IJob::init ();

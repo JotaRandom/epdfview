@@ -355,6 +355,7 @@ namespace ePDFView
             void zoomOut (void);
             void zoomToFit (gint width, gint height);
             void zoomToWidth (gint width);
+            void zoomToHeight (gint height);
 
             gboolean hasLinkAtPosition (gint x, gint y);
             void activateLinkAtPosition (gint x, gint y);

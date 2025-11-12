@@ -83,10 +83,8 @@ IJob::dispatcher (gpointer data)
 void
 IJob::init ()
 {
-    if ( !g_thread_supported () )
-    {
-        g_thread_init (NULL);
-    }
+    // GLib threads are always available in modern versions (>= 2.32)
+    // No need to call g_thread_init() or check g_thread_supported()
     m_JobsQueue = g_async_queue_new ();
     GError *error = NULL;
     if ( NULL == g_thread_create (IJob::dispatcher, NULL, FALSE, &error) )

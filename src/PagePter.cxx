@@ -60,6 +60,7 @@ struct _DragInfo
 
 // Global variables.
 static gboolean g_WaitingForPage = FALSE;
+static gboolean g_InsideRefreshPage = FALSE;  // Prevent recursive refreshPage calls
 
 ///
 /// @brief Constructs a new PagePter object.
@@ -391,7 +392,20 @@ PagePter::pageNotAvailable (gpointer user)
     PageNotAvailableData *data = (PageNotAvailableData *)user;
     if ( g_WaitingForPage )
     {
-        data->pter->refreshPage (data->scroll, FALSE);
+        // Check if page is now available
+        DocumentPage *documentPage = data->pter->m_Document->getCurrentPage();
+        if (documentPage != NULL)
+        {
+            // Page is now available, show it directly
+            g_WaitingForPage = FALSE;
+            IPageView &view = data->pter->getView();
+            if ( NULL != data->pter->m_LastSelection )
+                documentPage->setSelection(data->pter->m_LastSelection);
+            view.showPage (documentPage, data->scroll);
+            delete data;
+            return FALSE;  // Stop the idle callback
+        }
+        // Page still not available, continue waiting
         return TRUE;
     }
     delete data;
@@ -420,6 +434,15 @@ typedef struct {
 void
 PagePter::refreshPage(PageScroll pageScroll, gboolean wasZoomed)
 {
+    // CRITICAL: Prevent recursive calls that cause infinite loops
+    if (g_InsideRefreshPage) {
+        fprintf(stderr, "WARNING: Blocking recursive refreshPage call! (scroll=%d wasZoomed=%d)\n", 
+                pageScroll, wasZoomed);
+        return;
+    }
+    
+    g_InsideRefreshPage = TRUE;
+    
     static int refreshCount = 0;
     static gint64 lastRefreshTime = 0;
     static PageScroll lastScroll = (PageScroll)-1;
@@ -436,6 +459,7 @@ PagePter::refreshPage(PageScroll pageScroll, gboolean wasZoomed)
                     refreshCount, pageScroll, wasZoomed);
         }
         // Skip this refresh if it's a duplicate within 16ms
+        g_InsideRefreshPage = FALSE;
         return;
     }
     
@@ -484,6 +508,9 @@ PagePter::refreshPage(PageScroll pageScroll, gboolean wasZoomed)
             }
         }
     }
+    
+    // CRITICAL: Reset the recursion flag before returning
+    g_InsideRefreshPage = FALSE;
 }
 
 ///

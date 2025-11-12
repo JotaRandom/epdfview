@@ -82,6 +82,8 @@ namespace ePDFView
             void zoomInActivated (void);
             void zoomOutActivated (void);
             void zoomWidthActivated (gboolean active);
+            void zoomToWidthActivated (void);
+            void zoomToHeightActivated (void);
 
             void notifyLoad (void);
             void notifyLoadError (const gchar *fileName, const GError *error);
@@ -130,10 +132,19 @@ namespace ePDFView
             
             /// Vertical scroll position before rotation
             gdouble scrollY;
+            
+            /// Cached navigation state to avoid redundant updates
+            gint m_CachedCurrentPage;
+            gint m_CachedTotalPages;
+            gboolean m_CachedDocumentLoaded;
+            
+            /// Flag to track if initial zoom has been applied
+            gboolean m_InitialZoomApplied;
 
             void setZoomText (gdouble zoom);
             void zoomFit (void);
             void zoomWidth (void);
+            void zoomHeight (void);
     };
 }
 

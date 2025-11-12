@@ -119,17 +119,19 @@ namespace ePDFView
             GtkWidget *m_StatusBar;
             GtkWidget *m_TreeIndex;
             GSimpleActionGroup *m_ActionGroup;
-            GtkWidget *m_MenuBar;
-            GtkWidget *m_ToolBar;
-            /// The page view widget for focus management
+            
+            // Modern headerbar UI
+            GtkWidget *m_HeaderBar;
+            GtkWidget *m_MenuButton;
+            GtkWidget *m_NavigationBox;
             GtkWidget *m_PageViewWidget;
 
             void createCurrentPage (void);
             void createCurrentZoom (void);
             GtkWidget *createPageView (void);
             void createActions (void);
-            void createMenuBar (void);
-            void createToolBar (void);
+            void createHeaderBar (void);
+            void createMainMenu (void);
             void setMainWindowIcon (void);
             void setOutlineChildren (DocumentOutline *outline, 
                                      GtkTreeIter *rootIter);

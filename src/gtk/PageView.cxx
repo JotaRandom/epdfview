@@ -113,7 +113,6 @@ static void page_view_button_release_cb (GtkGestureClick *, gint, gdouble, gdoub
 static void page_view_mouse_motion_cb (GtkEventControllerMotion *, gdouble, gdouble, gpointer);
 static void page_view_get_scrollbars_size (GtkWidget *,
                                            gint *width, gint *height);
-static void page_view_resized_cb (GtkWidget *, GtkAllocation *, gpointer);
 static gboolean page_view_scrolled_cb (GtkEventControllerScroll *, gdouble, gdouble, gpointer);
 static gboolean page_view_keypress_cb (GtkEventControllerKey *, guint, guint, GdkModifierType, gpointer);
 
@@ -207,8 +206,12 @@ PageView::PageView ():
     // Configure the drawing area
     gtk_widget_set_hexpand(m_PageImage, FALSE);
     gtk_widget_set_vexpand(m_PageImage, FALSE);
-    gtk_widget_set_halign(m_PageImage, GTK_ALIGN_START);
-    gtk_widget_set_valign(m_PageImage, GTK_ALIGN_START);
+    gtk_widget_set_halign(m_PageImage, GTK_ALIGN_CENTER);
+    gtk_widget_set_valign(m_PageImage, GTK_ALIGN_CENTER);
+    
+    // Set initial minimum size to prevent 0x0 rendering
+    // This will be updated when a PDF page is loaded
+    gtk_widget_set_size_request(m_PageImage, 1, 1);
     
     // Set up the draw function
     gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(m_PageImage),
@@ -675,13 +678,14 @@ PageView::showPage (DocumentPage *page, PageScroll scroll)
     g_message("PageView::showPage: Setting drawing area size to %dx%d", 
               pixbuf_width, pixbuf_height);
     
-    // Check current size to avoid unnecessary updates that cause loops
+    // Check if size actually changed to avoid triggering resize loops
+    // gtk_widget_set_size_request triggers resize callbacks which can cause infinite loops
     gint current_width = gtk_widget_get_width(m_PageImage);
     gint current_height = gtk_widget_get_height(m_PageImage);
     
-    gboolean size_changed = (abs(current_width - pixbuf_width) > 2 || abs(current_height - pixbuf_height) > 2);
+    gboolean size_changed = (current_width != pixbuf_width || current_height != pixbuf_height);
     
-    // Only update size if it actually changed (with tolerance for rounding)
+    // Only update size if it actually changed
     if (size_changed) {
         fprintf(stderr, "=== PageView::showPage: Updating size from %dx%d to %dx%d ===\n",
                 current_width, current_height, pixbuf_width, pixbuf_height);
@@ -691,22 +695,21 @@ PageView::showPage (DocumentPage *page, PageScroll scroll)
         gtk_drawing_area_set_content_height(GTK_DRAWING_AREA(m_PageImage), pixbuf_height);
         
         // Set explicit size request to ensure the widget takes the correct size
+        // This will automatically trigger a redraw, so we don't need queue_draw()
         gtk_widget_set_size_request(m_PageImage, pixbuf_width, pixbuf_height);
     } else {
-        fprintf(stderr, "=== PageView::showPage: Size unchanged, skipping resize ===\n");
+        fprintf(stderr, "=== PageView::showPage: Size unchanged (%dx%d), skipping resize ===\n",
+                pixbuf_width, pixbuf_height);
+        
+        // Size didn't change, but pixbuf content did - force redraw
+        gtk_widget_queue_draw(m_PageImage);
     }
     
     // GTK4: Force widget visibility
     gtk_widget_set_visible(m_PageImage, TRUE);
     gtk_widget_set_visible(m_PageScroll, TRUE);
     
-    // GTK4: Force redraw when pixbuf changes
-    // Even if size didn't change, the pixbuf content changed, so we need to redraw
-    // This is safe because we only call showPage when we actually have new content
-    fprintf(stderr, "=== PageView::showPage: Forcing redraw for new pixbuf ===\n");
-    gtk_widget_queue_draw(m_PageImage);
-    
-    g_message("PageView::showPage: Drawing area configured (redraw triggered)");
+    g_message("PageView::showPage: Drawing area configured");
     
     // Debug: Check widget state
     g_message("PageView::showPage: Image widget visible=%d, width=%d, height=%d, mapped=%d",
@@ -852,6 +855,13 @@ page_view_draw_cb (GtkDrawingArea *area, cairo_t *cr, int width, int height, gpo
 {
     fprintf(stderr, "=== page_view_draw_cb called: %dx%d ===\n", width, height);
     
+    // Silently ignore draw requests when widget has no size yet
+    // This prevents infinite redraw loops before the PDF is loaded
+    if (width <= 0 || height <= 0) {
+        fprintf(stderr, "=== page_view_draw_cb: Skipping draw with invalid size %dx%d ===\n", width, height);
+        return;
+    }
+    
     PageView *view = (PageView *)data;
     
     if (!view) {
@@ -952,57 +962,6 @@ page_view_get_scrollbars_size (GtkWidget *widget, gint *width, gint *height)
     
     *width = scrollbarWidth + PAGE_VIEW_PADDING * 2;
     *height = scrollbarHeight + PAGE_VIEW_PADDING * 2;
-}
-
-///
-/// @brief The page view has been resized.
-///
-static void
-page_view_resized_cb (GtkWidget *widget, GtkAllocation *allocation,
-                                  gpointer data)
-{
-    g_assert ( NULL != data && "The data parameter is NULL.");
-    
-    // Only handle size changes if the allocation is valid
-    if (allocation->width <= 1 || allocation->height <= 1) {
-        return;
-    }
-
-    // Get the page view instance
-    PageView *view = (PageView *)g_object_get_data(G_OBJECT(widget), "page-view-instance");
-    if (view == NULL) {
-        return;
-    }
-
-    // Get scrollbar sizes
-    gint vScrollSize = 0;
-    gint hScrollSize = 0;
-    page_view_get_scrollbars_size(widget, &vScrollSize, &hScrollSize);
-
-    // Calculate available size for the page
-    gint width = MAX(1, allocation->width - vScrollSize);
-    gint height = MAX(1, allocation->height - hScrollSize);
-
-    // Only notify the presenter if we have a significant size change
-    static gint last_width = 0;
-    static gint last_height = 0;
-    
-    if (abs(width - last_width) > 5 || abs(height - last_height) > 5) {
-        last_width = width;
-        last_height = height;
-        
-        PagePter *pter = (PagePter *)data;
-        if (pter != NULL) {
-            pter->viewResized(width, height);
-        }
-        
-        // Force an update of the scrollbars
-        if (view != NULL) {
-            gint pixbuf_width, pixbuf_height;
-            view->getSize(&pixbuf_width, &pixbuf_height);
-            view->resizePage(pixbuf_width, pixbuf_height);
-        }
-    }
 }
 
 ///

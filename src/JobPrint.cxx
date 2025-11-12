@@ -380,8 +380,8 @@ JobPrint::setUpPageRange ()
     {
         // Since the range is from 0 to numPages - 1, the checks for
         // even or odd are reversed.
-        if ( pageNum % 2 == 0 && PRINT_EVEN_PAGE_SET == pageSet ||
-             pageNum % 2 != 0 && PRINT_ODD_PAGE_SET == pageSet )
+        if ( (pageNum % 2 == 0 && PRINT_EVEN_PAGE_SET == pageSet) ||
+             (pageNum % 2 != 0 && PRINT_ODD_PAGE_SET == pageSet) )
         {
             m_PageRange[pageNum] = FALSE;
         }

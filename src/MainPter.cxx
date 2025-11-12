@@ -64,6 +64,12 @@ MainPter::MainPter (IDocument *document)
     oldHeight = 0;
     scrollX = 0.0;
     scrollY = 0.0;
+    // Initialize navigation state cache
+    m_CachedCurrentPage = -1;
+    m_CachedTotalPages = -1;
+    m_CachedDocumentLoaded = FALSE;
+    // Initial zoom not yet applied
+    m_InitialZoomApplied = FALSE;
 #if defined (DEBUG)
     G_LOCK (fileLoaded);
     fileLoaded = FALSE;
@@ -101,9 +107,9 @@ MainPter::isDocumentLoaded(void)
 	return result;
 }
 ///
-/// @brief Checks the zoom settings.
+/// @brief Checks if the zoom to fit or zoom to width option is on.
 ///
-/// This function is called when the page rotation changes or the page
+/// This is called every time the document's current page or the page
 /// number changes to check if the zoom to width or zoom to fit options
 /// are on and do again the zoom to width or zoom to fit action.
 ///
@@ -119,20 +125,6 @@ MainPter::checkZoomSettings ()
     {
         zoomWidth ();
     }
-}
-
-// Defer applying zoom-to-fit/width until the page view has a valid size
-static gboolean apply_initial_zoom_cb (gpointer data)
-{
-    MainPter *self = (MainPter *)data;
-    gint width = 0, height = 0;
-    self->m_PagePter->getSize (&width, &height);
-    if (width > 0 && height > 0)
-    {
-        self->checkZoomSettings ();
-        return FALSE; // stop timeout
-    }
-    return TRUE; // keep trying until size is known
 }
 
 ///
@@ -189,6 +181,13 @@ MainPter::setInitialState ()
     {
         view.setTitle (_("PDF Viewer"));
         setZoomText (1.0);
+        
+        // Invalidate navigation cache when no document loaded
+        m_CachedCurrentPage = -1;
+        m_CachedTotalPages = -1;
+        m_CachedDocumentLoaded = FALSE;
+        m_InitialZoomApplied = FALSE;
+        
         view.sensitiveFind (FALSE);
         view.sensitiveGoToFirstPage (FALSE);
         view.sensitiveGoToLastPage (FALSE);
@@ -216,8 +215,10 @@ MainPter::setInitialState ()
     // Show the toolbar,menu and status bar depending on the configuration.
 	// printf("menubar is %s\n", config.showMenubar() ? "on" : "off");
     view.showMenubar (config.showMenubar ()); //krogan wuz here
-    view.invertToggle (config.invertToggle ()); //krogan
-    //(config.invertToggle == TRUE) ? m_PagePter->:;
+    
+    // Apply invert colors setting (just update the action state, don't render yet)
+    view.invertToggle (config.invertToggle()); //krogan
+    
     view.showToolbar (config.showToolbar ());
     view.showStatusbar (config.showStatusbar ());
     view.showIndex (showSidebar);
@@ -230,8 +231,6 @@ MainPter::setInitialState ()
     // to be the first page. If we don't do this, the first page pointed
     // by the first outline is selected and we don't want this.
     view.show ();
-    // GTK4: Defer zoom application until view reports non-zero size
-    g_timeout_add (150, apply_initial_zoom_cb, this);
 }
 
 ///
@@ -249,6 +248,12 @@ MainPter::setOpenState (const gchar *fileName, gboolean reload)
 {
     // Insensitive the open, reload, page navigation, zoom and rotate.
     setZoomText (1.0);
+    
+    // Invalidate navigation cache during document loading
+    m_CachedCurrentPage = -1;
+    m_CachedTotalPages = -1;
+    m_CachedDocumentLoaded = FALSE;
+    
     IMainView &view = getView ();
     view.sensitiveFind (FALSE);
     view.sensitiveGoToFirstPage (FALSE);
@@ -884,6 +889,18 @@ MainPter::zoomWidth ()
 }
 
 ///
+/// @brief Zoom document to fit height.
+///
+void
+MainPter::zoomHeight ()
+{
+    gint width;
+    gint height;
+    m_PagePter->getSize (&width, &height);
+    m_Document->zoomToHeight (height);
+}
+
+///
 /// @brief The "Zoom Fit Width" was activated.
 ///
 /// @param active TRUE if the zoom to width option is activated,
@@ -907,6 +924,24 @@ MainPter::zoomWidthActivated (gboolean active)
     {
         view.activeZoomWidth (TRUE);
     }
+}
+
+///
+/// @brief Zoom to width (one-shot action, not toggle).
+///
+void
+MainPter::zoomToWidthActivated ()
+{
+    zoomWidth();
+}
+
+///
+/// @brief Zoom to height (one-shot action, not toggle).
+///
+void
+MainPter::zoomToHeightActivated ()
+{
+    zoomHeight();
 }
 
 ///
@@ -944,10 +979,15 @@ void
 MainPter::notifyLoad ()
 {
     setInitialState ();
+    
+    // Reset flag so initial zoom will be applied when page is ready
+    m_InitialZoomApplied = FALSE;
+    
     m_Document->goToFirstPage ();
     // This way will inform all observers even if the page doesn't
     // change.
     m_Document->notifyPageChanged ();
+    
 #if defined (DEBUG)
     G_LOCK (fileLoaded);
     fileLoaded = TRUE;
@@ -1014,6 +1054,8 @@ MainPter::notifyLoadPassword (const gchar *fileName, gboolean reload, const GErr
 void
 MainPter::notifyPageChanged (gint pageNum)
 {
+    g_message("MainPter::notifyPageChanged: pageNum=%d", pageNum);
+    
     IMainView &view = getView ();
     // Set the text for the current page.
     gint totalPages = m_Document->getNumPages ();
@@ -1024,15 +1066,56 @@ MainPter::notifyPageChanged (gint pageNum)
     view.setNumberOfPagesText (totalPagesText);
     g_free (totalPagesText);
 
-    // Set the page navigation sensitivity.
+    // Only update navigation sensitivity if state actually changed
     gboolean documentLoaded = m_Document->isLoaded ();
     gint numPages = m_Document->getNumPages ();
-    view.sensitiveGoToFirstPage (documentLoaded && 1 < pageNum );
-    view.sensitiveGoToPreviousPage (documentLoaded && 1 < pageNum );
-    view.sensitiveGoToLastPage (documentLoaded && numPages > pageNum);
-    view.sensitiveGoToNextPage (documentLoaded && numPages > pageNum);
+    
+    if (m_CachedCurrentPage != pageNum || 
+        m_CachedTotalPages != numPages ||
+        m_CachedDocumentLoaded != documentLoaded)
+    {
+        // State changed, update UI
+        view.sensitiveGoToFirstPage (documentLoaded && 1 < pageNum );
+        view.sensitiveGoToPreviousPage (documentLoaded && 1 < pageNum );
+        view.sensitiveGoToLastPage (documentLoaded && numPages > pageNum);
+        view.sensitiveGoToNextPage (documentLoaded && numPages > pageNum);
+        
+        // Cache new state
+        m_CachedCurrentPage = pageNum;
+        m_CachedTotalPages = numPages;
+        m_CachedDocumentLoaded = documentLoaded;
+    }
 
-    checkZoomSettings ();
+    // Only check zoom settings if document is actually loaded
+    if (documentLoaded)
+    {
+        // Apply initial zoom to fit height on first page load (only once)
+        if (!m_InitialZoomApplied && pageNum == 1)
+        {
+            gint width, height;
+            m_PagePter->getSize (&width, &height);
+            if (height > 0)
+            {
+                m_Document->zoomToHeight (height);
+                setZoomText (m_Document->getZoom ());
+                
+                // Also apply invert colors setting
+                Config &config = Config::getConfig();
+                if (config.invertToggle()) {
+                    m_PagePter->setInvertColorToggle(TRUE);
+                    m_PagePter->tryReShowPage();
+                }
+            }
+            // Mark as applied regardless of whether we had valid size
+            // This prevents infinite loops
+            m_InitialZoomApplied = TRUE;
+        }
+        else
+        {
+            // For all other pages, use normal zoom settings
+            checkZoomSettings ();
+        }
+    }
 }
 
 void

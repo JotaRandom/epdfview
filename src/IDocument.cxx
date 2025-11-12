@@ -1116,36 +1116,8 @@ IDocument::goToNextPage ()
 }
 
 // Structure to hold data for async page loading
-typedef struct {
-    IDocument* document;
-    gint pageNum;
-} AsyncPageLoadData;
-
-static gboolean async_go_to_page(gpointer user_data) {
-    AsyncPageLoadData* data = static_cast<AsyncPageLoadData*>(user_data);
-    IDocument* doc = data->document;
-    gint pageNum = data->pageNum;
-    
-    // Only proceed if the page number is valid and different from current
-    if (pageNum != doc->getCurrentPageNum() && 1 <= pageNum && pageNum <= doc->getNumPages()) {
-        // Go to the target page using the public method
-        doc->goToPage(pageNum);
-        
-        // The document will handle caching of pages automatically through its internal logic
-        // We don't need to manually call addPageToCache as it's handled by the document class
-        
-        // Trigger a refresh of the view to show the new page
-        if (doc->getCurrentPage() != NULL) {
-            doc->notifyPageChanged();
-        }
-    }
-    
-    // Free the data structure
-    delete data;
-    
-    // Return FALSE to remove this idle function
-    return G_SOURCE_REMOVE;
-}
+///
+/// @brief Goes to the document's last page.
 
 ///
 /// @brief Goes to a document page.
@@ -1160,9 +1132,23 @@ static gboolean async_go_to_page(gpointer user_data) {
 void
 IDocument::goToPage(gint pageNum)
 {
-    // Schedule the page load asynchronously to prevent UI freezing
-    AsyncPageLoadData* data = new AsyncPageLoadData{this, pageNum};
-    g_idle_add(async_go_to_page, data);
+    // Clamp to valid range and check if different from current
+    pageNum = CLAMP(pageNum, 1, getNumPages());
+    
+    // Only change page if different - this prevents infinite loops
+    if (pageNum != m_CurrentPage) {
+        m_CurrentPage = pageNum;
+
+        addPageToCache(m_CurrentPage);
+        if (m_CurrentPage > 1) {
+            addPageToCache(m_CurrentPage - 1);
+        }
+        if (m_CurrentPage < getNumPages()) {
+            addPageToCache(m_CurrentPage + 1);
+        }
+
+        notifyPageChanged();
+    }
 }
 
 ///
@@ -1386,6 +1372,41 @@ IDocument::zoomToWidth (gint width)
     
     // Calculate scale based on width while maintaining aspect ratio
     gdouble scale = (gdouble)width / pageWidth;
+    
+    // Apply zoom constraints
+    scale = CLAMP(scale, ZOOM_OUT_MAX, ZOOM_IN_MAX);
+    
+    // Set the zoom level (this will trigger a redraw via notifyPageZoomed)
+    setZoom(scale);
+}
+
+///
+/// @brief Zooms the document to fit the height.
+///
+/// It tries to get the best zoom / scale level that will let the document
+/// fit into @a height, maintaining the aspect ratio.
+///
+/// @param height The height to fit the document to.
+///
+void
+IDocument::zoomToHeight (gint height)
+{
+    if (height <= 0)
+    {
+        return;
+    }
+
+    gdouble pageWidth;
+    gdouble pageHeight;
+    getPageSize(&pageWidth, &pageHeight);
+    
+    if (pageHeight <= 0)
+    {
+        return;
+    }
+    
+    // Calculate scale based on height while maintaining aspect ratio
+    gdouble scale = (gdouble)height / pageHeight;
     
     // Apply zoom constraints
     scale = CLAMP(scale, ZOOM_OUT_MAX, ZOOM_IN_MAX);
