@@ -116,7 +116,7 @@ namespace ePDFView
             ///
             /// @param config The Config object to copy.
             ///
-            Config (Config &config) { }
+            Config (Config &) { }
 
             /// The global configuration object that is returned by
             /// ePDFView::Config::getConfig() function.

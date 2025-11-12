@@ -44,7 +44,8 @@ jobs:
     - name: Build in FreeBSD VM
       uses: vmactions/freebsd-vm@v1
       with:
-        usesh: true
+        # Use default FreeBSD shell (sh/tcsh) instead of bash
+        # usesh: true causes "bash: not found" errors
         prepare: |
           pkg install -y meson ninja gtk4 poppler-glib cups gettext-tools
         run: |
@@ -56,3 +57,42 @@ jobs:
       with:
         name: epdfview-freebsd
         path: builddir/src/epdfview
+
+  build-windows:
+    name: Build on Windows (MSYS2)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >-
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-meson
+          mingw-w64-x86_64-ninja
+          mingw-w64-x86_64-gtk4
+          mingw-w64-x86_64-poppler
+          mingw-w64-x86_64-gettext
+          mingw-w64-x86_64-pkg-config
+    
+    - name: Configure
+      run: meson setup builddir --buildtype=release
+    
+    - name: Build
+      run: meson compile -C builddir
+    
+    - name: Test
+      run: meson test -C builddir || true
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: epdfview-windows
+        path: builddir/src/epdfview.exe

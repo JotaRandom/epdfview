@@ -202,7 +202,7 @@ main (int argc, char **argv)
     // Create the GTK4 application
     // Note: G_APPLICATION_NON_UNIQUE allows multiple instances
     // G_APPLICATION_HANDLES_COMMAND_LINE allows us to handle command line args
-    GtkApplication *app = gtk_application_new ("org.emma-soft.epdfview",
+    GtkApplication *app = gtk_application_new ("io.github.jotarandom.epdfview",
                                                G_APPLICATION_NON_UNIQUE);
     
     // Set application name

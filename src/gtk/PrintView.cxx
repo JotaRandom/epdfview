@@ -97,7 +97,7 @@ using namespace ePDFView;
 // Callbacks.
 #if defined (HAVE_CUPS)
 static void print_view_number_of_copies_changed (GtkSpinButton *, gpointer);
-static void print_view_page_range_option_changed (GtkToggleButton *, gpointer);
+static void print_view_page_range_option_changed (GtkCheckButton *, gpointer);
 static void print_view_printer_selection_changed (GtkTreeSelection *, gpointer);
 static void print_view_dialog_response (GtkDialog *, int, gpointer);
 #endif // HAVE_CUPS
@@ -160,11 +160,9 @@ PrintView::setPresenter (PrintPter *pter)
     g_signal_connect (G_OBJECT (m_CustomPagesRangeOption), "toggled",
                       G_CALLBACK (print_view_page_range_option_changed),
                       pter);
-    GtkTreeSelection *selection =
-        gtk_tree_view_get_selection (GTK_TREE_VIEW (m_PrinterListView));
-    g_signal_connect (G_OBJECT (selection), "changed",
-                      G_CALLBACK (print_view_printer_selection_changed),
-                      pter);
+    
+    // GTK4: Selection already connected in createPrinterTab via notify::selected
+    // No need for TreeView-style selection signals
 
     // Run the dialog.
     // GTK4: Use modal presentation with GMainLoop
@@ -614,14 +612,17 @@ PrintView::createJobTab ()
     gtk_widget_set_margin_bottom (rangeBox, 6);
     gtk_frame_set_child (GTK_FRAME (rangeFrame), rangeBox);
 
-    // Page range radio buttons
+    // Page range radio buttons - GTK4: use GtkCheckButton groups
     m_AllPagesRangeOption = gtk_check_button_new_with_label (_("All"));
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (m_AllPagesRangeOption), TRUE);
+    gtk_check_button_set_active (GTK_CHECK_BUTTON (m_AllPagesRangeOption), TRUE);
     g_signal_connect (G_OBJECT (m_AllPagesRangeOption), "toggled",
                      G_CALLBACK (print_view_page_range_option_changed), this);
     gtk_box_append (GTK_BOX (rangeBox), m_AllPagesRangeOption);
 
     m_CustomPagesRangeOption = gtk_check_button_new_with_label (_("Pages:"));
+    // GTK4: Set as group member (makes it a radio button)
+    gtk_check_button_set_group (GTK_CHECK_BUTTON (m_CustomPagesRangeOption),
+                                GTK_CHECK_BUTTON (m_AllPagesRangeOption));
     gtk_box_append (GTK_BOX (rangeBox), m_CustomPagesRangeOption);
 
     // Page range entry
@@ -844,7 +845,7 @@ print_view_number_of_copies_changed (GtkSpinButton *spin, gpointer data)
 }
 
 void
-print_view_page_range_option_changed (GtkToggleButton *button, gpointer data)
+print_view_page_range_option_changed (GtkCheckButton *, gpointer data)
 {
     g_assert (NULL != data && "The data parameter is NULL.");
 

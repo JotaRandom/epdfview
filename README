@@ -1,13 +1,14 @@
 # ePDFView
 
-A free and lightweight PDF document viewer written in C++ (C++11) using GTK4 and the Poppler rendering library. It focuses on simplicity and the essential features for viewing and navigating PDF documents.
+A free and lightweight PDF document viewer written in C++ (C++14) using GTK4 and the Poppler rendering library. It focuses on simplicity and the essential features for viewing and navigating PDF documents.
 
 Version: 0.3.0  
-License: GPL-2.0-or-later
+License: GPL-2.0-or-later  
+Status: ✅ **Stable** (GTK4 migration complete I guess)
 
 ## Overview
 
-ePDFView provides a fast, minimal PDF reading experience with a modern GTK4 UI and broad translation support. It was historically a GTK2/GTK3 app and has been migrated to GTK4 (see docs).
+ePDFView provides a fast, minimal PDF reading experience with a modern GTK4 UI and broad translation support. Originally a GTK2/GTK3 app, it has been successfully migrated to GTK4 with all core features working.
 
 Key features:
 - Page navigation (next, previous, first, last, jump to page)
@@ -17,12 +18,12 @@ Key features:
 - Document outline/index sidebar
 - Full screen presentation mode
 - Invert colors for night reading
-- Print support (optional, via CUPS)
+- Print support (via CUPS on Linux/BSD)
 - 22 language translations
 - Keyboard shortcuts for all operations
 
 ## Stack and Tooling
-- Language: C++ (C++11)
+- Language: C++ (C++14)
 - GUI Framework: GTK4 (>= 4.0.0)
 - PDF Rendering: Poppler-glib (>= 0.5.0)
 - Core libs: GLib (gthread-2.0), Pango
@@ -44,8 +45,14 @@ Build-time dependencies:
 - GLib (gthread-2.0) >= 2.8.0
 - Pango
 - Meson >= 0.50.0
-- A C++ compiler with C++11 support
-- Optional: CUPS (printing; disabled on Windows even if found)
+- A C++ compiler with C++14 support
+- Optional: CUPS (printing; auto-detected, disabled on Windows)
+
+## Platform Support
+- **Linux** ✅ Fully supported (X11 and Wayland)
+- **FreeBSD** ✅ Fully supported
+- **Windows** ✅ Supported via MSYS2 (see `docs/BUILD_WINDOWS.md`)
+- **WSL** ✅ Works with X11 server (see `RUN_EPDFVIEW_WSL.md`)
 
 ## Setup and Build
 Standard Meson build:
@@ -73,8 +80,9 @@ Run after install:
 epdfview [file.pdf]
 ```
 
-Windows/WSL:
-- See `RUN_EPDFVIEW_WSL.md` for guidance on running under Windows Subsystem for Linux.
+For platform-specific instructions:
+- **Windows (MSYS2):** See `docs/BUILD_WINDOWS.md`
+- **WSL:** See `RUN_EPDFVIEW_WSL.md`
 
 ## Scripts
 Convenience/testing scripts in the repository root:
@@ -145,27 +153,57 @@ Refer to `meson.build` and `src/meson.build` for build targets and dependencies.
 
 ## Documentation
 Additional documentation is available in `docs/`:
+
+**Migration and Development:**
 - `GTK4_MIGRATION_SUMMARY.md` — Technical migration summary
-- `COMPLETE_GTK4_MIGRATION.md` — Migration milestone and features
+- `CRASH_FIX_2025-11-12.md` — Critical bug fixes and lessons learned
+- `TODO_NEXT_SESSION.md` — Development roadmap and pending tasks
+- `BUILD_WINDOWS.md` — Complete Windows/MSYS2 build guide
+
+**Build and Installation:**
 - `INSTALLATION.md` — Comprehensive installation guide
-- `BUILD_STATUS.md`, `COMPILATION_SUCCESS.md` — Build notes
-- `MENU_SYSTEM_COMPLETE.md`, `TRANSLATIONS_AND_DOCS.md`, `FINAL_FIXES.md`, `PRINT_MIGRATION_TODO.md`
+- `BUILD_STATUS.md` — Build system notes
+- `COMPILATION_SUCCESS.md` — Compilation milestones
+
+**Features:**
+- `COMPLETE_GTK4_MIGRATION.md` — Migration milestone and features
+- `MENU_SYSTEM_COMPLETE.md` — Menu system implementation
+- `TRANSLATIONS_AND_DOCS.md` — Translation guide
+- `FINAL_FIXES.md` — Final GTK4 fixes
+- `PRINT_MIGRATION_TODO.md` — Print system notes
 
 User-facing root docs:
-- `INSTALL` — Installation instructions
+- `INSTALL` — Quick installation instructions
 - `TRANSLATION` — Translation guide
 - `CONTRIBUTING` — Contribution guidelines
+- `RUN_EPDFVIEW_WSL.md` — WSL-specific instructions
 
 ## License
 GPL-2.0-or-later. See `COPYING` for the full text.
 
 ## Support and Links
 - Homepage: https://github.com/JotaRandom/epdfview
-- Issues:   https://github.com/JotaRandom/epdfview/issues
+- Issues: https://github.com/JotaRandom/epdfview/issues
+- CI/CD: ![Build Status](https://github.com/JotaRandom/epdfview/actions/workflows/build.yml/badge.svg)
 
 ## Changelog and Status
-- See `ChangeLog`, `NEWS`, `CURRENT_STATUS.md`, and `PROJECT_STATUS.md` for ongoing updates.
+- **Current Status:** See `PROJECT_STATUS.md` for detailed project status
+- **Recent Changes:** See `ChangeLog` and `NEWS` for version history
+- **Development:** See `docs/TODO_NEXT_SESSION.md` for ongoing work
+
+## Recent Improvements (November 2025)
+- ✅ Fixed critical crash on startup (PreferencesView lifetime management)
+- ✅ Navigation buttons work correctly (no more stuck "pressed" state)
+- ✅ Page numbers update visually in headerbar
+- ✅ Improved compilation warnings (100+ → ~82)
+- ✅ Windows build support added (MSYS2)
+- ✅ FreeBSD CI/CD added
+- ✅ Application ID updated to io.github.jotarandom.epdfview
 
 ## TODOs
-- Document any additional environment variables or runtime flags if introduced.
-- Expand Windows-specific notes beyond WSL if native builds are supported in the future.
+- Fix PrintView GListStore type issues (GBoxedType → GObject)
+- Clean remaining compilation warnings (~82 left)
+- Comprehensive testing across platforms
+- Consider migrating to std::unique_ptr for safer memory management
+
+For detailed development tasks, see `docs/TODO_NEXT_SESSION.md`.

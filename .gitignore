@@ -3,6 +3,7 @@ builddir/
 builddir_clean/
 builddir_new/
 build/
+build-windows/
 .build/
 .idea
 
@@ -16,6 +17,11 @@ config.h
 *.so
 *.so.*
 *.a
+*.exe
+*.dll
+*.lib
+*.obj
+*.pdb
 epdfview
 
 # Generated files
@@ -31,6 +37,11 @@ POTFILES
 *~
 .DS_Store
 
+# Windows specific
+Thumbs.db
+desktop.ini
+*.stackdump
+
 # Debug files
 *.dSYM/
 core
@@ -42,6 +53,7 @@ vgcore.*
 *.tar.gz
 *.tar.bz2
 *.tar.xz
+*.zip
 
 # Test files
 test-results/
@@ -52,10 +64,5 @@ test-results/
 *.gdbinit
 *.gdb.*
 
-# Tests
+# Test scripts (but keep build scripts!)
 test*.sh
-
-# Powershell scripts and friends
-*.ps1
-*.bat
-*.py

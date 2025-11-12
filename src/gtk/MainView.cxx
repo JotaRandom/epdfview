@@ -1,7 +1,8 @@
 ﻿// ePDFView - A lightweight PDF Viewer.
-// Copyright (C) 2006-2011 Emma's Software.
+// Copyright (C) 2006-2011 Emma's Software
+// Copyright (C) 2014 Pedro A. Aranda Gutiérrez
 // Copyright (C) 2014-2025 Pablo Lezaeta
-// Copyright (C) 2014 Pedro A. Aranda GutiÃ©rrez
+
 
 // ePDFView - A lightweight PDF Viewer.
 // 
@@ -69,7 +70,9 @@ static void main_window_go_to_previous_page_cb (GtkWidget *, gpointer);
 // GAction signature: void callback(GSimpleAction*, GVariant*, gpointer)
 // Widget signature: void callback(GtkWidget*, gpointer)
 #define ACTION_CALLBACK(name, widget_callback) \
-static void name(GSimpleAction *action, GVariant *parameter, gpointer data) { \
+static void name(GSimpleAction *action G_GNUC_UNUSED, \
+                 GVariant *parameter G_GNUC_UNUSED, \
+                 gpointer data) { \
     widget_callback(NULL, data); \
 }
 
@@ -1048,27 +1051,21 @@ MainView::setNumberOfPagesText (const gchar *text)
 void
 MainView::setGoToPageText (const gchar *text)
 {
-    g_message("MainView::setGoToPageText: text='%s'", text);
-    
-    // If the entry has focus, the user is editing - don't interfere!
-    if (gtk_widget_has_focus(m_CurrentPage)) {
-        g_message("MainView::setGoToPageText: Entry has focus, user is editing - skipping update");
-        return;
-    }
+    g_message("MainView::setGoToPageText: text='%s', has_focus=%d", text, gtk_widget_has_focus(m_CurrentPage));
     
     // Block signals to prevent feedback loops
     g_signal_handlers_block_matched(m_CurrentPage, G_SIGNAL_MATCH_DATA, 
                                      0, 0, NULL, NULL, m_Pter);
     
-    // GTK4 workaround: Clear first, then set to force visual update
-    gtk_editable_delete_text(GTK_EDITABLE(m_CurrentPage), 0, -1);
-    gtk_editable_set_text (GTK_EDITABLE (m_CurrentPage), text);
+    // GTK4: Use entry buffer for more reliable updates
+    GtkEntryBuffer *buffer = gtk_entry_get_buffer(GTK_ENTRY(m_CurrentPage));
+    gtk_entry_buffer_set_text(buffer, text, -1);
     
     // Unblock signals
     g_signal_handlers_unblock_matched(m_CurrentPage, G_SIGNAL_MATCH_DATA,
                                        0, 0, NULL, NULL, m_Pter);
     
-    g_message("MainView::setGoToPageText: Text updated");
+    g_message("MainView::setGoToPageText: Text updated via buffer");
 }
 
 const gchar *
@@ -1102,14 +1099,9 @@ MainView::setStatusBarText (const gchar *text)
 void
 MainView::setZoomText (const gchar *text)
 {
-    // If the entry has focus, the user is editing - don't interfere!
-    if (gtk_widget_has_focus(m_CurrentZoom)) {
-        return;
-    }
-    
-    // Clear and set text to force visual update
-    gtk_editable_delete_text(GTK_EDITABLE(m_CurrentZoom), 0, -1);
-    gtk_editable_set_text (GTK_EDITABLE (m_CurrentZoom), text);
+    // GTK4: Use entry buffer for more reliable updates
+    GtkEntryBuffer *buffer = gtk_entry_get_buffer(GTK_ENTRY(m_CurrentZoom));
+    gtk_entry_buffer_set_text(buffer, text, -1);
 }
 
 IFindView *
@@ -1391,20 +1383,22 @@ MainView::createHeaderBar ()
     // CENTER: Navigation controls (prev, page, next, zoom)
     m_NavigationBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
     
-    // Previous page button
+    // Previous page button - use direct callback to avoid stuck pressed state
     GtkWidget *prev_button = gtk_button_new_from_icon_name ("go-previous-symbolic");
     gtk_widget_set_tooltip_text (prev_button, _("Previous Page"));
-    gtk_actionable_set_action_name (GTK_ACTIONABLE (prev_button), "win.go-previous");
+    g_signal_connect (G_OBJECT (prev_button), "clicked",
+                      G_CALLBACK (main_window_go_to_previous_page_cb), m_Pter);
     gtk_box_append (GTK_BOX (m_NavigationBox), prev_button);
     
     // Current page widgets
     createCurrentPage ();
     gtk_box_append (GTK_BOX (m_NavigationBox), m_CurrentPageToolItem);
     
-    // Next page button
+    // Next page button - use direct callback to avoid stuck pressed state
     GtkWidget *next_button = gtk_button_new_from_icon_name ("go-next-symbolic");
     gtk_widget_set_tooltip_text (next_button, _("Next Page"));
-    gtk_actionable_set_action_name (GTK_ACTIONABLE (next_button), "win.go-next");
+    g_signal_connect (G_OBJECT (next_button), "clicked",
+                      G_CALLBACK (main_window_go_to_next_page_cb), m_Pter);
     gtk_box_append (GTK_BOX (m_NavigationBox), next_button);
     
     // Separator
@@ -1614,7 +1608,7 @@ main_window_about_box_cb (GtkWidget *widget, gpointer data)
     MainView *view = (MainView *)&(pter->getView());
     GtkWidget *parent_window = view->getMainWindow();
     const gchar *authors[] = {
-        "Jordi Fita <jordi@emma-soft.com>",
+        "Jordi Fita (Original author)",
         "Pablo Lezaeta <prflr88@gmail.com>",
         NULL
     };
@@ -1677,11 +1671,10 @@ main_window_about_box_cb (GtkWidget *widget, gpointer data)
     gtk_show_about_dialog (GTK_WINDOW (parent_window),
             "program-name", _("ePDFView"),
             "version", VERSION,
-            "copyright", "\xc2\xa9 2006-2011 Emma's Software\n"
-                         "\xc2\xa9 2025 Pablo Lezaeta",
+            "copyright", "\xc2\xa9 2006-2011 Emma's Software (Original)\n"
+                         "\xc2\xa9 2025 Pablo Lezaeta (GTK4 Port)",
             "license", licenseTranslated,
-            "website", "http://www.emma-soft.com/projects/epdfview/\n"
-                       "https://github.com/JotaRandom/epdfview",
+            "website", "https://github.com/JotaRandom/epdfview",
             "authors", authors,
             "comments", comments,
             "translator-credits", _("translator-credits"),

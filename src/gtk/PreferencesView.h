@@ -39,6 +39,10 @@ namespace ePDFView
             GtkWidget *m_PreferencesDialog;
             GtkWidget *m_BrowserCommandLine;
             GtkWidget *m_BacksearchCommandLine;
+            
+            // Signal handler IDs for cleanup
+            gulong m_ResponseHandlerId;
+            gulong m_CloseRequestHandlerId;
 
             GtkWidget *createExternalCommandsTab (void);
     };

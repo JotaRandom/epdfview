@@ -45,7 +45,7 @@ namespace ePDFView
             ///
             /// @param matchRect The rectangle of the highligthed result.
             ///
-            virtual void notifyFindChanged (DocumentRectangle *matchRect) { }
+            virtual void notifyFindChanged (DocumentRectangle *) { }
 
             ///
             /// @brief A find has been finished.
@@ -81,8 +81,8 @@ namespace ePDFView
             /// @param fileName The file name that was trying to load.
             /// @param error The error code and message.
             ///
-            virtual void notifyLoadError (const gchar *fileName,
-                    const GError *error) { }
+            virtual void notifyLoadError (const gchar *,
+                    const GError *) { }
 
             ///
             /// @brief The document is encrypted.
@@ -96,9 +96,9 @@ namespace ePDFView
             ///               if it was trying to load a new file.
             /// @param error The error message and code that the operation
             ///              produced.
-            virtual void notifyLoadPassword (const gchar *fileName,
-                                             gboolean reload,
-                                             const GError *error) { }
+            virtual void notifyLoadPassword (const gchar *,
+                                             gboolean,
+                                             const GError *) { }
 
             ///
             /// @brief The current page has been changed.
@@ -108,7 +108,7 @@ namespace ePDFView
             /// 
             /// @param pageNum The number of the new page.
             ///
-            virtual void notifyPageChanged (gint pageNum) { }
+            virtual void notifyPageChanged (gint) { }
 
             ///
             /// @brief The current page has been rotated.
@@ -118,7 +118,7 @@ namespace ePDFView
             ///
             /// @param rotation The rotation angle in degrees.
             ///
-            virtual void notifyPageRotated (gint rotation) { }
+            virtual void notifyPageRotated (gint) { }
 
             ///
             /// @brief The current page has been scaled.
@@ -128,7 +128,7 @@ namespace ePDFView
             ///
             /// @param zoom The current scale.
             ///
-            virtual void notifyPageZoomed (gdouble zoom) { }
+            virtual void notifyPageZoomed (gdouble) { }
 
             ///
             /// @brief The document has been reloaded.
@@ -155,7 +155,7 @@ namespace ePDFView
             ///
             /// @param error The error code and message.
             ///
-            virtual void notifySaveError (const GError *error) { }
+            virtual void notifySaveError (const GError *) { }
 
             ///
             /// @brief Someone select text in document.
@@ -165,7 +165,7 @@ namespace ePDFView
             ///
             /// @param text Selected text.
             ///
-            virtual void notifyTextSelected (const gchar* text) { }
+            virtual void notifyTextSelected (const gchar*) { }
 
         protected:
             ///

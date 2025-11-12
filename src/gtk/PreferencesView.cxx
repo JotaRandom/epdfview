@@ -36,6 +36,9 @@ static void preferences_view_backsearch_command_changed (GtkEntry *, gpointer);
 PreferencesView::PreferencesView (GtkWindow *parent):
     IPreferencesView ()
 {
+    m_ResponseHandlerId = 0;
+    m_CloseRequestHandlerId = 0;
+    
     // GTK4: Stock items removed, use text labels
     m_PreferencesDialog = gtk_dialog_new_with_buttons (_("Preferences"),
 													   parent, GTK_DIALOG_MODAL,
@@ -63,10 +66,21 @@ PreferencesView::PreferencesView (GtkWindow *parent):
 
 PreferencesView::~PreferencesView ()
 {
-    // GTK4: Check if window is still valid before destroying
+    // GTK4: Disconnect signal handlers before destroying window
     if (m_PreferencesDialog && GTK_IS_WINDOW (m_PreferencesDialog))
     {
+        if (m_ResponseHandlerId > 0)
+        {
+            g_signal_handler_disconnect (m_PreferencesDialog, m_ResponseHandlerId);
+            m_ResponseHandlerId = 0;
+        }
+        if (m_CloseRequestHandlerId > 0)
+        {
+            g_signal_handler_disconnect (m_PreferencesDialog, m_CloseRequestHandlerId);
+            m_CloseRequestHandlerId = 0;
+        }
         gtk_window_destroy (GTK_WINDOW (m_PreferencesDialog));
+        m_PreferencesDialog = NULL;
     }
 }
 
@@ -86,22 +100,23 @@ PreferencesView::setPresenter (PreferencesPter *pter)
     // GTK4: Use modal presentation with async callback - NO nested loops!
     gtk_window_set_modal(GTK_WINDOW(m_PreferencesDialog), TRUE);
     
-    // Connect response signal to handle closure asynchronously
-    g_signal_connect(m_PreferencesDialog, "response",
-                    G_CALLBACK(+[](GtkDialog *dialog, int response, gpointer user_data) {
+    // GTK4: Connect signals using presenter as user_data
+    // Store handler IDs to disconnect them before destruction
+    m_ResponseHandlerId = g_signal_connect(m_PreferencesDialog, "response",
+                    G_CALLBACK(+[](GtkDialog *, int, gpointer user_data) {
                         PreferencesPter *pter = static_cast<PreferencesPter*>(user_data);
-                        gtk_window_destroy(GTK_WINDOW(dialog));
                         pter->closeActivated();
                     }), pter);
     
-    g_signal_connect(m_PreferencesDialog, "close-request",
-                    G_CALLBACK(+[](GtkWindow *window, gpointer user_data) -> gboolean {
+    m_CloseRequestHandlerId = g_signal_connect(m_PreferencesDialog, "close-request",
+                    G_CALLBACK(+[](GtkWindow *, gpointer user_data) -> gboolean {
                         PreferencesPter *pter = static_cast<PreferencesPter*>(user_data);
                         pter->closeActivated();
-                        return FALSE; // Allow window to close
+                        return TRUE; // Prevent default close - handled by response signal
                     }), pter);
     
     gtk_window_present(GTK_WINDOW(m_PreferencesDialog));
+
     
     // Do NOT run a nested main loop - let GTK4 handle events naturally
     // The callbacks above will be called when the user interacts with the dialog
