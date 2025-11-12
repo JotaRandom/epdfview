@@ -774,6 +774,7 @@ MainView::sensitiveGoToNextPage (gboolean sensitive)
 void
 MainView::sensitiveGoToPage (gboolean sensitive)
 {
+    g_message("MainView::sensitiveGoToPage: sensitive=%d", sensitive);
     // Keep the page entry always editable - only disable the label
     // The entry itself handles validation when Enter is pressed
     gtk_widget_set_sensitive (GTK_WIDGET (m_NumberOfPages), sensitive);
@@ -1048,7 +1049,26 @@ void
 MainView::setGoToPageText (const gchar *text)
 {
     g_message("MainView::setGoToPageText: text='%s'", text);
+    
+    // If the entry has focus, the user is editing - don't interfere!
+    if (gtk_widget_has_focus(m_CurrentPage)) {
+        g_message("MainView::setGoToPageText: Entry has focus, user is editing - skipping update");
+        return;
+    }
+    
+    // Block signals to prevent feedback loops
+    g_signal_handlers_block_matched(m_CurrentPage, G_SIGNAL_MATCH_DATA, 
+                                     0, 0, NULL, NULL, m_Pter);
+    
+    // GTK4 workaround: Clear first, then set to force visual update
+    gtk_editable_delete_text(GTK_EDITABLE(m_CurrentPage), 0, -1);
     gtk_editable_set_text (GTK_EDITABLE (m_CurrentPage), text);
+    
+    // Unblock signals
+    g_signal_handlers_unblock_matched(m_CurrentPage, G_SIGNAL_MATCH_DATA,
+                                       0, 0, NULL, NULL, m_Pter);
+    
+    g_message("MainView::setGoToPageText: Text updated");
 }
 
 const gchar *
@@ -1082,6 +1102,13 @@ MainView::setStatusBarText (const gchar *text)
 void
 MainView::setZoomText (const gchar *text)
 {
+    // If the entry has focus, the user is editing - don't interfere!
+    if (gtk_widget_has_focus(m_CurrentZoom)) {
+        return;
+    }
+    
+    // Clear and set text to force visual update
+    gtk_editable_delete_text(GTK_EDITABLE(m_CurrentZoom), 0, -1);
     gtk_editable_set_text (GTK_EDITABLE (m_CurrentZoom), text);
 }
 

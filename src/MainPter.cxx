@@ -153,7 +153,9 @@ MainPter::setInitialState ()
         }
         setZoomText (m_Document->getZoom ());
         view.sensitiveFind (TRUE);
+        g_message("MainPter::documentHasBeenLoaded: Enabling Go To Page");
         view.sensitiveGoToPage (TRUE);
+        g_message("MainPter::documentHasBeenLoaded: Enabling Reload");
         view.sensitiveReload (TRUE);
         view.sensitiveRotateRight (TRUE);
         view.sensitiveRotateLeft (TRUE);

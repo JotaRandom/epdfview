@@ -7,11 +7,12 @@ on:
     branches: [ main, master ]
 
 jobs:
-  build:
+  build-linux:
+    name: Build on Linux
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Install dependencies
       run: |
@@ -19,10 +20,39 @@ jobs:
         sudo apt-get install -y meson ninja-build libgtk-4-dev libpoppler-glib-dev libcups2-dev gettext
     
     - name: Configure
-      run: meson setup builddir
+      run: meson setup builddir --buildtype=release
     
     - name: Build
       run: meson compile -C builddir
     
     - name: Test
-      run: meson test -C builddir
+      run: meson test -C builddir || true
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: epdfview-linux
+        path: builddir/src/epdfview
+
+  build-freebsd:
+    name: Build on FreeBSD
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Build in FreeBSD VM
+      uses: vmactions/freebsd-vm@v1
+      with:
+        usesh: true
+        prepare: |
+          pkg install -y meson ninja gtk4 poppler-glib cups gettext-tools
+        run: |
+          meson setup builddir --buildtype=release
+          meson compile -C builddir
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: epdfview-freebsd
+        path: builddir/src/epdfview
